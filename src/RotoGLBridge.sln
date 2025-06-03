@@ -7,15 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RotoGLBridge.ConsoleApp", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RotoGLBridge", "RotoGLBridge\RotoGLBridge.csproj", "{2625FED9-7288-4202-B0A4-2CF8F4D6D403}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sharpie", "Sharpie", "{83798710-87A1-47B2-95CD-EE97C0DE5CAD}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sharpie.Engine.Contracts", "Sharpie\Sharpie.Engine.Contracts\Sharpie.Engine.Contracts.csproj", "{102438F6-91BD-44D1-AB2D-DCED9A99E14A}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sharpie.Engine", "Sharpie\Sharpie.Engine\Sharpie.Engine.csproj", "{06EB1B25-C562-47B0-B3E8-7A7A4304D61A}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "com.rotovr.sdk", "com.rotovr.sdk\com.rotovr.sdk.csproj", "{6E2F5B55-3659-4D56-B6CB-BD986D74E228}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sharpie.Helpers", "Sharpie\Sharpie.Helpers\Sharpie.Helpers.csproj", "{F8F64352-A59E-0ABF-B6C8-ECB11BE36909}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,30 +23,13 @@ Global
 		{2625FED9-7288-4202-B0A4-2CF8F4D6D403}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2625FED9-7288-4202-B0A4-2CF8F4D6D403}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2625FED9-7288-4202-B0A4-2CF8F4D6D403}.Release|Any CPU.Build.0 = Release|Any CPU
-		{102438F6-91BD-44D1-AB2D-DCED9A99E14A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{102438F6-91BD-44D1-AB2D-DCED9A99E14A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{102438F6-91BD-44D1-AB2D-DCED9A99E14A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{102438F6-91BD-44D1-AB2D-DCED9A99E14A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{06EB1B25-C562-47B0-B3E8-7A7A4304D61A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{06EB1B25-C562-47B0-B3E8-7A7A4304D61A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{06EB1B25-C562-47B0-B3E8-7A7A4304D61A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{06EB1B25-C562-47B0-B3E8-7A7A4304D61A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6E2F5B55-3659-4D56-B6CB-BD986D74E228}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6E2F5B55-3659-4D56-B6CB-BD986D74E228}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6E2F5B55-3659-4D56-B6CB-BD986D74E228}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6E2F5B55-3659-4D56-B6CB-BD986D74E228}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F8F64352-A59E-0ABF-B6C8-ECB11BE36909}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F8F64352-A59E-0ABF-B6C8-ECB11BE36909}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F8F64352-A59E-0ABF-B6C8-ECB11BE36909}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F8F64352-A59E-0ABF-B6C8-ECB11BE36909}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{102438F6-91BD-44D1-AB2D-DCED9A99E14A} = {83798710-87A1-47B2-95CD-EE97C0DE5CAD}
-		{06EB1B25-C562-47B0-B3E8-7A7A4304D61A} = {83798710-87A1-47B2-95CD-EE97C0DE5CAD}
-		{F8F64352-A59E-0ABF-B6C8-ECB11BE36909} = {83798710-87A1-47B2-95CD-EE97C0DE5CAD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CC19C48B-E6E4-4508-8532-1990C11DA3E5}
