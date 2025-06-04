@@ -8,13 +8,10 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.3" />
-		<PackageReference Include="Sharpie.Engine" Version="0.0.1-alpha" />
+		<PackageReference Include="Sharpie.Engine" Version="0.0.5" />
 	</ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\com.rotovr.sdk\com.rotovr.sdk.csproj" />
-    <ProjectReference Include="..\Sharpie\Sharpie.Engine.Contracts\Sharpie.Engine.Contracts.csproj" />
-    <ProjectReference Include="..\Sharpie\Sharpie.Engine\Sharpie.Engine.csproj" />
-    <ProjectReference Include="..\Sharpie\Sharpie.Helpers\Sharpie.Helpers.csproj" />
   </ItemGroup>
 
 </Project>

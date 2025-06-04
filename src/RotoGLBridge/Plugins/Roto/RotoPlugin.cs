@@ -2,15 +2,14 @@
 
 using Microsoft.Extensions.Logging;
 
-using Sharpie.Engine.Contracts;
 using Sharpie.Engine.Contracts.Plugins;
-using Sharpie.Helpers.Filters;
+using Sharpie.Helpers;
 
 namespace RotoGLBridge.Plugins
 {
 
-    [GlobalType(Type = typeof(GamelinkGlobal))]
-    internal class RotoPlugin(
+    [GlobalType(Type = typeof(RotoPluginGlobal))]
+    public class RotoPlugin(
         ILogger<RotoPluginGlobal> logger
         ) : UpdateablePlugin
     {
@@ -112,7 +111,7 @@ namespace RotoGLBridge.Plugins
 
         public void SetPower(float power = 1)
         {
-            var p = Maths.EnsureMapRange(power, 0, 1, 30, 100);
+            var p = Filters.EnsureMapRange(power, 0, 1, 30, 100);
             Roto.SetPower(RoundDouble(p));
         }
 
@@ -124,14 +123,14 @@ namespace RotoGLBridge.Plugins
         /// <param name="power">value 0 - 1 </param>
         public void Rumble(float seconds, float power = 1)
         {
-            var p = Maths.EnsureMapRange(power, 0, 1, 0, 100);
+            var p = Filters.EnsureMapRange(power, 0, 1, 0, 100);
             Roto.Rumble((float)seconds, RoundDouble(p));
         }
 
 
         public void Rotate(float degrees, float power = 1)
         {
-            var p = Maths.EnsureMapRange(power, 0, 1, 0, 100);
+            var p = Filters.EnsureMapRange(power, 0, 1, 0, 100);
             var (d, a) = GetAngleDirection(degrees);
 
             Roto.Rotate(d, a, RoundDouble(p));
@@ -139,21 +138,25 @@ namespace RotoGLBridge.Plugins
 
         public void RotateTo(RotoDirection direction, float degrees, float power = 1)
         {
-            var p = Maths.EnsureMapRange(power, 0, 1, 0, 100);
+            var p = Filters.EnsureMapRange(power, 0, 1, 0, 100);
 
             Roto.RotateToAngle(direction == RotoDirection.Left ? Direction.Left : Direction.Right, RoundDouble(Ensure360(degrees)), RoundDouble(p));
         }
 
         public void RotateClosest(float degrees, float power = 1)
         {
-            var p = Maths.EnsureMapRange(power, 0, 1, 0, 100);
+            var p = Filters.EnsureMapRange(power, 0, 1, 0, 100);
 
             Roto.RotateToClosestAngleDirection(RoundDouble(Ensure360(degrees)), RoundDouble(p));
         }
 
         public void SwitchMode(RotoModeType mode, Func<float?> targetFunc = null)//, float limit, float power, RotoMovementMode movementMode)
         {
-            
+            if(Roto == null)
+            {
+                return;
+            }
+
             var m = (ModeType)(byte)mode;
 
             if (new[] { RotoModeType.FollowObject, RotoModeType.JoystickMode }.Contains(mode))
@@ -195,18 +198,10 @@ namespace RotoGLBridge.Plugins
             var ang = RoundDouble(Ensure360(degrees));
 
             return (d, ang);
-        }
-
-        private void OnUpdate()
-        {
-            if (this is IUpdateablePlugin self)
-            {
-                self.OnUpdated();
-            }
-        }
+        }        
     }
 
-    internal class RotoPluginGlobal : UpdateablePluginGlobal<RotoPlugin>
+    public class RotoPluginGlobal : UpdateablePluginGlobal<RotoPlugin>
     {
         public float rawAngle => plugin.rotoDataModel?.Angle ?? 0;
         public float angle => plugin.Angle;

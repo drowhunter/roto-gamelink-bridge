@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging.Console;
 
-using RotoGLBridge.Configuration;
 using RotoGLBridge.ConsoleApp;
 using RotoGLBridge.Plugins;
 using RotoGLBridge.Scripts;
@@ -38,16 +38,21 @@ Environment.Exit(0);
 ServiceProvider CreateServices()
 {
     var services = new ServiceCollection()
-        //.AddLogging()
+        .AddLogging(builder =>
+                        builder.AddConsole()
+                                .AddFilter(level => level >= LogLevel.Information)
+                                .AddFilter<ConsoleLoggerProvider>(level => level >= LogLevel.Debug))
         .AddSingleton<App>()
         .AddSingleton(sp => runargs);
 
     services.AddSharpieEngine(setup =>
     {
-        setup.PollRate = (1000 / 90); // 90 FPS
+        setup.EnginePollInterval = (1000 / 90); // 90 FPS
     })
     .AddPluginsFrom<GamelinkPlugin>()
-    .AddScriptsFrom<Main>();
+    .AddScriptsFrom<Main>()
+    .Build()
+    ;
 
     return services.BuildServiceProvider();
 }
@@ -62,9 +67,7 @@ Task WaitForCtrlQ(CancellationTokenSource cts)
     };
 
     return Task.Run(async () =>
-    {
-
-        
+    {     
         while (!cts.IsCancellationRequested)
         {
             if (Console.KeyAvailable)

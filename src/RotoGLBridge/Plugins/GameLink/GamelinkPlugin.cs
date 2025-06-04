@@ -28,7 +28,8 @@ namespace RotoGLBridge.Plugins
 
     [GlobalType(Type = typeof(GamelinkGlobal))]
     public class GamelinkPlugin(
-        ILogger<GamelinkGlobal> logger
+        ILogger<GamelinkGlobal> logger,
+        GamelinkSettings settings
         ) : UpdateablePlugin, IConfigurablePlugin<GamelinkSettings>
     {
 
@@ -108,8 +109,8 @@ namespace RotoGLBridge.Plugins
 
 
             Config = new UdpTelemetryConfig(
-                sendAddress: new IPEndPoint(IPAddress.Parse(Settings.SendAddress), 50050), 
-                receiveAddress: new IPEndPoint(IPAddress.Parse(Settings.ReceiveAddress), 50010));
+                sendAddress: new IPEndPoint(IPAddress.Parse(settings.SendAddress), 50050), 
+                receiveAddress: new IPEndPoint(IPAddress.Parse(settings.ReceiveAddress), 50010));
 
             udp = new UdpTelemetry<StringData>(Config) { Convert = new StringByteConverter(Encoding.ASCII) };
 
