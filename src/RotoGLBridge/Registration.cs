@@ -1,5 +1,8 @@
 ﻿using RotoGLBridge.Configuration;
 using RotoGLBridge.Models;
+using RotoGLBridge.Plugins;
+using RotoGLBridge.Plugins.YawEmu;
+using RotoGLBridge.Scripts;
 using RotoGLBridge.Services;
 
 using Sharpie.Extras.Telemetry;
@@ -26,8 +29,16 @@ namespace Microsoft.Extensions.DependencyInjection
             //builder.Services.AddSingleton<Warehouse>();
             // Register the engine
             //builder.Services.AddSingleton<ISharpieEngine, SharpieEngine>();
+            builder.Services.AddSharpieEngine(setup =>
+            {
+                setup.EnginePollInterval = (1000 / 90); // 90 FPS
+            })
+            .AddPluginsFrom<GamelinkPlugin>()
+            .AddScriptsFrom<Main>()
+            .Build();
+            builder.Services.AddSingleton<TcpCommandFactory>();
             builder.Services.AddTransient<IByteConvertor<YawGLData>, YawGLByteConverter>();
-            
+            builder.Services.AddSingleton<IConsoleWatcher, ConsoleWatcher>();
 
             return builder;
         }

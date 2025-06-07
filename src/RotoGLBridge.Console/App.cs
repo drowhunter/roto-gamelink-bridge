@@ -4,7 +4,7 @@
     {
         public void Run(CancellationToken cancellationToken)
         {
-            Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(args));
+            //Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(args));
 
             engine.OnStarted += (s, e) => logger.LogInformation("Engine started successfully.");
             engine.OnStopped += (s, e) => logger.LogInformation("Engine stopped successfully.");

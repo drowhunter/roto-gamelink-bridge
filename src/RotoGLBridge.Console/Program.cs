@@ -1,9 +1,10 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging.Console;
+//using Microsoft.Extensions.Logging.Console;
 
 using RotoGLBridge.ConsoleApp;
 using RotoGLBridge.Plugins;
 using RotoGLBridge.Scripts;
+using RotoGLBridge.Services;
 
 
 var runargs = ArgumentParser<RunArgs>.Parse(args);
@@ -38,21 +39,27 @@ Environment.Exit(0);
 ServiceProvider CreateServices()
 {
     var services = new ServiceCollection()
-        .AddLogging(builder =>
-                        builder.AddConsole()
-                                .AddFilter(level => level >= LogLevel.Information)
-                                .AddFilter<ConsoleLoggerProvider>(level => level >= LogLevel.Debug))
+        .AddLogging(b =>
+        {
+            b.AddFilter("Microsoft", LogLevel.Warning)
+             .AddFilter("System", LogLevel.Warning)
+             .AddFilter("Sharpie", LogLevel.Warning)
+             .AddFilter("RotoGLBridge", LogLevel.Debug);
+        })
+
+        //.AddLogging(builder =>
+        //                builder.AddConsole()
+        //                        .AddFilter(level => level >= LogLevel.Information)
+        //                       // .AddFilter<ConsoleLoggerProvider>(level => level >= LogLevel.Debug)
+        //                        .AddFilter("Sharpie.Engine", l => l >= LogLevel.Warning)
+        //                        )
         .AddSingleton<App>()
+        
         .AddSingleton(sp => runargs);
 
-    services.AddSharpieEngine(setup =>
-    {
-        setup.EnginePollInterval = (1000 / 90); // 90 FPS
-    })
-    .AddPluginsFrom<GamelinkPlugin>()
-    .AddScriptsFrom<Main>()
-    .Build()
-    ;
+    
+
+    services.AddRotoGLBridge();
 
     return services.BuildServiceProvider();
 }

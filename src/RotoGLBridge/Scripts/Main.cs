@@ -1,12 +1,21 @@
 ﻿using Microsoft.Extensions.Logging;
 
 using RotoGLBridge.Plugins;
+using RotoGLBridge.Plugins.YawEmu;
+using RotoGLBridge.Services;
 
 using Sharpie.Helpers;
 
+using System.Security;
+
 namespace RotoGLBridge.Scripts
 {
-    public class Main(ILogger<Main> logger, GamelinkGlobal gamelink, RotoPluginGlobal roto) : SharpieScript
+    public class Main(
+        ILogger<Main> logger, 
+        GamelinkGlobal gamelink, 
+        //RotoPluginGlobal roto,
+        YawVRGlobal yawVr,
+        IConsoleWatcher cons ) : SharpieScript
     {
         float yaw;
         int i = 0;
@@ -19,8 +28,11 @@ namespace RotoGLBridge.Scripts
         {
             logger.LogInformation($"Main script started.");
             gamelink.OnUpdate += OnGameLinkUpdate;
-
-            roto.switchMode(RotoModeType.FollowObject, () => yaw);
+            yawVr.OnUpdate += () =>
+            {
+                cons.Write(0, 12, $"tcp: {yawVr.Data.Command} [{string.Join(':',yawVr.Data.Buffer)}]");
+            };
+            //roto.switchMode(RotoModeType.FollowObject, () => yaw);
 
             return Task.CompletedTask;
         }
@@ -41,9 +53,12 @@ namespace RotoGLBridge.Scripts
             
             if (i % 10 == 0)
             {
-                logger.LogInformation($"Main script update: yaw={yaw}");
+                //logger.LogInformation($"Main script update: yaw={yaw}");
+                cons.Write(0, 10, $"Yaw: {yaw}");
             }
             
         }
+
+        
     }
 }

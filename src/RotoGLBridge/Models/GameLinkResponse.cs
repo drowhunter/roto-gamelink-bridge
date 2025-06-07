@@ -6,16 +6,17 @@ using System.Threading.Tasks;
 
 namespace RotoGLBridge.Models
 {
-    internal class GameLinkResponse
+    internal record GameLinkResponse
     {
-        public string DeviceName { get; set; }
-        public string DeviceType { get; set; }
+        public string DeviceName;
+        public string DeviceType;
 
-        public bool InGame { get; set; }
+        public int TcpPort;
+        public bool InGame;
 
         public override string ToString()
         {
-            return $"{DeviceType};;{DeviceName};;{(InGame ? "RESERVED" : "")}";
+            return $"{DeviceType};EMULATOR01;{DeviceName};{TcpPort};{(InGame ? "RESERVED" : "AVAILABLE")}";
         }
     }
 }
