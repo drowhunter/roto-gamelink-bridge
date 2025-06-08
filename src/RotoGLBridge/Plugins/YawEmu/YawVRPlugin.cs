@@ -2,6 +2,7 @@
 using Sharpie.Extras.Telemetry;
 
 using System.Net;
+using System.Net.Sockets;
 
 namespace RotoGLBridge.Plugins.YawEmu
 {
@@ -10,9 +11,9 @@ namespace RotoGLBridge.Plugins.YawEmu
     {
         CancellationTokenSource _cancellationTokenSource;
 
-        TcpTelemetry<YawData> tcp;
+        TcpTelemetry<ITcpCommand> tcp;
 
-        public YawData Data { get; private set; } = new();
+        public ITcpCommand Data { get; private set; }
 
         public override void Execute()
         {
@@ -21,41 +22,27 @@ namespace RotoGLBridge.Plugins.YawEmu
 
         public override Task Start()
         {
-            TcpTelemetryConfig config = new()
-            {
-
-                IpAddress = new IPEndPoint(IPAddress.Loopback, 50020)
-            };
-            
-            tcp = new TcpTelemetry<YawData>(config) { Convert = new YawTcpCommandConvertor() };
-            tcp.OnReceiveAsync += OnReceiveAsync;
-
-
             _cancellationTokenSource = new CancellationTokenSource();
 
-            Task.Factory.StartNew(() =>
-            {
-                while(!_cancellationTokenSource.IsCancellationRequested)
-                {
-                    try
-                    {
-                        if (tcp.IsConnected)
-                        {
-                            tcp.Receive();
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        //Log($"Error receiving data: {ex.Message}");
-                    }
-                    //Task.Delay(100, _cancellationTokenSource.Token).Wait(); // Wait for 100ms before next receive attempt
-                }
-            }, _cancellationTokenSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
-        
+            _ = WaitForConnectionAsync(_cancellationTokenSource.Token);
+
+
             return Task.CompletedTask;
         }
 
-        
+        private Task WaitForConnectionAsync(CancellationToken cancellationToken)
+        {
+            TcpTelemetryConfig config = new()
+            {
+                IpAddress = new IPEndPoint(IPAddress.Any, 50020)
+            };
+
+            tcp = new TcpTelemetry<ITcpCommand>(config, new YawTcpCommandConverter());
+            tcp.OnReceiveAsync += OnReceiveAsync;
+
+            return tcp.BeginAsync(cancellationToken);            
+            
+        }
 
         public override void Stop()
         {
@@ -63,23 +50,23 @@ namespace RotoGLBridge.Plugins.YawEmu
             tcp?.Dispose();
         }
         
-        private void OnReceiveAsync(YawData data)
+        private void OnReceiveAsync(object sender,  ITcpCommand data)
         {
-            this.Data = data;
-            switch (data.Command)
+            if (sender is TcpClient client)
             {
 
-                default:
-                    // Handle other commands if necessary
-                    break;
-            }
 
-            OnUpdate();
+                this.Data = data;
+
+                //todo mediate
+
+                OnUpdate();
+            }
         }
     }
 
     public class YawVRGlobal : UpdateablePluginGlobal<YawVRPlugin>
     {
-        public YawData Data => plugin.Data;
+        public ITcpCommand Data => plugin.Data;
     }
 }

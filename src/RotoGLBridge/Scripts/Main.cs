@@ -6,14 +6,15 @@ using RotoGLBridge.Services;
 
 using Sharpie.Helpers;
 
-using System.Security;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace RotoGLBridge.Scripts
 {
     public class Main(
         ILogger<Main> logger, 
         GamelinkGlobal gamelink, 
-        //RotoPluginGlobal roto,
+        RotoPluginGlobal roto,
         YawVRGlobal yawVr,
         IConsoleWatcher cons ) : SharpieScript
     {
@@ -28,11 +29,14 @@ namespace RotoGLBridge.Scripts
         {
             logger.LogInformation($"Main script started.");
             gamelink.OnUpdate += OnGameLinkUpdate;
+
+            var options = new JsonSerializerOptions { WriteIndented = false };
+            options.Converters.Add(new JsonStringEnumConverter());
             yawVr.OnUpdate += () =>
             {
-                cons.Write(0, 12, $"tcp: {yawVr.Data.Command} [{string.Join(':',yawVr.Data.Buffer)}]");
+                cons.Write(0, 12, $"tcp: { JsonSerializer.Serialize(yawVr.Data, options)} ");
             };
-            //roto.switchMode(RotoModeType.FollowObject, () => yaw);
+            roto.switchMode(RotoModeType.FollowObject, () => yaw);
 
             return Task.CompletedTask;
         }
@@ -51,11 +55,11 @@ namespace RotoGLBridge.Scripts
         {
             i++;
             
-            if (i % 10 == 0)
-            {
+            //if (i % 10 == 0)
+            //{
                 //logger.LogInformation($"Main script update: yaw={yaw}");
                 cons.Write(0, 10, $"Yaw: {yaw}");
-            }
+            //}
             
         }
 

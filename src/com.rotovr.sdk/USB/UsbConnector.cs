@@ -50,7 +50,7 @@ namespace com.rotovr.sdk
 #if !NO_UNITY
             Debug.Log(message);
 #else
-            Console.WriteLine(message);
+            //Console.WriteLine(message);
 #endif
 #endif
         }
@@ -412,7 +412,7 @@ namespace com.rotovr.sdk
                 var s = Stopwatch.StartNew();
                 var result = Native.WriteFile(m_device, PrepareWriteBuffer(m_usbMessage));
                 s.Stop();
-                Log($"Turn To Angle success: {result} ({s.ElapsedMilliseconds} ms)");
+                //Log($"Turn To Angle success: {result} ({s.ElapsedMilliseconds} ms)");
             });
         }
 

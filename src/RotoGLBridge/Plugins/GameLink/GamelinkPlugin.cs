@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 
 using RotoGLBridge.Models;
-using RotoGLBridge.Services;
+using RotoGLBridge.Plugins.GameLink;
 
 using Sharpie.Engine.Contracts.Plugins;
 using Sharpie.Extras.Telemetry;
@@ -36,12 +36,7 @@ namespace RotoGLBridge.Plugins
         #region Private Fields
 
         CancellationTokenSource _cancellationTokenSource;
-
-
-        UdpTelemetry<StringData> udp;
-
-        
-
+        UdpTelemetry<string> udp;
         public UdpTelemetryConfig Config;
 
         YawGLData _data;
@@ -79,7 +74,7 @@ namespace RotoGLBridge.Plugins
         {
             _cancellationTokenSource = new CancellationTokenSource();
 
-            Task.Factory.StartNew(WaitForConnectionAsync, _cancellationTokenSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+            _ = StartListeningAsync(_cancellationTokenSource.Token);
 
             return Task.CompletedTask;
         }
@@ -106,63 +101,54 @@ namespace RotoGLBridge.Plugins
         /// Configure the UDP plugin with send and receive addresses and ports.
         /// </summary>
         /// <param name="receiveAddress">ipaddress:port</param>       
-        private async Task WaitForConnectionAsync()
+        private async Task StartListeningAsync(CancellationToken cancellationToken)
         {
             Config = new UdpTelemetryConfig(
-                sendAddress: new IPEndPoint(IPAddress.Parse(settings.SendAddress), 50050), 
-                receiveAddress: new IPEndPoint(IPAddress.Parse(settings.ReceiveAddress), 50010));
+                sendAddress: new IPEndPoint(IPAddress.Parse(settings.SendAddress), 50050),
+                receiveAddress: new IPEndPoint(IPAddress.Parse(settings.ReceiveAddress), 50010))
+            {
+                ReceiveTimeout = 1000
+            };
             
             
             
-            udp = new UdpTelemetry<StringData>(Config) { Convert = new StringByteConverter(Encoding.ASCII) };
+            udp = new UdpTelemetry<string>(Config, new StringByteConverter(Encoding.ASCII)) ;
             udp.OnReceiveAsync += OnUdpReceiveAsync;
 
-            while (!_cancellationTokenSource!.IsCancellationRequested)
-            {
-
-                try
-                {
-                    _ = await udp.ReceiveAsync(_cancellationTokenSource.Token);
-                }
-                catch (Exception ex)
-                {
-                    // Handle exceptions
-                    logger.LogError(ex.Message);
-                }
-
-                //await Task.Delay(1800, _cancellationTokenSource.Token);
-                //Thread.Sleep(1);
-            }
+            await udp.BeginAsync(cancellationToken);
 
             //tcpServer.Stop();
+            
             IsConnected = false;
+
+            logger.LogDebug($"GamelinkPluginIsConnected {IsConnected}");
         }
 
-        private void OnUdpReceiveAsync(System.Net.Sockets.UdpReceiveResult result, StringData data)        
+        private void OnUdpReceiveAsync(System.Net.Sockets.UdpReceiveResult result, string data)        
         {
 
-            udp.Config.SendAddress.Address = result.RemoteEndPoint.Address;
+            //udp.Config.SendAddress.Address = result.RemoteEndPoint.Address;
 
-            if (data.Value == "YAW_CALLING")
+            if (data == "YAW_CALLING")
             {
-
-                udp.Send(new StringData
+                if (result.RemoteEndPoint.Address.Equals(udp.Config.SendAddress.Address))
                 {
-                    Value = new GameLinkResponse
+                    udp.Send(new GameLinkResponse
                     {
                         DeviceType = "UNKNOWN", //"YAWDEVICE",
                         DeviceName = "Roto VR", //"YAW_EMULATOR",
                         TcpPort = 50020,
                         InGame = false
                     }.ToString()
-                });
+                    );
 
-                IsConnected = true;
+                    IsConnected = true;
+                }
             }
             else if (result.Buffer.Length < 5)
             {
                 //ping
-                logger.LogDebug("Buffer < 5 {0:x}", data.Value);
+                logger.LogDebug("Buffer < 5 {0:x}", data);
                 //udp.Send(new StringData { Value = new GameLinkResponse { DeviceType = "", DeviceName = "RotoVR", InGame = false }.ToString() });
             }
             else

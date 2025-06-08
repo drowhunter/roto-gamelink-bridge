@@ -1,6 +1,7 @@
 ﻿using RotoGLBridge.Configuration;
 using RotoGLBridge.Models;
 using RotoGLBridge.Plugins;
+using RotoGLBridge.Plugins.GameLink;
 using RotoGLBridge.Plugins.YawEmu;
 using RotoGLBridge.Scripts;
 using RotoGLBridge.Services;
@@ -37,7 +38,7 @@ namespace Microsoft.Extensions.DependencyInjection
             .AddScriptsFrom<Main>()
             .Build();
             builder.Services.AddSingleton<TcpCommandFactory>();
-            builder.Services.AddTransient<IByteConvertor<YawGLData>, YawGLByteConverter>();
+            builder.Services.AddTransient<IByteConverter<YawGLData>, YawGLByteConverter>();
             builder.Services.AddSingleton<IConsoleWatcher, ConsoleWatcher>();
 
             return builder;

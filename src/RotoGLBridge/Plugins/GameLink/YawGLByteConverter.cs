@@ -1,13 +1,15 @@
 ﻿using RotoGLBridge.Models;
+
 using Sharpie.Extras.Telemetry;
+
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace RotoGLBridge.Services
+namespace RotoGLBridge.Plugins.GameLink
 {
     
 
-    public class YawGLByteConverter : IByteConvertor<YawGLData>
+    public class YawGLByteConverter : IByteConverter<YawGLData>
     {
         static Regex rot = new Regex($@"Y\[(?<yaw>-?[\d.]+)\]P\[(?<pitch>-?[\d.]+)\]R\[(?<roll>-?[\d.]+)\]");
 
@@ -30,7 +32,7 @@ namespace RotoGLBridge.Services
 
             float fullCircle(float degrees) => (degrees + 360) % 360;
 
-            if (data.Length > 4)
+            if (data.Length > 4 && dataString.StartsWith("Y["))
             {
                 try
                 {

@@ -1,0 +1,40 @@
+﻿namespace RotoGLBridge.Plugins.YawEmu
+{
+    public enum CommandEnum : byte
+    {
+        RESET_PORTS = 1,
+        SET_SIMU_INPUT_PORT = 16,
+        SET_GAME_INPUT_PORT = 17,
+        SET_OUTPUT_PORT = 18,
+        CHECK_IN = 48,
+        CHECK_IN_ANS = 49,
+        SET_POWER = 50,
+        CHECK_IN_APP = 51,
+        CHECK_IN_ANS_APP = 52,
+        SET_TILT_LIMITS = 64,
+        SET_FAN = 96,
+        SET_BUZZER = 97,
+        START_BUZZER_TEST = 97,
+        SET_HAS_YAW_LIMIT = 98,
+        SET_YAW_REACH_LIMIT = 99,
+        SET_YAW_RETURN_LIMIT = 100,
+        SET_YAW_LIMIT = 112,
+        SET_YAW_LIMIT_SPEED = 113,
+        SET_GAME_MODE = 128,
+        GET_GAME_PARAMS = 129,
+        SET_YAW_PID = 153,
+        SET_PITCH_PID = 154,
+        SET_ROLL_PID = 155,
+        START = 161,
+        STOP = 162,
+        EXIT = 163,
+        SET_GAME_IP_ADDRESS = 164,
+        ERROR = 165,
+        SET_LED_STRIP_COLOR = 176,
+        SET_LED_STRIP_MODE = 177,
+        GET_TEMPS = 228,
+        GET_STATE = 229,
+        GET_ALL_APP_PARAMS = 246,
+        SERVER_PID_PARAMS = 255
+    }
+}
