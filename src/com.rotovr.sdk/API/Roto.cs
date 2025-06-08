@@ -219,18 +219,11 @@ namespace com.rotovr.sdk
        
         void OnModelChangeHandler(RotoDataModel model)
         {
-            
-            
-            
+
             m_yawInterpolator.UpdateValue(model.Angle);
 
             //telemetry.ActualAngle = m_RotoData.Angle;
-            //telemetry.AngularVelocity = m_AngularVelocity;
-
-            //tel.Send(telemetry);
-            //oXRMC.yaw = -model.Angle;
-
-            //mComp.Send(oXRMC);
+            //telemetry.AngularVelocity = m_AngularVelocity;            
 
             if (model.Mode != m_RotoData.Mode)
             {

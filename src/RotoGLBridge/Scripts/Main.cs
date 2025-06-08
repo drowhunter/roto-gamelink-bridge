@@ -1,20 +1,22 @@
 ﻿using Microsoft.Extensions.Logging;
 
 using RotoGLBridge.Plugins;
-using RotoGLBridge.Plugins.YawEmu;
+using RotoGLBridge.Plugins.GameLink;
 using RotoGLBridge.Services;
 
 using Sharpie.Helpers;
 
-using System.Security;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace RotoGLBridge.Scripts
 {
     public class Main(
         ILogger<Main> logger, 
         GamelinkGlobal gamelink, 
-        //RotoPluginGlobal roto,
-        YawVRGlobal yawVr,
+        RotoPluginGlobal roto,
+        YawDeviceGlobal yawDevice,
+        //YawVRGlobal yawVr,
         IConsoleWatcher cons ) : SharpieScript
     {
         float yaw;
@@ -28,11 +30,19 @@ namespace RotoGLBridge.Scripts
         {
             logger.LogInformation($"Main script started.");
             gamelink.OnUpdate += OnGameLinkUpdate;
-            yawVr.OnUpdate += () =>
+
+            var options = new JsonSerializerOptions { WriteIndented = false };
+            options.Converters.Add(new JsonStringEnumConverter());
+
+            roto.switchMode(RotoModeType.FollowObject, () => {
+
+                return yaw;
+            });
+
+            yawDevice.OnUpdate += () =>
             {
-                cons.Write(0, 12, $"tcp: {yawVr.Data.Command} [{string.Join(':',yawVr.Data.Buffer)}]");
+                cons.Write(0, 12, $"cmd: {yawDevice.Command}");
             };
-            //roto.switchMode(RotoModeType.FollowObject, () => yaw);
 
             return Task.CompletedTask;
         }
@@ -51,12 +61,13 @@ namespace RotoGLBridge.Scripts
         {
             i++;
             
-            if (i % 10 == 0)
-            {
-                //logger.LogInformation($"Main script update: yaw={yaw}");
-                cons.Write(0, 10, $"Yaw: {yaw}");
-            }
+            cons.Write(0, 10, $"Yaw: {yaw}");
+            cons.Write(20,10,$"ConnectionStatus: {roto.connectionStatus}");
+
+            cons.Write(0, 11, roto.ToString() );
+
             
+
         }
 
         

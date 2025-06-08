@@ -412,7 +412,7 @@ namespace com.rotovr.sdk
                 var s = Stopwatch.StartNew();
                 var result = Native.WriteFile(m_device, PrepareWriteBuffer(m_usbMessage));
                 s.Stop();
-                Log($"Turn To Angle success: {result} ({s.ElapsedMilliseconds} ms)");
+                //Log($"Turn To Angle success: {result} ({s.ElapsedMilliseconds} ms)");
             });
         }
 
