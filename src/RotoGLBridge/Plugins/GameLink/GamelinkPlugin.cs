@@ -87,11 +87,13 @@ namespace RotoGLBridge.Plugins
 
         
 
-        public override void Stop()
+        public override Task Stop()
         {
             IsConnected = false;
             _cancellationTokenSource?.Cancel();
             udp?.Dispose();
+
+            return Task.Delay(100);
         }
 
         #endregion

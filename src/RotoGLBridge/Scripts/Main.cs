@@ -36,7 +36,12 @@ namespace RotoGLBridge.Scripts
             {
                 cons.Write(0, 12, $"tcp: { JsonSerializer.Serialize(yawVr.Data, options)} ");
             };
-            roto.switchMode(RotoModeType.FollowObject, () => yaw);
+
+
+            roto.switchMode(RotoModeType.FollowObject, () => {
+
+                return yaw;
+            });
 
             return Task.CompletedTask;
         }
@@ -58,9 +63,14 @@ namespace RotoGLBridge.Scripts
             //if (i % 10 == 0)
             //{
                 //logger.LogInformation($"Main script update: yaw={yaw}");
-                cons.Write(0, 10, $"Yaw: {yaw}");
+            cons.Write(0, 10, $"Yaw: {yaw}");
+            cons.Write(20,10,$"ConnectionStatus: {roto.connectionStatus}");
+
+            cons.Write(0, 11, roto.ToString() );
+
+
             //}
-            
+
         }
 
         

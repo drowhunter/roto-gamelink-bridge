@@ -24,6 +24,8 @@ namespace RotoGLBridge.Plugins
 
         private int? zeroAngle = null;
 
+        CancellationTokenSource _cts;
+
         private int? ZeroAngle
         {
             get => zeroAngle;
@@ -47,24 +49,34 @@ namespace RotoGLBridge.Plugins
             }
         }
 
-        public override Task Start()
+        
+
+
+        public override async Task Start()
         {
+            _cts = new();
             Roto = new RotoBehaviour();
             //Roto.ConnectionType = ConnectionType.Simulation;
-            Roto.OnModeChanged += _roto_OnModeChanged;
+            
+
             Roto.OnConnectionStatusChanged += _roto_OnConnectionStatusChanged;
+
+            await ConnectAsync(_cts.Token);
+
+            Roto.OnModeChanged += _roto_OnModeChanged;
+            
             Roto.OnDataChanged += _roto_OnDataChanged;
+            //SwitchMode(RotoModeType.IdleMode);//, 0, 1, RotoMovementMode.Jerky);
+            //SetPower(1);
 
-            Roto.Connect();
 
-            SwitchMode(RotoModeType.IdleMode);//, 0, 1, RotoMovementMode.Jerky);
 
-            SetPower(1);
+            //return Task.CompletedTask;
 
-            return Task.CompletedTask;
         }
-        public override void Stop()
+        public override async Task Stop()
         {
+            _cts.Cancel();
             Roto.SwitchMode(ModeType.IdleMode);
 
             Roto.OnModeChanged -= _roto_OnModeChanged;
@@ -72,14 +84,70 @@ namespace RotoGLBridge.Plugins
             Roto.OnDataChanged -= _roto_OnDataChanged;
 
             // Cleanup the plugin
-            Roto.Disconnect();
+            await DisconnectAsync();
         }
 
         public override void Execute()
         {
             
         }
-        
+
+        private Task DisconnectAsync()
+        {
+            if(connectionStatus != ConnectionStatus.Disconnected)
+                return Task.CompletedTask;
+
+            Roto.Disconnect();
+
+            var tcs = new TaskCompletionSource();
+
+            void Handler(ConnectionStatus status)
+            {
+                if (status == ConnectionStatus.Disconnected)
+                {
+                    Roto.OnConnectionStatusChanged -= Handler;
+                    tcs.TrySetResult();
+                }
+            }
+
+            Roto.OnConnectionStatusChanged += Handler;
+
+            return tcs.Task;
+        }
+
+
+        private Task ConnectAsync(CancellationToken cancellationToken = default)
+        {
+            if (connectionStatus == ConnectionStatus.Connected)
+                return Task.CompletedTask;
+
+            Roto.Connect();
+
+            var tcs = new TaskCompletionSource();
+
+            void Handler(ConnectionStatus status)
+            {
+                if (status == ConnectionStatus.Connected)
+                {
+                    Roto.OnConnectionStatusChanged -= Handler;
+                    tcs.TrySetResult();
+                }
+            }
+
+            Roto.OnConnectionStatusChanged += Handler;
+
+            if (cancellationToken != default)
+            {
+                cancellationToken.Register(() =>
+                {
+                    Roto.OnConnectionStatusChanged -= Handler;
+                    tcs.TrySetCanceled(cancellationToken);
+                });
+            }
+
+            return tcs.Task;
+        }
+
         private void _roto_OnDataChanged(RotoDataModel obj)
         {
             if (Mode == ModeType.FollowObject && ZeroAngle == null)
@@ -100,6 +168,16 @@ namespace RotoGLBridge.Plugins
         private void _roto_OnConnectionStatusChanged(ConnectionStatus obj)
         {
             connectionStatus = obj;
+
+            if (obj == ConnectionStatus.Connected)
+            {
+                
+            }
+            else if (obj == ConnectionStatus.Disconnected)
+            {
+                ZeroAngle = null;
+                rotoDataModel = null;
+            }
             OnUpdate();
         }
 
@@ -228,6 +306,11 @@ namespace RotoGLBridge.Plugins
 
         public void setPower(float power = .5f) => plugin.SetPower(power);
 
+
+        public override string ToString()
+        {
+            return plugin.rotoDataModel.ToJson();
+        }
         
     }
 }

@@ -1,4 +1,6 @@
-﻿using Sharpie.Engine.Contracts.Plugins;
+﻿using RotoGLBridge.Plugins.YawEmu.Commands;
+
+using Sharpie.Engine.Contracts.Plugins;
 using Sharpie.Extras.Telemetry;
 
 using System.Net;
@@ -44,17 +46,32 @@ namespace RotoGLBridge.Plugins.YawEmu
             
         }
 
-        public override void Stop()
+        public override Task Stop()
         {
             _cancellationTokenSource?.Cancel();
             tcp?.Dispose();
+
+            tcp = null;
+            Data = null;
+
+            return Task.CompletedTask;
+
         }
         
         private void OnReceiveAsync(object sender,  ITcpCommand data)
         {
             if (sender is TcpClient client)
             {
+                switch (data)
+                {
+                    case CheckInCommand cmd:
+                        break;
+                    case SetPowerCommand cmd:
+                        tcp.Send(data);
 
+                        break;
+
+                }
 
                 this.Data = data;
 
