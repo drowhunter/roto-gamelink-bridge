@@ -8,15 +8,7 @@
 		<DefineConstants>NO_UNITY;MMF</DefineConstants>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-		<DefineConstants>$(DefineConstants)</DefineConstants>
-		<OutDir>$(SolutionDir)/FreePIE.GUI/bin/Release</OutDir>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<DefineConstants>$(DefineConstants)</DefineConstants>
-		<OutDir>$(SolutionDir)/FreePIE.GUI/bin/Debug</OutDir>
-	</PropertyGroup>
+	
 
 	<ItemGroup>
 		<Compile Remove="AssemblyInfo.cs" />
