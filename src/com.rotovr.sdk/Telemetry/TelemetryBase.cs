@@ -34,6 +34,19 @@ namespace com.rotovr.sdk.Telemetry
 
         public IByteConvertor<TData> Convert;
 
+        protected TelemetryBase(Action<TConfig> config)
+        {
+            
+            Config = new TConfig();
+            
+            if (config != null)
+            {
+                config(Config);
+            }
+
+            Convert = new MarshalByteConvertor<TData>();
+            Configure(Config);
+        }
 
         protected TelemetryBase(TConfig config)
         {

@@ -1,4 +1,8 @@
 ﻿
+//#define OXRMC_SRS
+#define OXRMC_ROTO
+#define OXRMC_FLYPT
+
 using com.rotovr.sdk.Telemetry;
 using com.rotovr.sdk.Utility;
 
@@ -70,8 +74,7 @@ namespace com.rotovr.sdk
         ILerper m_yawInterpolator = new Lerper();
 
         public float CalculateAngularVelocity()
-        {
-                
+        {               
             
             (long elapsedTime, float angle)[] x;
                 
@@ -756,6 +759,11 @@ namespace com.rotovr.sdk
             public double sway, surge, heave, yaw, roll, pitch;
         }
 
+        public struct OneDofTracker
+        {
+            public float sway, surge, heave, yaw, roll, pitch;
+        }
+
         long m_AntiJump = 0;
         
         private float? GetTargetAngle()
@@ -789,17 +797,44 @@ namespace com.rotovr.sdk
 
         //object testObj = new object();
         Telemetry telemetry = new Telemetry();
-        SixDofTracker oXRMC = new SixDofTracker();
-#if MMF
-        MmfTelemetry<Telemetry> tel = new (new() { Name = "RotoVR", Create = true });
-#else
-        UdpTelemetry<Telemetry> tel = new(new() { SendAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 16969) });
+
+#if OXRMC_SRS || OXRMC_FLYPT
+        SixDofTracker sixDof = new ();
+#endif
+#if OXRMC_ROTO
+        float oneDof = 0f;
 #endif
 
-        MmfTelemetry<SixDofTracker> mComp = new(new("SimRacingStudioMotionRigPose", true));
 
+#if DEBUG_MMF
+        MmfTelemetry<Telemetry> tel = new (config =>
+        {
+            config.Name = "RotoVR";
+            config.Create = true; 
+        });
+#endif
 
-
+#if OXRMC_SRS
+        MmfTelemetry<SixDofTracker> oxr_srs = new(config =>
+        {
+            config.Name = "SimRacingStudioMotionRigPose";
+            config.Create = true;
+        });
+#endif
+#if OXRMC_FLYPT 
+        MmfTelemetry<SixDofTracker> oxr_flypt = new(config =>
+        {
+            config.Name = "motionRigPose";
+            config.Create = true;
+        });
+#endif
+#if OXRMC_ROTO
+        MmfTelemetry<float> oxr_roto = new(config =>
+        {
+            config.Name = "RotoVrMotionRigPose";
+            config.Create = true;
+        });
+#endif
         int sendFps = 50;
         int m_homeAngle = 0;
         int m_prevTargetAngle = 0;
@@ -1067,11 +1102,26 @@ namespace com.rotovr.sdk
             telemetry.PreciseAngle = angle;
             telemetry.RecieveFPS = m_yawInterpolator.OriginalFramerate;
             telemetry.LerpedFPS = es <= 1 ?  0 : 1000 / es;// m_yawInterpolator.TargetFramerate;
-            tel.Send(telemetry);
-            
-            oXRMC.yaw = -NormalizeAngle(angle - m_homeAngle);
 
-            mComp.Send(oXRMC);
+#if DEBUG_MMF
+            tel.Send(telemetry);
+#endif
+
+#if OXRMC_SRS || OXRMC_FLYPT || OXRMC_ROTO
+            oneDof = -NormalizeAngle(angle - m_homeAngle);
+    #if OXRMC_SRS || OXRMC_FLYPT
+            sixDof.yaw = oneDof;
+    #endif
+#endif
+#if OXRMC_SRS
+            oxr_srs.Send(sixDof);
+#endif
+#if OXRMC_FLYPT
+            oxr_flypt.Send(sixDof);
+#endif
+#if OXRMC_ROTO
+            oxr_roto.Send(oneDof);
+#endif          
         }
 
 

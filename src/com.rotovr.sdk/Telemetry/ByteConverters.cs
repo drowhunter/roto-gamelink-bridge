@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using System.Text.Json;
 
 namespace com.rotovr.sdk.Telemetry
 {
@@ -8,25 +7,6 @@ namespace com.rotovr.sdk.Telemetry
     {
         T FromBytes(byte[] data);
         byte[] ToBytes(T data);
-    }
-
-    /// <summary>  
-    /// Convert json to byte array and vice versa.  
-    /// </summary>  
-    /// <typeparam name="T"></typeparam>  
-    internal class JsonByteConverter<T> : IByteConvertor<T> where T : struct
-    {
-        public byte[] ToBytes(T data)
-        {
-            string json = JsonSerializer.Serialize(data);
-            return System.Text.Encoding.UTF8.GetBytes(json);
-        }
-
-        public T FromBytes(byte[] data)
-        {
-            string json = System.Text.Encoding.UTF8.GetString(data);
-            return JsonSerializer.Deserialize<T>(json);
-        }
     }
 
     /// <summary>  

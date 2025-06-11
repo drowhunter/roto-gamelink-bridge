@@ -5,7 +5,7 @@
 		<ImplicitUsings>disable</ImplicitUsings>
 		<LangVersion>latest</LangVersion>
 		<Nullable>disable</Nullable>
-		<DefineConstants>NO_UNITY;MMF</DefineConstants>
+		<DefineConstants>NO_UNITY;DEBUG_MMF_DISABLED</DefineConstants>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

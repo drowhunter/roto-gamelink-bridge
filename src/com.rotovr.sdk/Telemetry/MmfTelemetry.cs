@@ -70,6 +70,11 @@ namespace com.rotovr.sdk.Telemetry
 
         Mutex _mutex = null;
 
+        public MmfTelemetry(Action<MmfTelemetryConfig> config) : base(config)
+        {
+
+        }
+
         public MmfTelemetry(MmfTelemetryConfig config) : base(config)
         {
         }
