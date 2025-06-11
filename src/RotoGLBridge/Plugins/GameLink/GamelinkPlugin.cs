@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿#define FULLYINTEGRATED_ON
+using Microsoft.Extensions.Logging;
 
 using RotoGLBridge.Models;
 using RotoGLBridge.Plugins.GameLink;
@@ -9,6 +10,7 @@ using Sharpie.Extras.Telemetry;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+
 
 namespace RotoGLBridge.Plugins
 {
@@ -140,6 +142,7 @@ namespace RotoGLBridge.Plugins
 
             if (data == "YAW_CALLING")
             {
+#if FULLYINTEGRATED_ON
                 if (result.RemoteEndPoint.Address.Equals(udp.Config.SendAddress.Address))
                 {
                     udp.Send(new GameLinkResponse
@@ -151,8 +154,9 @@ namespace RotoGLBridge.Plugins
                     }.ToString()
                     );
 
-                   // IsConnected = true;
+                    // IsConnected = true;
                 }
+#endif
             }
             else if (result.Buffer.Length < 5)
             {

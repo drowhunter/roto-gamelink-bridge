@@ -309,7 +309,7 @@ namespace RotoGLBridge.Plugins
 
         public override string ToString()
         {
-            return plugin.rotoDataModel.ToJson();
+            return plugin.rotoDataModel?.ToJson() ?? "";
         }
         
     }
