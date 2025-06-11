@@ -356,3 +356,4 @@ assets
 /output/*
 .vscode
 *.bak
+/FreePIE.GUI
