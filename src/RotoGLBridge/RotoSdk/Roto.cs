@@ -8,6 +8,8 @@ using Sharpie.Helpers;
 
 using System.Diagnostics;
 
+using static com.rotovr.sdk.Roto;
+
 namespace com.rotovr.sdk
 {
     /// <summary>
@@ -39,7 +41,8 @@ namespace com.rotovr.sdk
         int m_StartRotoAngle;
 
         long m_AntiJump = 0;
-        int maxPower = 60;
+        int maxPower = 50;
+        bool enableDeltaCapping = false;
 
 
         float? m_homeAngle = null;
@@ -112,17 +115,26 @@ namespace com.rotovr.sdk
             m_yawInterpolator.UpdateValue(model.Angle);
         }
 
+
+        float previousAngle = 0;
+
         private void M_yawInterpolator_OnAngleUpdate(float angle)
         {
 
             var es = _angleUpdateStopwatch.ElapsedMilliseconds == 0 ? 1 : _angleUpdateStopwatch.ElapsedMilliseconds;
+
+            
             _angleUpdateStopwatch.Restart();
 
             //telemetry.AngularVelocity = CalculateAngularVelocity();
             telemetry.PreciseAngle = angle;
             telemetry.RecieveFPS = m_yawInterpolator.OriginalFramerate;
             telemetry.LerpedFPS = es <= 1 ? 0 : 1000 / es;
-
+            var delta = MathF.Abs(angle - previousAngle);
+            if (delta > 180)
+                delta = 360 - delta;
+            telemetry.AngularVelocity = NormalizeAngle(delta) / (es / 1000f); // angle per second
+            previousAngle = angle;
 #if DEBUG_MMF
             tel.Send(telemetry);
 #endif
@@ -298,7 +310,7 @@ namespace com.rotovr.sdk
 
             m_yawInterpolator.OnValueUpdate += M_yawInterpolator_OnAngleUpdate;
             m_yawInterpolator.Start(ReadFPS, m_CancelSource.Token);
-
+            _angleUpdateStopwatch = Stopwatch.StartNew();
 
             var t = new Thread(async () =>
             {
@@ -321,16 +333,7 @@ namespace com.rotovr.sdk
 
         }
 
-        /// <summary>
-        /// Stop routine
-        /// </summary>
-        internal void StopRoutine()
-        {
-            if (m_CancelSource != null && !m_CancelSource.IsCancellationRequested)
-            {
-                m_CancelSource.Cancel();
-            }
-        }
+        
 
 
             /// <summary>
@@ -356,15 +359,23 @@ namespace com.rotovr.sdk
             if (m_ObservableTarget != null)
             {
                 var targetAngle = m_ObservableTarget();
+                //float nTargetAngle = 0;
+
+                //if(targetAngle != null)
+                //{
+                //    nTargetAngle = targetAngle.Value;
+                //}
+
                 if (targetAngle == null)
                 {
                     m_StartTargetAngle = null;
                 }
                 else if (m_StartTargetAngle == null) // enable follow mode
                 {
+
                     m_StartTargetAngle = targetAngle;
                     m_AntiJump = 0;
-                    m_StartRotoAngle = (int)m_RotoData.Angle;
+                    m_StartRotoAngle = m_RotoData.Angle;
 
                 }
                 else if (m_AntiJump > 100)
@@ -372,6 +383,10 @@ namespace com.rotovr.sdk
                     m_StartTargetAngle = null;
                     m_AntiJump = 0; 
                 }
+
+                //if (targetAngle != null)
+                //    return nTargetAngle;
+                
                 return targetAngle;
             }
 
@@ -415,53 +430,65 @@ namespace com.rotovr.sdk
                 {
                     var currentTargetAngle = GetTargetAngle();
 
+                    telemetry.Delta = 0;
+                    telemetry.Direction = 0;
+
                     if (currentTargetAngle != null && m_StartTargetAngle != null)
                     {
 
-                        var deltaTargetAngle = currentTargetAngle.Value - m_StartTargetAngle.Value;
+                        var deltaTargetAngle = NormalizeAngle(currentTargetAngle.Value - m_StartTargetAngle.Value);
 
-                        if ((int)deltaTargetAngle != 0 )
+                        //if ((int)deltaTargetAngle != 0 )
+                        //{
+                            
+
+                        var targetRotoAngle = NormalizeAngle(m_StartRotoAngle + deltaTargetAngle);
+
+                        telemetry.CappedTargetAngle = telemetry.TargetAngle = (int)targetRotoAngle;
+
+                        var delta = Math.Abs(telemetry.TargetAngle - m_RotoData.Angle);
+                        if (delta > 180)
+                            delta = 360 - delta;
+                            
+                            
+                        telemetry.Delta = delta;
+
+                        if (delta >= 1)
                         {
-                            deltaTargetAngle = NormalizeAngle(deltaTargetAngle);
+                            m_AntiJump = 0;
 
-                            var targetRotoAngle = NormalizeAngle(m_StartRotoAngle + deltaTargetAngle);
 
-                            telemetry.TargetAngle = (int)targetRotoAngle;
+                            //var brakePoint = 10;// MaxPower <= 80 ? 10 : 60;
+                            //var pmin = 20;
+                            //var pmax = 30;
+                            int power = maxPower;
 
-                            var fDelta = Math.Abs(targetRotoAngle - m_RotoData.Angle);
-                            if (fDelta > 180)                            
-                                fDelta = 360 - fDelta;
-                            
-                            
+                            power = (int)Filters.EnsureMapRange(delta, 0, 50, 30, maxPower);
 
-                            if (fDelta >= 1)
-                            {
-                                m_AntiJump = 0;
-                                
-                                
-                                //var brakePoint = 10;// MaxPower <= 80 ? 10 : 60;
-                                //var pmin = 20;
-                                //var pmax = 30;
-                                int power = maxPower;
+                            telemetry.MaxPower = Math.Max(telemetry.MaxPower, power);
+                            telemetry.Power = power;
 
-                                //power = (int)Filters.EnsureMapRange(fDelta, 0, 45, 20, maxPower);
+                            telemetry.Direction = GetDirection(telemetry.TargetAngle, m_RotoData.Angle) == Direction.Left ? -1 : 1;
 
-                                telemetry.MaxPower = Math.Max(telemetry.MaxPower, power);
-                                telemetry.Power = power;
-
-                                var dir = (int)GetDirection((int)targetRotoAngle, 0);                                
-                                telemetry.Direction =  dir * 10;
-                                //telemetry.AvgTargetAngle = avgTargetRotoAngle;
-                                telemetry.Delta = fDelta;
-                                telemetry.AntiJump = (int)m_AntiJump;
-
-                                RotateToAngle(Direction.Right, (int)targetRotoAngle, power);
+                            //telemetry.AvgTargetAngle = avgTargetRotoAngle;
+                            //telemetry.Delta = fDelta;
+                            telemetry.AntiJump = (int)m_AntiJump;
+                            if (enableDeltaCapping) 
+                            { 
+                                var cap = 50;
+                                if (delta > cap)
+                                {
+                                    var over = delta - cap;
+                                    telemetry.CappedTargetAngle = (int)NormalizeAngle(targetRotoAngle + (over * -telemetry.Direction));
+                                }
                             }
-                            else // less than one degree of delta means you are aligned, so increment the anti jump
-                            {                                
-                                m_AntiJump = sendWatch.ElapsedMilliseconds;
-                            }
+                                    RotateToAngle(Direction.Right, telemetry.CappedTargetAngle, power);
                         }
+                        else // less than one degree of delta means you are aligned, so increment the anti jump
+                        {
+                            m_AntiJump = sendWatch.ElapsedMilliseconds;
+                        }
+                        //}
 
                         m_prevTargetAngle = (int)currentTargetAngle;
                     }

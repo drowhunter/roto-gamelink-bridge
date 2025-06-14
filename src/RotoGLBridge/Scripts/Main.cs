@@ -40,7 +40,7 @@ namespace RotoGLBridge.Scripts
                 return yaw;
             });
 
-            roto.SetPower(.6f);
+            roto.SetPower(.8f);
 
             
 
@@ -63,15 +63,18 @@ namespace RotoGLBridge.Scripts
 
         public override void Update()
         {
-            Dictionary<string, string> stats = new()
+            Dictionary<string, object> stats = new()
             {
-                { "Status",  roto.Status},
-                { "Yaw" , yaw.ToString("F1")},
-                { "Mode", roto.Data.Mode.ToString() },
-                { "Angle", roto.Data.LerpedAngle.ToString("F2") },
-                { "CalibratedAngle", roto.Data.CalibratedAngle.ToString("F2") },
-                { "Delta", roto.Telemetry.Delta.ToString("F1") },
-                { "Target", roto.Telemetry.TargetAngle.ToString("F1") }
+                { nameof(RotoPluginGlobal.Status),  roto.Status},
+                { nameof(yaw) , yaw.ToString("F1").PadLeft(5) },
+                { nameof(Roto.Telemetry.Power), roto.Telemetry.Power.ToString().PadLeft(3) },
+                { nameof(RotoDataModel.Mode), roto.Data.Mode.ToString() },
+                { nameof(RotoDataModel.LerpedAngle), roto.Data.LerpedAngle.ToString("F1").PadLeft(5) },
+                { nameof(RotoDataModel.CalibratedAngle), roto.Data.CalibratedAngle.ToString("F1").PadLeft(5) },
+                { nameof(Roto.Telemetry.Delta), roto.Telemetry.Delta.ToString("F1").PadLeft(5) },
+                { nameof(Roto.Telemetry.TargetAngle), roto.Telemetry.TargetAngle.ToString().PadLeft(3) },
+                { nameof(Roto.Telemetry.CappedTargetAngle), roto.Telemetry.CappedTargetAngle.ToString().PadLeft(3) },
+                { nameof(Roto.Telemetry.AngularVelocity), $"{roto.Telemetry.AngularVelocity,8:F1} °/s" }
             };
 
             int maxKeyLen = stats.Keys.Max(k => k.Length)+ 10;
@@ -79,9 +82,11 @@ namespace RotoGLBridge.Scripts
             int i = 0;
             int j = 0;
 
+            int cols = 4;
+
             foreach (var (k, v) in stats)
             {
-                var c = j % (maxKeyLen * 3);
+                var c = j % (maxKeyLen * cols);
                 if (c == 0)
                     i += 2;
 

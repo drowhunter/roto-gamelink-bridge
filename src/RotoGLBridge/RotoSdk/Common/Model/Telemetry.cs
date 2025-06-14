@@ -12,13 +12,15 @@ namespace com.rotovr.sdk
 
             public int TargetAngle;
 
+            public int CappedTargetAngle;
+
             public int Power;
 
             public float Delta;
 
             public int AntiJump;
 
-            //public float AngularVelocity;
+            public float AngularVelocity;
         
             //public float AvgTargetAngle;
 

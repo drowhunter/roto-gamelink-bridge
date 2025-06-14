@@ -52,15 +52,19 @@ namespace com.rotovr.sdk
 
             if (success)
             {
-                _ = Task.Factory.StartNew(() => {
-                    Thread.CurrentThread.Name = "ReadDeviceThread";
+                //_ = Task.Factory.StartNew(() => {
+                //    Thread.CurrentThread.Name = "ReadDeviceThread";
                     m_reaDevice = true;
-
-                    while (m_reaDevice)
+                    m_connectionThread = new Thread(() =>
                     {
-                        ReadDevice();
-                    }
-                }, TaskCreationOptions.LongRunning );
+                        while (m_reaDevice)
+                        {
+                            ReadDevice();
+                        }
+                    }) { Name = "ReadDeviceThread", IsBackground = true };
+                    m_connectionThread.Start();
+               
+               // }, TaskCreationOptions.LongRunning );
             }
             else
             {
@@ -114,12 +118,18 @@ namespace com.rotovr.sdk
             try
             {
                 
-                    var result = Native.ReadFile(m_device, out var buffer, 33);
+                var result = Native.ReadFile(m_device, out var buffer, 33);
 
-                    if (!result)
-                        return;
+                if (!result)
+                {
+                    // Device likely dropped
+                    logger.LogWarning("USB device read failed. Device may have been disconnected.");
+                    m_reaDevice = false;
+                    OnConnectionStatus?.Invoke(ConnectionStatus.Disconnected);
+                    return;
+                }
 
-                    if (buffer[2] == 0xF1)
+                if (buffer[2] == 0xF1)
                     {
                         m_initPacket = true;
                         for (int i = 0; i < m_readMessage.Length; i++)
@@ -153,7 +163,7 @@ namespace com.rotovr.sdk
                         {
                             m_initPacket = false;
                             m_runtimeModel = GetModel(m_readMessage);
-                            OnDataChange?.Invoke(m_runtimeModel);
+                            Task.Run(() =>  OnDataChange?.Invoke(m_runtimeModel));
                         }
                     }
                 

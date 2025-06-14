@@ -65,7 +65,7 @@ namespace com.rotovr.sdk
             get => mode;
             set
             {
-                if(mode != value)
+                if(mode != value && mode != "114")
                     mode = value;
             }
         }
