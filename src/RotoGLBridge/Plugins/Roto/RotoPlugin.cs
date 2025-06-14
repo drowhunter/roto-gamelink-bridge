@@ -1,7 +1,5 @@
 ﻿using com.rotovr.sdk;
-
-using Microsoft.Extensions.Logging;
-
+using RotoGLBridge.Services;
 using Sharpie.Engine.Contracts.Plugins;
 using Sharpie.Helpers;
 
@@ -10,81 +8,71 @@ namespace RotoGLBridge.Plugins
 
     [GlobalType(Type = typeof(RotoPluginGlobal))]
     public class RotoPlugin(
-        ILogger<RotoPluginGlobal> logger
+        ILogger<RotoPlugin> logger,
+        IEnumerable<IMmfSender> mmfSenders,
+        Roto roto
         ) : UpdateablePlugin
     {
 
-        public RotoBehaviour Roto;
+        public RotoDataModel RotoDataModel = new();
 
-        public RotoDataModel rotoDataModel;
-
-        public ConnectionStatus connectionStatus = ConnectionStatus.Unknown;
+        public ConnectionStatus ConnectionStatus = ConnectionStatus.Unknown;
 
         public ModeType Mode = default;
-
-        private int? zeroAngle = null;
-
+        
         CancellationTokenSource _cts;
 
-        private int? ZeroAngle
-        {
-            get => zeroAngle;
-            set
-            {
-                if (zeroAngle == null)
-                    zeroAngle = value;
-            }
-        }
-
-        public int Angle
+        public float Angle
         {
             get
             {
-                if (rotoDataModel == null)
+                if (RotoDataModel == null)
                     return 0;
-                var a = (rotoDataModel.Angle + (ZeroAngle ?? 0));
-                if (a < 0)
-                    a += 360;
-                return a;
+
+                return RotoDataModel.CalibratedAngle;
             }
         }
 
-        
+        internal Roto.Telemetry Telemetry => roto.telemetry;
 
 
         public override async Task Start()
         {
             _cts = new();
-            Roto = new RotoBehaviour();
-            //Roto.ConnectionType = ConnectionType.Simulation;
+
+            roto.Initialize(ConnectionType.Chair);
+
+            roto.OnConnectionStatus += _roto_OnConnectionStatusChanged;
+            roto.OnRotoMode += _roto_OnModeChanged;
+            roto.OnDataChanged += _roto_OnDataChanged;
+
             
 
-            Roto.OnConnectionStatusChanged += _roto_OnConnectionStatusChanged;
+            if (ConnectionStatus != ConnectionStatus.Connected)
+            {
+                bool connected = await roto.ConnectAsync(_cts.Token);
 
-            await ConnectAsync(_cts.Token);
-
-            Roto.OnModeChanged += _roto_OnModeChanged;
-            
-            Roto.OnDataChanged += _roto_OnDataChanged;
-            //SwitchMode(RotoModeType.IdleMode);//, 0, 1, RotoMovementMode.Jerky);
-            //SetPower(1);
-
-
-
-            //return Task.CompletedTask;
+            }
+            else
+            {
+                logger.LogWarning("Already Connected ?");
+            }
 
         }
+
+
         public override async Task Stop()
         {
             _cts.Cancel();
-            Roto.SwitchMode(ModeType.IdleMode);
 
-            Roto.OnModeChanged -= _roto_OnModeChanged;
-            Roto.OnConnectionStatusChanged -= _roto_OnConnectionStatusChanged;
-            Roto.OnDataChanged -= _roto_OnDataChanged;
+            await roto.SetModeAsync(ModeType.IdleMode, new ModeParams { CockpitAngleLimit = 0, MaxPower = 30});
 
-            // Cleanup the plugin
-            await DisconnectAsync();
+            roto.OnRotoMode -= _roto_OnModeChanged;
+            roto.OnConnectionStatus -= _roto_OnConnectionStatusChanged;
+            roto.OnDataChanged -= _roto_OnDataChanged;
+
+            if (ConnectionStatus != ConnectionStatus.Disconnected)
+                await roto.DisconnectAsync();
         }
 
         public override void Execute()
@@ -92,74 +80,19 @@ namespace RotoGLBridge.Plugins
             
         }
 
-        private Task DisconnectAsync()
-        {
-            if(connectionStatus != ConnectionStatus.Disconnected)
-                return Task.CompletedTask;
-
-            Roto.Disconnect();
-
-            var tcs = new TaskCompletionSource();
-
-            void Handler(ConnectionStatus status)
-            {
-                if (status == ConnectionStatus.Disconnected)
-                {
-                    Roto.OnConnectionStatusChanged -= Handler;
-                    tcs.TrySetResult();
-                }
-            }
-
-            Roto.OnConnectionStatusChanged += Handler;
-
-            return tcs.Task;
-        }
-
-
-        private Task ConnectAsync(CancellationToken cancellationToken = default)
-        {
-            if (connectionStatus == ConnectionStatus.Connected)
-                return Task.CompletedTask;
-
-            Roto.Connect();
-
-            var tcs = new TaskCompletionSource();
-
-            void Handler(ConnectionStatus status)
-            {
-                if (status == ConnectionStatus.Connected)
-                {
-                    Roto.OnConnectionStatusChanged -= Handler;
-                    tcs.TrySetResult();
-                }
-            }
-
-            Roto.OnConnectionStatusChanged += Handler;
-
-            if (cancellationToken != default)
-            {
-                cancellationToken.Register(() =>
-                {
-                    Roto.OnConnectionStatusChanged -= Handler;
-                    tcs.TrySetCanceled(cancellationToken);
-                });
-            }
-
-            return tcs.Task;
-        }
-
         private void _roto_OnDataChanged(RotoDataModel obj)
         {
-            if (Mode == ModeType.FollowObject && ZeroAngle == null)
-            {
-                ZeroAngle = -obj.Angle;
-            }
 
-            rotoDataModel = obj;
+            RotoDataModel = obj;
             
             if (Enum.TryParse(obj.Mode, out ModeType mode))
             {
                 Mode = mode;
+            }
+
+            foreach(var mmf in mmfSenders)
+            {
+                mmf.Send(-obj.CalibratedAngle);
             }
 
             OnUpdate();
@@ -167,7 +100,7 @@ namespace RotoGLBridge.Plugins
 
         private void _roto_OnConnectionStatusChanged(ConnectionStatus obj)
         {
-            connectionStatus = obj;
+            ConnectionStatus = obj;
 
             if (obj == ConnectionStatus.Connected)
             {
@@ -175,8 +108,7 @@ namespace RotoGLBridge.Plugins
             }
             else if (obj == ConnectionStatus.Disconnected)
             {
-                ZeroAngle = null;
-                rotoDataModel = null;
+                RotoDataModel = null;
             }
             OnUpdate();
         }
@@ -190,7 +122,7 @@ namespace RotoGLBridge.Plugins
         public void SetPower(float power = 1)
         {
             var p = Filters.EnsureMapRange(power, 0, 1, 30, 100);
-            Roto.SetPower(RoundDouble(p));
+            roto.SetPowerAsync(RoundDouble(p));
         }
 
 
@@ -202,7 +134,7 @@ namespace RotoGLBridge.Plugins
         public void Rumble(float seconds, float power = 1)
         {
             var p = Filters.EnsureMapRange(power, 0, 1, 0, 100);
-            Roto.Rumble((float)seconds, RoundDouble(p));
+            roto.Rumble((float)seconds, RoundDouble(p));
         }
 
 
@@ -211,44 +143,46 @@ namespace RotoGLBridge.Plugins
             var p = Filters.EnsureMapRange(power, 0, 1, 0, 100);
             var (d, a) = GetAngleDirection(degrees);
 
-            Roto.Rotate(d, a, RoundDouble(p));
+            roto.RotateToAngle(d, a, RoundDouble(p));
         }
 
-        public void RotateTo(RotoDirection direction, float degrees, float power = 1)
+        public void RotateTo(Direction direction, float degrees, float power = 1)
         {
             var p = Filters.EnsureMapRange(power, 0, 1, 0, 100);
 
-            Roto.RotateToAngle(direction == RotoDirection.Left ? Direction.Left : Direction.Right, RoundDouble(Ensure360(degrees)), RoundDouble(p));
+            roto.RotateToAngle(direction, RoundDouble(Ensure360(degrees)), RoundDouble(p));
         }
 
-        public void RotateClosest(float degrees, float power = 1)
-        {
-            var p = Filters.EnsureMapRange(power, 0, 1, 0, 100);
+        //public void RotateClosest(float degrees, float power = 1)
+        //{
+        //    var p = Filters.EnsureMapRange(power, 0, 1, 0, 100);
 
-            Roto.RotateToClosestAngleDirection(RoundDouble(Ensure360(degrees)), RoundDouble(p));
-        }
+        //    roto.RotateToClosestAngleDirection(RoundDouble(Ensure360(degrees)), RoundDouble(p));
+        //}
 
-        public void SwitchMode(RotoModeType mode, Func<float?> targetFunc = null)//, float limit, float power, RotoMovementMode movementMode)
+        public async Task SwitchModeAsync(ModeType mode, Func<float?> targetFunc = null)//, float limit, float power, RotoMovementMode movementMode)
         {
-            if(Roto == null)
+            if(roto == null)
             {
                 return;
             }
 
             var m = (ModeType)(byte)mode;
 
-            if (new[] { RotoModeType.FollowObject, RotoModeType.JoystickMode }.Contains(mode))
+            if (mode == ModeType.FollowObject)
             {
-                Roto.SwitchMode(m, new ModeParams { CockpitAngleLimit = 0, MaxPower = 100 }, targetFunc);
+                await roto.SetModeAsync(ModeType.HeadTrack, new ModeParams { CockpitAngleLimit = 0, MaxPower = 100 });
+                if(targetFunc != null)
+                    roto.FollowTarget(targetFunc);
             }
             else //if(m == ModeType.HeadTrack)
             {
-                Roto.roto.SetMode(m, new ModeParams { MaxPower = 100 });
+                await roto.SetModeAsync(m, new ModeParams { MaxPower = 100 });
                 //SetPower(1);
             }
         }
 
-        public float Ensure360(float degrees)
+        private float Ensure360(float degrees)
         {
             var a = Math.Sign(degrees) * (degrees % 360);
             if (a < 0)
@@ -260,7 +194,7 @@ namespace RotoGLBridge.Plugins
 
         public void SetToZero()
         {
-            Roto.Calibration(CalibrationMode.SetToZero);
+            roto.Calibration(CalibrationMode.SetToZero);
         }
 
 
@@ -276,40 +210,49 @@ namespace RotoGLBridge.Plugins
             var ang = RoundDouble(Ensure360(degrees));
 
             return (d, ang);
-        }        
+        }
+
+        private float NormalizeAngle(float angle)
+        {
+            if (angle < 0)
+                angle += 360;
+            else if (angle > 360)
+                angle -= 360;
+
+            return angle;
+        }
     }
 
     public class RotoPluginGlobal : UpdateablePluginGlobal<RotoPlugin>
     {
-        public float rawAngle => plugin.rotoDataModel?.Angle ?? 0;
-        public float angle => plugin.Angle;
+        
+        public RotoDataModel Data => plugin.RotoDataModel;
 
+        public Roto.Telemetry Telemetry => plugin.Telemetry;        
 
-        public string mode => plugin.Mode.ToString();
+        public string Status => plugin.ConnectionStatus.ToString();
 
-        public int angleLimit => plugin.rotoDataModel?.TargetCockpit ?? 0;
+        
 
-        public int maxPower => plugin.rotoDataModel?.MaxPower ?? 0;
+        public void Rumble(float seconds, float power = 1) => plugin.Rumble(seconds, power);
 
-        public string connectionStatus => plugin.connectionStatus.ToString();
+        public void Rotate(float degrees, float power = 1) => plugin.Rotate(degrees, power);
 
+        public void RotateTo(Direction direction, float degrees, float power = 1) => plugin.RotateTo(direction, degrees, power);
 
-        public void rumble(float seconds, float power = 1) => plugin.Rumble(seconds, power);
+        //public void rotateClosest(float degrees, float power = 1) => plugin.RotateClosest(degrees, power);
 
-        public void rotate(float degrees, float power = 1) => plugin.Rotate(degrees, power);
+        public async void SwitchMode(ModeType mode, Func<float?> targetFunc = null)
+        {
+            await plugin.SwitchModeAsync(mode, targetFunc);
+        }
 
-        public void rotateTo(RotoDirection direction, float degrees, float power = 1) => plugin.RotateTo(direction, degrees, power);
-
-        public void rotateClosest(float degrees, float power = 1) => plugin.RotateClosest(degrees, power);
-
-        public void switchMode(RotoModeType mode, Func<float?> targetFunc = null) => plugin.SwitchMode(mode, targetFunc);
-
-        public void setPower(float power = .5f) => plugin.SetPower(power);
+        public void SetPower(float power = .5f) => plugin.SetPower(power);
 
 
         public override string ToString()
         {
-            return plugin.rotoDataModel?.ToJson() ?? "";
+            return plugin.RotoDataModel?.ToString() ?? "";// ToJson() ?? "";
         }
         
     }

@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using com.rotovr.sdk;
+
+using Microsoft.Extensions.Logging;
 
 using RotoGLBridge.Plugins;
 using RotoGLBridge.Plugins.GameLink;
@@ -6,7 +8,6 @@ using RotoGLBridge.Services;
 
 using Sharpie.Helpers;
 
-using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace RotoGLBridge.Scripts
@@ -34,14 +35,14 @@ namespace RotoGLBridge.Scripts
             var options = new JsonSerializerOptions { WriteIndented = false };
             options.Converters.Add(new JsonStringEnumConverter());
 
-            roto.switchMode(RotoModeType.FollowObject, () => {
+            roto.SwitchMode(ModeType.FollowObject, () => {
 
                 return yaw;
             });
 
             yawDevice.OnUpdate += () =>
             {
-                cons.Write(0, 12, $"cmd: {yawDevice.Command}");
+                cons.Write(0, 12, $"tcp: {yawDevice.Command}");
             };
 
             return Task.CompletedTask;
@@ -59,15 +60,33 @@ namespace RotoGLBridge.Scripts
 
         public override void Update()
         {
-            i++;
-            
-            cons.Write(0, 10, $"Yaw: {yaw}");
-            cons.Write(20,10,$"ConnectionStatus: {roto.connectionStatus}");
+            Dictionary<string, string> stats = new()
+            {
+                { "Status",  roto.Status},
+                { "Yaw" , yaw.ToString("F1")},
+                { "Mode", roto.Data.Mode.ToString() },
+                { "Angle", roto.Data.LerpedAngle.ToString("F2") },
+                { "CalibratedAngle", roto.Data.CalibratedAngle.ToString("F2") },
+                { "Delta", roto.Telemetry.Delta.ToString("F1") },
+                { "Target", roto.Telemetry.TargetAngle.ToString("F1") }
+            };
 
-            cons.Write(0, 11, roto.ToString() );
+            int maxKeyLen = stats.Keys.Max(k => k.Length)+ 10;
 
-            
+            int i = 0;
+            int j = 0;
 
+            foreach (var (k, v) in stats)
+            {
+                var c = j % (maxKeyLen * 3);
+                if (c == 0)
+                    i += 2;
+
+                string paddedKey = k + ":";
+                cons.Write(c, i + 4, $"{paddedKey} {v}");
+
+                j += maxKeyLen;
+            }
         }
 
         

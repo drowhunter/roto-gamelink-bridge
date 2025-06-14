@@ -43,7 +43,7 @@ ServiceProvider CreateServices()
         {
             b.AddFilter("Microsoft", LogLevel.Warning)
              .AddFilter("System", LogLevel.Warning)
-             .AddFilter("Sharpie", LogLevel.Warning)
+             //.AddFilter("Sharpie", LogLevel.Debug)
              .AddFilter("RotoGLBridge", LogLevel.Debug);
         })
 
