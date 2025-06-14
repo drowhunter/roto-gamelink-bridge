@@ -194,7 +194,7 @@ namespace RotoGLBridge.Plugins
 
         public void SetToZero()
         {
-            roto.Calibration(CalibrationMode.SetToZero);
+            roto.Calibration(CalibrationMode.SetCurrent);
         }
 
 
@@ -242,11 +242,15 @@ namespace RotoGLBridge.Plugins
 
         //public void rotateClosest(float degrees, float power = 1) => plugin.RotateClosest(degrees, power);
 
-        public async void SwitchMode(ModeType mode, Func<float?> targetFunc = null)
-        {
-            await plugin.SwitchModeAsync(mode, targetFunc);
-        }
+        public Task SwitchModeAsync(ModeType mode, Func<float?> targetFunc = null) => plugin.SwitchModeAsync(mode, targetFunc);
+        
 
+        public void Calibrate() => plugin.SetToZero();
+
+        /// <summary>
+        /// set the power
+        /// </summary>
+        /// <param name="power">between 0.3 - 1.0</param>
         public void SetPower(float power = .5f) => plugin.SetPower(power);
 
 

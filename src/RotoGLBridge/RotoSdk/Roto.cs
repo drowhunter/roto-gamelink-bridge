@@ -39,7 +39,8 @@ namespace com.rotovr.sdk
         int m_StartRotoAngle;
 
         long m_AntiJump = 0;
-        
+        int maxPower = 60;
+
 
         float? m_homeAngle = null;
 
@@ -178,7 +179,8 @@ namespace com.rotovr.sdk
             }
         }
 
-        int _followPower;
+        
+
         /// <summary>
         /// Sets the mode for the RotoVR chair with specific mode parameters.
         /// </summary>
@@ -188,13 +190,30 @@ namespace com.rotovr.sdk
         {
             var parametersModel = new ModeParametersModel(modeParams);
 
-            _followPower = (mode == ModeType.FollowObject) ? modeParams.MaxPower : 100;
+            if (m_RotoData.ModeType == mode)
+                return;
 
             if (m_ConnectionType == ConnectionType.Chair)
             {
-                await usbConnector.SetModeAsync(new ModeModel(mode.ToString(), parametersModel));
-            }
+                TaskCompletionSource modeChangeCS = new();
 
+                void OnModeChanged(ModeType m)
+                {
+                    if (m == mode)
+                    {
+                        m_RotoData.Mode = mode.ToString();
+                        modeChangeCS.TrySetResult();
+                    }
+                }
+
+                this.OnRotoMode += OnModeChanged;
+
+                await usbConnector.SetModeAsync(new ModeModel(mode.ToString(), parametersModel));
+
+                await modeChangeCS.Task;
+
+                this.OnRotoMode -= OnModeChanged;
+            }
         }
 
         /// <summary>
@@ -203,13 +222,16 @@ namespace com.rotovr.sdk
         /// <param name="power">The rotation power to set for the chair (valid range is 30-100).</param>
         public Task SetPowerAsync(int power)
         {
-            var modeParams = new ModeParams
-            {
-                CockpitAngleLimit = m_RotoData.TargetCockpit,
-                MaxPower = power
-            };
+            maxPower = power;
 
-            return SetModeAsync(m_RotoData.ModeType, modeParams);
+            //var modeParams = new ModeParams
+            //{
+            //    CockpitAngleLimit = m_RotoData.TargetCockpit,
+            //    MaxPower = power
+            //};
+
+            //return SetModeAsync(m_RotoData.ModeType, modeParams);
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -416,7 +438,7 @@ namespace com.rotovr.sdk
                             {
                                 m_AntiJump = 0;
                                 
-                                var maxPower = 80;
+                                
                                 //var brakePoint = 10;// MaxPower <= 80 ? 10 : 60;
                                 //var pmin = 20;
                                 //var pmax = 30;

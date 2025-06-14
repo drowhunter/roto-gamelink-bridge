@@ -7,6 +7,8 @@ namespace com.rotovr.sdk
     [Serializable]
     public class RotoDataModel
     {
+        private string mode;
+
         internal RotoDataModel(string json)
         {
             var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(json);
@@ -58,8 +60,16 @@ namespace com.rotovr.sdk
         /// <summary>
         /// Gets or sets the current mode of the chair (e.g., "FreeMode", "Calibration").
         /// </summary>
-        public string Mode { get; set; }
-        
+        public string Mode
+        {
+            get => mode;
+            set
+            {
+                if(mode != value)
+                    mode = value;
+            }
+        }
+
         /// <summary>
         /// Gets the <see cref="ModeType"/> value corresponding to the current chair mode.
         /// Parses the string <see cref="Mode"/> into the appropriate <see cref="ModeType"/> enum value.

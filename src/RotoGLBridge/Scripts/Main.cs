@@ -27,7 +27,7 @@ namespace RotoGLBridge.Scripts
 
 
 
-        public override Task Start()
+        public override async Task Start()
         {
             logger.LogInformation($"Main script started.");
             gamelink.OnUpdate += OnGameLinkUpdate;
@@ -35,17 +35,20 @@ namespace RotoGLBridge.Scripts
             var options = new JsonSerializerOptions { WriteIndented = false };
             options.Converters.Add(new JsonStringEnumConverter());
 
-            roto.SwitchMode(ModeType.FollowObject, () => {
+            await roto.SwitchModeAsync(ModeType.FollowObject, () => {
 
                 return yaw;
             });
+
+            roto.SetPower(.6f);
+
+            
 
             yawDevice.OnUpdate += () =>
             {
                 cons.Write(0, 12, $"tcp: {yawDevice.Command}");
             };
-
-            return Task.CompletedTask;
+            
         }
 
         private void OnGameLinkUpdate()

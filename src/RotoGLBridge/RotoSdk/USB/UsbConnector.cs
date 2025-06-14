@@ -52,14 +52,19 @@ namespace com.rotovr.sdk
 
             if (success)
             {
-                m_reaDevice = true;
+                _ = Task.Factory.StartNew(() => {
+                    Thread.CurrentThread.Name = "ReadDeviceThread";
+                    m_reaDevice = true;
 
-                m_connectionThread = new Thread(ReadDeviceThread) { Name = "ReadDeviceThread", IsBackground = true };
-                m_connectionThread.Start();
+                    while (m_reaDevice)
+                    {
+                        ReadDevice();
+                    }
+                }, TaskCreationOptions.LongRunning );
             }
             else
             {
-                logger.LogError("SendConnectAsync success was false");
+                logger.LogError("Failed to connect to the chair.");
             }
             return success;
         }
@@ -104,12 +109,11 @@ namespace com.rotovr.sdk
             return success;
         }
 
-        void ReadDeviceThread()
+        void ReadDevice()
         {
             try
             {
-                while (m_reaDevice)
-                {
+                
                     var result = Native.ReadFile(m_device, out var buffer, 33);
 
                     if (!result)
@@ -152,7 +156,7 @@ namespace com.rotovr.sdk
                             OnDataChange?.Invoke(m_runtimeModel);
                         }
                     }
-                }
+                
 
             }            
             catch (TaskCanceledException tex)
