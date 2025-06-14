@@ -1,6 +1,6 @@
 ﻿namespace RotoGLBridge.Plugins
 {
-    
+    /*
     public enum RotoDirection : byte
     {
         /// <summary>
@@ -53,10 +53,7 @@
         /// </summary>
         FollowObject = 0x06,
 
-        /// <summary>
-        /// Continuous mode. The chair continuously rotates based on Joystick Axis -1 to 1.
-        /// </summary>
-        JoystickMode = 0x07,
+        
     }
 
 
@@ -66,5 +63,5 @@
         Jerky
         
     }
-
+    */
 }

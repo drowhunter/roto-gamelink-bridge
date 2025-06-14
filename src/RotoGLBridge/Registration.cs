@@ -1,4 +1,6 @@
-﻿using RotoGLBridge.Configuration;
+﻿using com.rotovr.sdk;
+
+using RotoGLBridge.Configuration;
 using RotoGLBridge.Models;
 using RotoGLBridge.Plugins;
 using RotoGLBridge.Plugins.GameLink;
@@ -6,6 +8,9 @@ using RotoGLBridge.Scripts;
 using RotoGLBridge.Services;
 
 using Sharpie.Extras.Telemetry;
+using Sharpie.Helpers;
+
+using System.Diagnostics;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -36,11 +41,24 @@ namespace Microsoft.Extensions.DependencyInjection
             .AddPluginsFrom<GamelinkPlugin>()
             .AddScriptsFrom<Main>()
             .Build();
+
+
             //builder.Services.AddSingleton<TcpCommandFactory>();
             builder.Services.AddTransient<IByteConverter<YawGLData>, YawGLByteConverter>();
             builder.Services.AddSingleton<IConsoleWatcher, ConsoleWatcher>();
-
+            builder.Services.AddRotoServices();
+           
             return builder;
+        }
+
+        private static void AddRotoServices(this IServiceCollection services) 
+        {
+            services.AddSingleton<IUsbConnector, UsbConnector>();     
+            services.AddTransient<ILerper, Lerper>();
+            services.AddTransient<Stopwatch>();
+            services.AddSingleton<Roto>();
+            //services.AddTransient<IMmfSender, RotoMCSender>();
+            services.AddTransient<IMmfSender, FlyPtSender>();
         }
     }
 }

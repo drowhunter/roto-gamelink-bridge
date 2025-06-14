@@ -19,12 +19,16 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.3" />
-		<PackageReference Include="Semver" Version="3.0.0" />
-		<PackageReference Include="Sharpie.Engine" Version="0.0.12" />
+		<PackageReference Include="Sharpie.Engine" Version="0.0.14" />
 	</ItemGroup>
-  <ItemGroup>
-	 
-    <ProjectReference Include="..\com.rotovr.sdk\com.rotovr.sdk.csproj" />
-  </ItemGroup>
+	<!--<ItemGroup>
+	  <ProjectReference Include="..\..\..\Sharpie2\src\Sharpie\Sharpie.Engine\Sharpie.Engine.csproj" />
+	</ItemGroup>
+	-->
+	<ItemGroup>
+	  <None Update="HIDApi.dll">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
 
 </Project>
