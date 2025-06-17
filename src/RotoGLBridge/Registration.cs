@@ -53,7 +53,9 @@ namespace Microsoft.Extensions.DependencyInjection
 
         private static void AddRotoServices(this IServiceCollection services) 
         {
-            services.AddSingleton<IUsbConnector, UsbConnector>();     
+            services.AddSingleton<IUsbConnector, UsbConnector>();
+
+            services.AddTransient<IUsbWatcher, UsbWatcher>();
             services.AddTransient<ILerper, Lerper>();
             services.AddTransient<Stopwatch>();
             services.AddSingleton<Roto>();

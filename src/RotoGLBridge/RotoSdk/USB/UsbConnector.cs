@@ -1,12 +1,11 @@
-using Microsoft.Extensions.Logging;
-
 using System.Diagnostics;
-
-
 
 namespace com.rotovr.sdk
 {
-    public class UsbConnector(ILogger<UsbConnector> logger) : IUsbConnector
+    public class UsbConnector(
+        ILogger<UsbConnector> logger,
+        IUsbWatcher usbWatcher
+        ) : IUsbConnector
     {
         const ushort k_vid = 0x04D9;
         const ushort k_pid = 0xB564;
@@ -17,15 +16,12 @@ namespace com.rotovr.sdk
 
         RotoDataModel m_runtimeModel;
 
-
-
         nint m_device;
         Thread m_connectionThread;
         int m_messageSize;
         bool m_initPacket;
 
         bool m_reaDevice;
-
 
         public event Action<ConnectionStatus> OnConnectionStatus;
         public event Action<RotoDataModel> OnDataChange;
@@ -34,13 +30,49 @@ namespace com.rotovr.sdk
 
         bool IsConnectedAndOpen => m_device != nint.Zero;
 
+        TaskCompletionSource m_connectTcs;
 
-        public async Task<bool> ConnectAsync()
+        public Task ConnectAsync()
         {
+            if(m_connectTcs != null && m_connectTcs.Task.IsCompleted == false)
+            {
+                logger.LogWarning("ConnectAsync is already in progress. Returning existing Task.");
+                return m_connectTcs.Task;
+            }
+            m_connectTcs = new TaskCompletionSource();
+
+            usbWatcher.OnPluggedStatus += UsbWatcher_OnDevicePlugged;
+            //_ = usbWatcher.WatchAsync(k_vid, k_pid);
+            usbWatcher.WatchAsync(k_vid, k_pid);
+
+            return m_connectTcs.Task;
+
+        }
+
+        private void UsbWatcher_OnDevicePlugged(PluggedStatus status)
+        {
+            if (status == PluggedStatus.Plugged)
+            {
+                _ = Connect2Async();
+            }
+            else if (status == PluggedStatus.Unplugged)
+            {
+                _ = DisconnectAsync();
+            }
+        }
+
+        private async Task<bool> Connect2Async()
+        {
+            
+
             m_device = await Native.OpenFirstHIDDeviceAsync(k_vid, k_pid);
 
             if (!IsConnectedAndOpen)
+            {
                 return false;
+            }
+
+            
 
             byte[] feature = ConfigureFeature();
             var success = await Native.SetFeatureAsync(m_device, ConfigureFeature());
@@ -54,17 +86,17 @@ namespace com.rotovr.sdk
             {
                 //_ = Task.Factory.StartNew(() => {
                 //    Thread.CurrentThread.Name = "ReadDeviceThread";
-                    m_reaDevice = true;
-                    m_connectionThread = new Thread(() =>
+                m_reaDevice = true;
+                m_connectionThread = new Thread(() =>
+                {
+                    while (m_reaDevice)
                     {
-                        while (m_reaDevice)
-                        {
-                            ReadDevice();
-                        }
-                    }) { Name = "ReadDeviceThread", IsBackground = true };
-                    m_connectionThread.Start();
-               
-               // }, TaskCreationOptions.LongRunning );
+                        ReadDevice();
+                    }
+                }) { Name = "ReadDeviceThread", IsBackground = true };
+                m_connectionThread.Start();
+
+                // }, TaskCreationOptions.LongRunning );
             }
             else
             {
@@ -105,11 +137,13 @@ namespace com.rotovr.sdk
 
             var success = await Native.WriteFileAsync(m_device, message);
 
-            logger.LogDebug($"Write file success: {success}");                
+            logger.LogDebug($"Write file success: {success}");
 
             if (success)
+            {
+                m_connectTcs?.TrySetResult();
                 OnConnectionStatus?.Invoke(ConnectionStatus.Connected);
-
+            }
             return success;
         }
 
@@ -117,7 +151,7 @@ namespace com.rotovr.sdk
         {
             try
             {
-                
+
                 var result = Native.ReadFile(m_device, out var buffer, 33);
 
                 if (!result)
@@ -130,45 +164,45 @@ namespace com.rotovr.sdk
                 }
 
                 if (buffer[2] == 0xF1)
+                {
+                    m_initPacket = true;
+                    for (int i = 0; i < m_readMessage.Length; i++)
                     {
-                        m_initPacket = true;
-                        for (int i = 0; i < m_readMessage.Length; i++)
-                        {
-                            m_readMessage[i] = 0x00;
-                        }
-
-                        m_messageSize = 0;
-                        m_messageSize = buffer[1];
-                        for (int i = 0; i < m_messageSize; i++)
-                        {
-                            m_readMessage[i] = buffer[i + 2];
-                        }
+                        m_readMessage[i] = 0x00;
                     }
-                    else
+
+                    m_messageSize = 0;
+                    m_messageSize = buffer[1];
+                    for (int i = 0; i < m_messageSize; i++)
                     {
-                        if (!m_initPacket)
-                            return;
-
-                        int startIndex = m_messageSize;
-                        m_messageSize += buffer[1];
-
-                        for (int i = 0; i < buffer[1]; i++)
-                        {
-                            var index = startIndex + i;
-                            if (index < m_readMessage.Length)
-                                m_readMessage[index] = buffer[i + 2];
-                        }
-
-                        if (m_messageSize >= 19)
-                        {
-                            m_initPacket = false;
-                            m_runtimeModel = GetModel(m_readMessage);
-                            Task.Run(() =>  OnDataChange?.Invoke(m_runtimeModel));
-                        }
+                        m_readMessage[i] = buffer[i + 2];
                     }
-                
+                }
+                else
+                {
+                    if (!m_initPacket)
+                        return;
 
-            }            
+                    int startIndex = m_messageSize;
+                    m_messageSize += buffer[1];
+
+                    for (int i = 0; i < buffer[1]; i++)
+                    {
+                        var index = startIndex + i;
+                        if (index < m_readMessage.Length)
+                            m_readMessage[index] = buffer[i + 2];
+                    }
+
+                    if (m_messageSize >= 19)
+                    {
+                        m_initPacket = false;
+                        m_runtimeModel = GetModel(m_readMessage);
+                        Task.Run(() => OnDataChange?.Invoke(m_runtimeModel));
+                    }
+                }
+
+
+            }
             catch (TaskCanceledException tex)
             {
                 logger.LogError(tex, "ReadDeviceThread was cancelled.");
@@ -184,7 +218,7 @@ namespace com.rotovr.sdk
 
         }
 
-        
+
         string LogBuffer(byte[] data)
         {
             if (data.Length == 0)
@@ -196,25 +230,47 @@ namespace com.rotovr.sdk
             return message;
         }
 
-        
+
 
         public async Task DisconnectAsync()
         {
             logger.LogDebug("DisconnectAsync");
-            m_reaDevice = false;
-
-            await SendDisconnectAsync();
-
-            if (IsConnectedAndOpen)
+            try
             {
-                await Native.CloseHIDDeviceAsync(m_device);
-                OnConnectionStatus?.Invoke(ConnectionStatus.Disconnected);
+                m_reaDevice = false;
+
+                await SendDisconnectAsync();
+
+                if (IsConnectedAndOpen)
+                {
+                    await Native.CloseHIDDeviceAsync(m_device);
+                    OnConnectionStatus?.Invoke(ConnectionStatus.Disconnected);
+                }
+
+                logger.LogDebug("Disconnected from the chair.");
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error during disconnecting from the chair.");
+            }
+            finally
+            {
+                usbWatcher.OnPluggedStatus -= UsbWatcher_OnDevicePlugged;
+                m_device = nint.Zero;
+                //m_connectionThread?.Join(1000);
+                //m_connectionThread = null;
+                m_initPacket = false;
+                m_messageSize = 0;
+                m_readMessage = new byte[19];
+                m_usbMessage = new byte[19];
+                m_writeBuffer = new byte[33];
+                m_runtimeModel = null;
+                logger.LogDebug("UsbConnector has been reset after disconnect.");
             }
         }
 
-        
 
-        
+
 
         private async Task SendDisconnectAsync()
         {
@@ -244,13 +300,13 @@ namespace com.rotovr.sdk
                 }
             }
 
-            
+
             var success = await Native.WriteFileAsync(m_device, message);
             logger.LogDebug($"DisconnectAsync success: {success}");
-            
+
         }
 
-        
+
 
         public Task SetModeAsync(ModeModel model)
         {
@@ -363,7 +419,7 @@ namespace com.rotovr.sdk
             byte sum = ByteSum(m_usbMessage);
             m_usbMessage[18] = sum;
 
-            
+
             var s = Stopwatch.StartNew();
             //xxx should this be awaited?
             var r = Native.WriteFileAsync(m_device, PrepareWriteBuffer(m_usbMessage))
@@ -375,7 +431,7 @@ namespace com.rotovr.sdk
 
                     logger.LogDebug(message);
                 }, TaskContinuationOptions.NotOnRanToCompletion);
-            
+
         }
 
         public void PlayRumble(RumbleModel model)
@@ -399,9 +455,10 @@ namespace com.rotovr.sdk
             byte sum = ByteSum(m_usbMessage);
             m_usbMessage[18] = sum;
 
-            
+
             var result = Native.WriteFileAsync(m_device, PrepareWriteBuffer(m_usbMessage))
-            .ContinueWith(r => {
+            .ContinueWith(r =>
+            {
                 if (r.IsFaulted)
                 {
                     logger.LogError(r.Exception, "Failed to play rumble.");
@@ -409,14 +466,14 @@ namespace com.rotovr.sdk
                 else
                 {
                     logger.LogDebug($"Play Rumble success: {r.Result}");
-                    if(r.Result)
+                    if (r.Result)
                         logger.LogDebug($"Rumble played successfully: {model.Power} for {model.Duration} seconds.");
                     else
                         logger.LogWarning("Rumble play failed.");
                 }
             }, TaskContinuationOptions.NotOnRanToCompletion);
-            
-            
+
+
         }
 
         void ResetMessage()
@@ -441,7 +498,7 @@ namespace com.rotovr.sdk
 
         private RotoDataModel GetModel(byte[] rawData)
         {
-            RotoDataModel model = new ();
+            RotoDataModel model = new();
             var modeType = (ModeType)rawData[2];
             model.Mode = modeType.ToString();
             switch (rawData[2])

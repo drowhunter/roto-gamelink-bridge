@@ -6,7 +6,7 @@ namespace com.rotovr.sdk
         internal event Action<ConnectionStatus> OnConnectionStatus;
         internal event Action<RotoDataModel> OnDataChange;
 
-        internal Task<bool> ConnectAsync();
+        internal Task ConnectAsync();
         internal Task DisconnectAsync();
         internal void PlayRumble(RumbleModel model);
         internal Task SetModeAsync(ModeModel model);

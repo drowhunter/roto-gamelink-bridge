@@ -137,7 +137,8 @@ namespace RotoGLBridge.Plugins
 
         private void OnUdpReceiveAsync(UdpReceiveResult result, string data)        
         {
-
+            if (!IsConnected)
+                return;
             //udp.Config.SendAddress.Address = result.RemoteEndPoint.Address;
 
             if (data == "YAW_CALLING")
@@ -179,7 +180,7 @@ namespace RotoGLBridge.Plugins
     public class GamelinkGlobal : UpdateablePluginGlobal<GamelinkPlugin>
     {
        
-
+        public bool IsConnected { get => plugin.IsConnected; set => plugin.IsConnected = value; }
         public float yaw => plugin.Data.yaw;
 
         public float pitch => plugin.Data.pitch;

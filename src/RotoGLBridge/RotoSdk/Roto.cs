@@ -158,7 +158,8 @@ namespace com.rotovr.sdk
             {
                 usbConnector.OnConnectionStatus += OnConnectionStatusChange;
                 usbConnector.OnDataChange += OnUsbDataChanged;
-                success = await usbConnector.ConnectAsync();
+                await usbConnector.ConnectAsync();
+                success = true;
             }
             else
             {

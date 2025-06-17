@@ -48,7 +48,10 @@ namespace RotoGLBridge.Scripts
             {
                 cons.Write(0, 12, $"tcp: {yawDevice.Command}");
             };
-            
+            roto.OnUpdate += () =>
+            {
+               gamelink.IsConnected = roto.IsConnected;
+            };
         }
 
         private void OnGameLinkUpdate()

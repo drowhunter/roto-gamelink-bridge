@@ -232,7 +232,7 @@ namespace RotoGLBridge.Plugins
 
         public string Status => plugin.ConnectionStatus.ToString();
 
-        
+        public bool IsConnected => plugin.ConnectionStatus == ConnectionStatus.Connected;
 
         public void Rumble(float seconds, float power = 1) => plugin.Rumble(seconds, power);
 
