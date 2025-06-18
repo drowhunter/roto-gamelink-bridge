@@ -2,6 +2,19 @@ using System.Diagnostics;
 
 namespace com.rotovr.sdk
 {
+    public interface IUsbConnector
+    {
+        internal event Action<ConnectionStatus> OnConnectionStatus;
+        internal event Action<RotoDataModel> OnDataChange;
+        public bool IsPluggedIn { get; }
+
+        internal Task ConnectAsync();
+        internal Task DisconnectAsync();
+        internal void PlayRumble(RumbleModel model);
+        internal Task SetModeAsync(ModeModel model);
+        internal void TurnToAngle(RotateToAngleModel model);
+    }
+
     public class UsbConnector(
         ILogger<UsbConnector> logger,
         IUsbWatcher usbWatcher
@@ -26,53 +39,93 @@ namespace com.rotovr.sdk
         public event Action<ConnectionStatus> OnConnectionStatus;
         public event Action<RotoDataModel> OnDataChange;
 
+        private bool _isPluggedIn;
+        public bool IsPluggedIn
+        {
+            get => _isPluggedIn;            
+        }
+
+        
+
         byte[] ConfigureFeature() => [0x00, 0x01, 0x00, 0xC2, 0x01, 0x00, 0x01, 0x00, 0x08];
 
         bool IsConnectedAndOpen => m_device != nint.Zero;
 
         TaskCompletionSource m_connectTcs;
 
-        public Task ConnectAsync()
+        public async Task ConnectAsync()
         {
             if(m_connectTcs != null && m_connectTcs.Task.IsCompleted == false)
             {
                 logger.LogWarning("ConnectAsync is already in progress. Returning existing Task.");
-                return m_connectTcs.Task;
+                await m_connectTcs.Task;
+                return;
             }
             m_connectTcs = new TaskCompletionSource();
 
             usbWatcher.OnPluggedStatus += UsbWatcher_OnDevicePlugged;
-            //_ = usbWatcher.WatchAsync(k_vid, k_pid);
-            usbWatcher.WatchAsync(k_vid, k_pid);
+            await _connectLock.WaitAsync();
+            try
+            {
+                _ = usbWatcher.WatchAsync(k_vid, k_pid);
+            }
+            finally
+            {
+                _connectLock.Release();
+            }
 
-            return m_connectTcs.Task;
+            await m_connectTcs.Task;
 
         }
 
-        private void UsbWatcher_OnDevicePlugged(PluggedStatus status)
+        private async void UsbWatcher_OnDevicePlugged(PluggedStatus status)
         {
-            if (status == PluggedStatus.Plugged)
+            await _connectLock.WaitAsync();
+            try
             {
-                _ = Connect2Async();
+                _isPluggedIn = status == PluggedStatus.Plugged;
+
+                if (IsPluggedIn)
+                {
+                    _ = Connect2Async();
+                }
+                else
+                {
+                    _ = DisconnectAsync();
+                    logger.LogDebug("Device unplugged, disconnecting.");
+                    _ = Task.Run(ConnectAsync);
+                }
             }
-            else if (status == PluggedStatus.Unplugged)
+            finally
             {
-                _ = DisconnectAsync();
+                _connectLock.Release();
             }
         }
+
+        private static readonly SemaphoreSlim _connectLock = new(1, 1);
 
         private async Task<bool> Connect2Async()
         {
-            
-
-            m_device = await Native.OpenFirstHIDDeviceAsync(k_vid, k_pid);
-
-            if (!IsConnectedAndOpen)
+            await _connectLock.WaitAsync();
+            try
             {
-                return false;
-            }
+                if (IsConnectedAndOpen)
+                {
+                    logger.LogDebug("Already connected to the chair.");
+                    return true;
+                }
 
-            
+                m_device = await Native.OpenFirstHIDDeviceAsync(k_vid, k_pid);
+
+                if (!IsConnectedAndOpen)
+                {
+                    return false;
+                }
+            }
+            finally
+            {
+                _connectLock.Release();
+            }
 
             byte[] feature = ConfigureFeature();
             var success = await Native.SetFeatureAsync(m_device, ConfigureFeature());
@@ -84,8 +137,6 @@ namespace com.rotovr.sdk
 
             if (success)
             {
-                //_ = Task.Factory.StartNew(() => {
-                //    Thread.CurrentThread.Name = "ReadDeviceThread";
                 m_reaDevice = true;
                 m_connectionThread = new Thread(() =>
                 {
@@ -93,10 +144,9 @@ namespace com.rotovr.sdk
                     {
                         ReadDevice();
                     }
-                }) { Name = "ReadDeviceThread", IsBackground = true };
+                })
+                { Name = "ReadDeviceThread", IsBackground = true };
                 m_connectionThread.Start();
-
-                // }, TaskCreationOptions.LongRunning );
             }
             else
             {
@@ -239,10 +289,11 @@ namespace com.rotovr.sdk
             {
                 m_reaDevice = false;
 
-                await SendDisconnectAsync();
-
                 if (IsConnectedAndOpen)
                 {
+                    await SendDisconnectAsync();
+
+                
                     await Native.CloseHIDDeviceAsync(m_device);
                     OnConnectionStatus?.Invoke(ConnectionStatus.Disconnected);
                 }
@@ -255,7 +306,7 @@ namespace com.rotovr.sdk
             }
             finally
             {
-                usbWatcher.OnPluggedStatus -= UsbWatcher_OnDevicePlugged;
+                //usbWatcher.OnPluggedStatus -= UsbWatcher_OnDevicePlugged;
                 m_device = nint.Zero;
                 //m_connectionThread?.Join(1000);
                 //m_connectionThread = null;

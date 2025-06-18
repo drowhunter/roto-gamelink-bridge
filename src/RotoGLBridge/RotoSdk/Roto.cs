@@ -2,13 +2,9 @@
 #define OXRMC_ROTO
 #define OXRMC_FLYPT
 
-using Microsoft.Extensions.Logging;
-
 using Sharpie.Helpers;
 
 using System.Diagnostics;
-
-using static com.rotovr.sdk.Roto;
 
 namespace com.rotovr.sdk
 {
@@ -73,6 +69,7 @@ namespace com.rotovr.sdk
         public event Action<ConnectionStatus> OnConnectionStatus;
 
         
+        public bool IsPluggedIn => usbConnector.IsPluggedIn;
 
         /// <summary>
         /// Initializes the Roto manager with a specified connection type.

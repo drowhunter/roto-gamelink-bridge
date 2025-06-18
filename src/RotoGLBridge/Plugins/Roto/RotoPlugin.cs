@@ -22,6 +22,8 @@ namespace RotoGLBridge.Plugins
         
         CancellationTokenSource _cts;
 
+        public bool IsPluggedIn => roto.IsPluggedIn;
+
         public float Angle
         {
             get
@@ -102,13 +104,9 @@ namespace RotoGLBridge.Plugins
         {
             ConnectionStatus = obj;
 
-            if (obj == ConnectionStatus.Connected)
+            if (obj == ConnectionStatus.Disconnected)
             {
-                
-            }
-            else if (obj == ConnectionStatus.Disconnected)
-            {
-                RotoDataModel = null;
+                RotoDataModel = new();
             }
             OnUpdate();
         }
@@ -225,7 +223,8 @@ namespace RotoGLBridge.Plugins
 
     public class RotoPluginGlobal : UpdateablePluginGlobal<RotoPlugin>
     {
-        
+        public bool IsPluggedIn => plugin.IsPluggedIn;
+
         public RotoDataModel Data => plugin.RotoDataModel;
 
         public Roto.Telemetry Telemetry => plugin.Telemetry;        
