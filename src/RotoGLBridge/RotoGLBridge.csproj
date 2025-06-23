@@ -19,8 +19,8 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.3" />
-		<PackageReference Include="Sharpie.Engine" Version="1.0.5-alpha" />
-		<PackageReference Include="Sharpie.Helpers.Telemetry" Version="1.0.5-alpha.0.1" />
+		<PackageReference Include="Sharpie.Engine" Version="1.0.5" />
+		<PackageReference Include="Sharpie.Helpers.Telemetry" Version="1.0.5" />
 		<PackageReference Include="Sharpie.Plugins.Speech" Version="1.0.2" />
 		<PackageReference Include="System.Management" Version="9.0.6" />
 	</ItemGroup>
