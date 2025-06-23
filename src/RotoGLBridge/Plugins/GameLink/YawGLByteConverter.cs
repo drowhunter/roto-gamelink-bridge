@@ -1,6 +1,6 @@
 ﻿using RotoGLBridge.Models;
 
-using Sharpie.Extras.Telemetry;
+using Sharpie.Helpers.Telemetry;
 
 using System.Text;
 using System.Text.RegularExpressions;

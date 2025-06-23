@@ -5,7 +5,7 @@ using RotoGLBridge.Models;
 using RotoGLBridge.Plugins.GameLink;
 
 using Sharpie.Engine.Contracts.Plugins;
-using Sharpie.Extras.Telemetry;
+using Sharpie.Helpers.Telemetry;
 
 using System.Net;
 using System.Net.Sockets;

@@ -1,7 +1,9 @@
 ﻿using com.rotovr.sdk;
+
 using RotoGLBridge.Services;
+
 using Sharpie.Engine.Contracts.Plugins;
-using Sharpie.Helpers;
+using Sharpie.Helpers.Core;
 
 namespace RotoGLBridge.Plugins
 {

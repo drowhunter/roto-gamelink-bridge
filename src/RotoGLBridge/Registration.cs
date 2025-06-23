@@ -7,8 +7,9 @@ using RotoGLBridge.Plugins.GameLink;
 using RotoGLBridge.Scripts;
 using RotoGLBridge.Services;
 
-using Sharpie.Extras.Telemetry;
-using Sharpie.Helpers;
+using Sharpie.Helpers.Core.Lerping;
+using Sharpie.Helpers.Telemetry;
+using Sharpie.Plugins.Speech;
 
 using System.Diagnostics;
 
@@ -40,12 +41,14 @@ namespace Microsoft.Extensions.DependencyInjection
             })
             .AddPluginsFrom<GamelinkPlugin>()
             .AddScriptsFrom<Main>()
+            .AddPlugin<SpeechPlugin>()
             .Build();
 
 
             //builder.Services.AddSingleton<TcpCommandFactory>();
             builder.Services.AddTransient<IByteConverter<YawGLData>, YawGLByteConverter>();
             builder.Services.AddSingleton<IConsoleWatcher, ConsoleWatcher>();
+            //builder.Services.
             builder.Services.AddRotoServices();
            
             return builder;

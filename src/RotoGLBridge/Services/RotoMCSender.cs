@@ -1,7 +1,7 @@
 ﻿
 using RotoGLBridge.Models;
 
-using Sharpie.Extras.Telemetry;
+using Sharpie.Helpers.Telemetry;
 
 
 namespace RotoGLBridge.Services

@@ -2,7 +2,8 @@
 #define OXRMC_ROTO
 #define OXRMC_FLYPT
 
-using Sharpie.Helpers;
+using Sharpie.Helpers.Core;
+using Sharpie.Helpers.Core.Lerping;
 
 using System.Diagnostics;
 
