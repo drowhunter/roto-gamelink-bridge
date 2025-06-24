@@ -21,7 +21,9 @@ namespace RotoGLBridge.Plugins
         public ConnectionStatus ConnectionStatus = ConnectionStatus.Unknown;
 
         public ModeType Mode = default;
-        
+
+        public int Turns => roto.turns;
+
         CancellationTokenSource _cts;
 
         public bool IsPluggedIn => roto.IsPluggedIn;
@@ -225,6 +227,7 @@ namespace RotoGLBridge.Plugins
 
     public class RotoPluginGlobal : UpdateablePluginGlobal<RotoPlugin>
     {
+        public int Turns => plugin.Turns;
         public bool IsPluggedIn => plugin.IsPluggedIn;
 
         public RotoDataModel Data => plugin.RotoDataModel;

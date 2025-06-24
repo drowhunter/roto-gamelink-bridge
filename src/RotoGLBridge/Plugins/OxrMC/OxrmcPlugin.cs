@@ -67,7 +67,7 @@ namespace RotoGLBridge.Plugins
 
                 // Step 4: Write the modified bits back to the shared memory
                 activity.trigger = (ulong)temp;
-                
+                mmf.Send(activity);
 
 
 
@@ -112,10 +112,24 @@ namespace RotoGLBridge.Plugins
             set => SetActivityBit(ActivityBit.SaveConfig, value);
         }
 
+        
+
         public bool SaveConfigPerApp
         {
             get => ((plugin?.HotKeysPreseed ?? 0) & ActivityBit.SaveConfigPerApp) != 0;
             set => SetActivityBit(ActivityBit.SaveConfigPerApp, value);
+        }
+
+        public bool CrosshairToggle
+        {
+            get => ((plugin?.HotKeysPreseed ?? 0) & ActivityBit.CrosshairToggle) != 0;
+            set => SetActivityBit(ActivityBit.CrosshairToggle, value);
+        }
+
+        public bool StabilizerToggle
+        {
+            get => ((plugin?.HotKeysPreseed ?? 0) & ActivityBit.StabilizerToggle) != 0;
+            set => SetActivityBit(ActivityBit.StabilizerToggle, value);
         }
     }
 }

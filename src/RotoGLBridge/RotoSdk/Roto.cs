@@ -115,7 +115,7 @@ namespace com.rotovr.sdk
 
 
         float previousAngle = 0;
-
+        public int turns = 0;
         private void M_yawInterpolator_OnAngleUpdate(float angle)
         {
 
@@ -132,6 +132,13 @@ namespace com.rotovr.sdk
             if (delta > 180)
                 delta = 360 - delta;
             telemetry.AngularVelocity = NormalizeAngle(delta) / (es / 1000f); // angle per second
+
+            if(Math.Abs(angle - previousAngle) > 300)
+            {
+                // this is a jump, so we reset the home angle
+                turns = turns + (angle > previousAngle ? -1 : 1);
+            }
+
             previousAngle = angle;
 #if DEBUG_MMF
             tel.Send(telemetry);

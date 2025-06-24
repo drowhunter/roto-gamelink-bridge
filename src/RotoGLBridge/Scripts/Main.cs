@@ -86,19 +86,12 @@ namespace RotoGLBridge.Scripts
                 { nameof(Roto.Telemetry.AngularVelocity), $"{roto.Telemetry.AngularVelocity,8:F1} °/s" },
                 { "hotkeys", $"{oxrmc.plugin.HotKeysPreseed}" },
                 { "trigger", $"{(ActivityBit)oxrmc.plugin.activityFlags.trigger}" },
-                { "confirm", $"{(ActivityBit)oxrmc.plugin.activityFlags.confirm}" }
+                { "confirm", $"{(ActivityBit)oxrmc.plugin.activityFlags.confirm}" },
+                { "turns", roto.Turns }
             };
 
-            if (speech.Said(["toggle motion compensation"], .75f))
-            {
-                //speech.Say("Toggling motion compensation.");
-                stats.Add("motion compensation", oxrmc.Activate ? "off" : "on");
-                oxrmc.Activate = true;
-            }
-            else
-            {
-                oxrmc.Activate = false;
-            }
+            EnableVoiceControl(ref stats);
+            
 
                 //oxrmc.Activate = speech.Said(["toggle motion compensation"], .8f);
 
@@ -122,6 +115,32 @@ namespace RotoGLBridge.Scripts
             }
         }
 
+
+        private void EnableVoiceControl(ref Dictionary<string, object> stats)
+        {
+            if (speech.Said(["toggle"], .70f))
+            {
+                //speech.Say("Toggling motion compensation.");
+                stats.Add("motion compensation", oxrmc.Activate ? "off" : "on");
+                oxrmc.Activate = true;
+            }
+            else
+            {
+                oxrmc.Activate = false;
+            }
+
+            if(speech.Said(["crosshair"], .70f))
+                oxrmc.CrosshairToggle = true;
+            else
+                oxrmc.CrosshairToggle = false;
+            
+
+            if (speech.Said(["stabilize"], .70f))
+                oxrmc.StabilizerToggle = true;
+            else
+                oxrmc.StabilizerToggle = false;
+            
+        }
         
     }
 }
