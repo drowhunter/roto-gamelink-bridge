@@ -129,18 +129,9 @@ namespace RotoGLBridge.Scripts
                 oxrmc.Activate = false;
             }
 
-            if(speech.Said(["crosshair"], .70f))
-                oxrmc.CrosshairToggle = true;
-            else
-                oxrmc.CrosshairToggle = false;
-            
+            oxrmc.CrosshairToggle = speech.Said(["crosshair"], .70f);
 
-            if (speech.Said(["stabilize"], .70f))
-                oxrmc.StabilizerToggle = true;
-            else
-                oxrmc.StabilizerToggle = false;
-            
-        }
+            oxrmc.StabilizerToggle =  speech.Said(["stabilize"], .70f);
         
     }
 }
