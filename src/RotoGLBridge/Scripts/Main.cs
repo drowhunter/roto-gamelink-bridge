@@ -31,7 +31,9 @@ namespace RotoGLBridge.Scripts
         public override async Task Start()
         {
             logger.LogInformation($"Main script started.");
-            speech.Say("Main script started.");
+
+            speech.Say("Roto Chair Initialized");
+
             gamelink.OnUpdate += OnGameLinkUpdate;
 
             var options = new JsonSerializerOptions { WriteIndented = false };
@@ -118,28 +120,11 @@ namespace RotoGLBridge.Scripts
 
         private void EnableVoiceControl(ref Dictionary<string, object> stats)
         {
-            if (speech.Said(["toggle"], .70f))
-            {
-                //speech.Say("Toggling motion compensation.");
-                stats.Add("motion compensation", oxrmc.Activate ? "off" : "on");
-                oxrmc.Activate = true;
-            }
-            else
-            {
-                oxrmc.Activate = false;
-            }
+            oxrmc.Activate = speech.Said(["toggle motion comp"], .70f) || oxrmc.Activate;
 
-            if(speech.Said(["crosshair"], .70f))
-                oxrmc.CrosshairToggle = true;
-            else
-                oxrmc.CrosshairToggle = false;
-            
+            oxrmc.CrosshairToggle = speech.Said(["crosshair"], .70f);
 
-            if (speech.Said(["stabilize"], .70f))
-                oxrmc.StabilizerToggle = true;
-            else
-                oxrmc.StabilizerToggle = false;
-            
+            oxrmc.StabilizerToggle = speech.Said(["stabilize"], .70f);
         }
         
     }
