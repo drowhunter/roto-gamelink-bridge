@@ -2,9 +2,10 @@
 //using Microsoft.Extensions.Logging.Console;
 
 using RotoGLBridge.ConsoleApp;
-using RotoGLBridge.Plugins;
-using RotoGLBridge.Scripts;
+using RotoGLBridge.Models;
 using RotoGLBridge.Services;
+
+using Sharpie.Helpers.Telemetry;
 
 
 var runargs = ArgumentParser<RunArgs>.Parse(args);
@@ -25,10 +26,11 @@ AppDomain.CurrentDomain.UnhandledException += (s, e) =>
     cts.Cancel();
 };
 
+//_ = RunTestAsync(cts.Token);
+//return;
 
 var serviceProvider = CreateServices();
-
- serviceProvider.GetRequiredService<App>().Run(cts.Token);
+serviceProvider.GetRequiredService<App>().Run(cts.Token);
 
 await WaitForCtrlQ(cts);
 
@@ -93,3 +95,49 @@ Task WaitForCtrlQ(CancellationTokenSource cts)
        
     });
 }
+
+float NormalizeAngle(float angle)
+{
+    if (angle < 0)
+        angle += 360;
+    else if (angle > 360)
+        angle -= 360;
+
+    return angle;
+}
+
+async Task RunTestAsync(CancellationToken cancellationToken = default)
+    {
+        Console.WriteLine("Running OxrTester...");
+
+        await Task.Factory.StartNew(() =>
+        {
+            var flypt = new FlyPtSender();
+
+            var sa = 63; // Start angle
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                // Simulate some work
+                Console.WriteLine("Angle:");
+
+                var str = Console.ReadLine();
+                if (int.TryParse(str, out int angle))
+                {
+                    var na = -NormalizeAngle(angle - sa);
+
+                    Console.WriteLine($"Sending angle: -(norm({angle}° - 20)) = {na} ");
+
+                    flypt.Send(na);
+                }
+                else
+                {
+                    Console.WriteLine("Invalid input. Please enter a valid integer.");
+                }
+
+
+
+            }
+        }, TaskCreationOptions.LongRunning);
+
+        Console.WriteLine("OxrTester completed.");
+    }

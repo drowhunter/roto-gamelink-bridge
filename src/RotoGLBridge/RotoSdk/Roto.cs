@@ -20,7 +20,7 @@ namespace com.rotovr.sdk
         IUsbConnector usbConnector
         )
     {
-        private const int ReadFPS = 90; // 90 FPS for the interpolator
+        private const int ReadFPS = 240; // 90 FPS for the interpolator
         int WriteFPS = 50;
 
 
