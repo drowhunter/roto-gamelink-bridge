@@ -23,14 +23,17 @@
 		<PackageReference Include="System.Management" Version="9.0.6" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(Configuration)' != 'Dev'">
-		<PackageReference Include="Sharpie.Engine" Version="1.0.7" />
-		<PackageReference Include="Sharpie.Helpers.Telemetry" Version="1.0.7" />
-		<PackageReference Include="Sharpie.Plugins.Speech" Version="1.0.2" />
+		<PackageReference Include="Sharpie.Engine" Version="1.0.8" />
+		<PackageReference Include="Sharpie.Helpers.Telemetry" Version="1.0.8" />
+		<PackageReference Include="Sharpie.Plugins.Speech" Version="1.0.8" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(Configuration)' == 'Dev'">
 	  <ProjectReference Include="..\..\..\Sharpie2\src\Sharpie\Sharpie.Engine\Sharpie.Engine.csproj" />
 	  <ProjectReference Include="..\..\..\Sharpie2\src\Plugins\Sharpie.Plugins.Speech\Sharpie.Plugins.Speech.csproj" />
 	  <ProjectReference Include="..\..\..\Sharpie2\src\Sharpie\Sharpie.Helpers.Telemetry\Sharpie.Helpers.Telemetry.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\..\..\Sharpie2\src\Plugins\Sharpie.Plugins.SharpDX\Sharpie.Plugins.SharpDX.csproj" />
 	</ItemGroup>
 	
 	<ItemGroup>

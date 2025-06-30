@@ -38,7 +38,7 @@ namespace RotoGLBridge.Services
 
         public FlyPtSender()
         {
-            mmf = new MmfTelemetry<SixDofTracker>(new("motionRigPose", true), 
+            mmf = new MmfTelemetry<SixDofTracker>(new("motionRigPose", true) { Create = true }, 
                 converter: new MarshalByteConverter<SixDofTracker>());
 
         }

@@ -10,35 +10,47 @@ namespace com.rotovr.sdk
         {
             public int ActualAngle;
 
+            public float PreciseAngle;
+
             public int TargetAngle;
 
             public int CappedTargetAngle;
 
-            public int Power;
+            public float KalmanAngle;
+
+            
 
             public float Delta;
 
             public int AntiJump;
 
             public float AngularVelocity;
-        
+
             //public float AvgTargetAngle;
 
-            public float PreciseAngle;
 
-            public float RecieveFPS;
+            public float SendHz;
 
-            public float LerpedFPS;
+            public float RecieveHz;
 
-            public float MaxPower;
+            public float LerpedHz;
 
-            public float SendFPS;
+            
+
+            
 
             public int Direction;
 
             public int StopAngle;
 
+            public int Power;
+
+
             public int MinPower;
+
+            public float MaxPower;
+
+            
         }
         
     }

@@ -1,9 +1,11 @@
 ﻿
 #define OXRMC_ROTO
 #define OXRMC_FLYPT
+#define DEBUG_MMF
 
 using Sharpie.Helpers.Core;
 using Sharpie.Helpers.Core.Lerping;
+using Sharpie.Helpers.Telemetry;
 
 using System.Diagnostics;
 
@@ -20,8 +22,8 @@ namespace com.rotovr.sdk
         IUsbConnector usbConnector
         )
     {
-        private const int ReadFPS = 240; // 90 FPS for the interpolator
-        int WriteFPS = 50;
+        private const int ReadHz = 144; // 90 Hz for the interpolator
+        int WriteHz = 50;
 
 
         RotoDataModel m_RotoData = new();
@@ -92,7 +94,8 @@ namespace com.rotovr.sdk
             OnConnectionStatus?.Invoke(status);
         }
 
-       
+        
+
         /// <summary>
         /// This method is about 5-10fps
         /// </summary>
@@ -100,6 +103,8 @@ namespace com.rotovr.sdk
         void OnUsbDataChanged(RotoDataModel model)
         {
             telemetry.ActualAngle = model.Angle;
+
+           
             //telemetry.AngularVelocity = m_AngularVelocity;            
 
             if (model.Mode != m_RotoData.Mode)
@@ -110,7 +115,7 @@ namespace com.rotovr.sdk
             //OnDataChanged?.Invoke(model);
             m_RotoData = model;
 
-            m_yawInterpolator.UpdateValue(model.Angle);
+            telemetry.KalmanAngle = m_yawInterpolator.UpdateValue(model.Angle);
         }
 
 
@@ -120,17 +125,18 @@ namespace com.rotovr.sdk
         {
 
             var es = _angleUpdateStopwatch.ElapsedMilliseconds == 0 ? 1 : _angleUpdateStopwatch.ElapsedMilliseconds;
-
             
             _angleUpdateStopwatch.Restart();
 
             //telemetry.AngularVelocity = CalculateAngularVelocity();
             telemetry.PreciseAngle = angle;
-            telemetry.RecieveFPS = m_yawInterpolator.OriginalFramerate;
-            telemetry.LerpedFPS = es <= 1 ? 0 : 1000 / es;
+            telemetry.RecieveHz = m_yawInterpolator.OriginalFramerate;
+            telemetry.LerpedHz = es <= 1 ? 0 : 1000 / es;
+
             var delta = MathF.Abs(angle - previousAngle);
             if (delta > 180)
                 delta = 360 - delta;
+
             telemetry.AngularVelocity = NormalizeAngle(delta) / (es / 1000f); // angle per second
 
             if(Math.Abs(angle - previousAngle) > 300)
@@ -315,7 +321,7 @@ namespace com.rotovr.sdk
             m_ObservableTarget = targetFunc;
 
             m_yawInterpolator.OnValueUpdate += M_yawInterpolator_OnAngleUpdate;
-            m_yawInterpolator.Start(ReadFPS, m_CancelSource.Token);
+            m_yawInterpolator.Start(ReadHz, m_CancelSource.Token);
             _angleUpdateStopwatch = Stopwatch.StartNew();
 
             var t = new Thread(async () =>
@@ -407,11 +413,13 @@ namespace com.rotovr.sdk
 
 
 #if DEBUG_MMF
-        MmfTelemetry<Telemetry> tel = new (config =>
+        
+
+        MmfTelemetry<Telemetry> tel = new (new MmfTelemetryConfig()
         {
-            config.Name = "RotoVR";
-            config.Create = true; 
-        });
+            Name = "RotoVR",
+            Create = true
+        }, new MarshalByteConverter<Telemetry>());
 #endif
 
 
@@ -425,7 +433,7 @@ namespace com.rotovr.sdk
             {
                 await Task.Delay(500);                
                 
-                int targetMs = 1000 / WriteFPS;
+                int targetMs = 1000 / WriteHz;
 
                 telemetry.MinPower = 30;
                 m_homeAngle = m_RotoData.Angle;
@@ -506,7 +514,7 @@ namespace com.rotovr.sdk
                         SleepAccurate(elapsedTimeLeft);
                     }
 
-                    telemetry.SendFPS = 1000f / Math.Max(1, sendWatch.ElapsedMilliseconds);
+                    telemetry.SendHz = 1000f / Math.Max(1, sendWatch.ElapsedMilliseconds);
                     sendWatch.Restart();
                     
                 }

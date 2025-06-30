@@ -4,7 +4,6 @@ using RotoGLBridge.Plugins;
 using RotoGLBridge.Plugins.GameLink;
 using RotoGLBridge.Services;
 
-using Sharpie.Helpers;
 using Sharpie.Helpers.Core;
 using Sharpie.Plugins.Speech;
 
@@ -22,9 +21,9 @@ namespace RotoGLBridge.Scripts
         IConsoleWatcher cons ) : SharpieScript
     {
         float yaw;
-        int i = 0;
+        //int i = 0;
         float roll;
-        int mode = 1;
+        //int mode = 1;
 
 
 
@@ -50,12 +49,14 @@ namespace RotoGLBridge.Scripts
 
             yawDevice.OnUpdate += () =>
             {
-                cons.Write(0, 12, $"tcp: {yawDevice.Command}");
+                //cons.Write(0, 12, $"tcp: {yawDevice.Command}");
             };
             roto.OnUpdate += () =>
             {
                gamelink.IsConnected = roto.IsConnected;
             };
+
+            
         }
 
         private void OnGameLinkUpdate()
@@ -70,55 +71,35 @@ namespace RotoGLBridge.Scripts
 
         public override void Update()
         {
-            
 
+            Watch();
 
-            Dictionary<string, object> stats = new()
-            {
-                { nameof(RotoPlugin.IsPluggedIn), roto.IsPluggedIn },
-                { nameof(RotoPluginGlobal.Status),  roto.Status},
-                { nameof(yaw) , yaw.ToString("F1").PadLeft(5) },
-                { nameof(Roto.Telemetry.Power), roto.Telemetry.Power.ToString().PadLeft(3) },
-                { nameof(RotoDataModel.Mode), roto.Data?.Mode.ToString() },
-                { nameof(RotoDataModel.LerpedAngle), roto.Data?.LerpedAngle.ToString("F1").PadLeft(5) },
-                { nameof(RotoDataModel.CalibratedAngle), roto.Data?.CalibratedAngle.ToString("F1").PadLeft(5) },
-                { nameof(Roto.Telemetry.Delta), roto.Telemetry.Delta.ToString("F1").PadLeft(5) },
-                { nameof(Roto.Telemetry.TargetAngle), roto.Telemetry.TargetAngle.ToString().PadLeft(3) },
-                { nameof(Roto.Telemetry.CappedTargetAngle), roto.Telemetry.CappedTargetAngle.ToString().PadLeft(3) },
-                { nameof(Roto.Telemetry.AngularVelocity), $"{roto.Telemetry.AngularVelocity,8:F1} °/s" },
-                { "hotkeys", $"{oxrmc.plugin.HotKeysPreseed}" },
-                { "trigger", $"{(ActivityBit)oxrmc.plugin.activityFlags.trigger}" },
-                { "confirm", $"{(ActivityBit)oxrmc.plugin.activityFlags.confirm}" },
-                { "turns", roto.Turns }
-            };
-
-            EnableVoiceControl(ref stats);
-            
-
-                //oxrmc.Activate = speech.Said(["toggle motion compensation"], .8f);
-
-                int maxKeyLen = stats.Keys.Max(k => k.Length) + 10;
-
-            int i = 0;
-            int j = 0;
-
-            int cols = 4;
-
-            foreach (var (k, v) in stats)
-            {
-                var c = j % (maxKeyLen * cols);
-                if (c == 0)
-                    i += 2;
-
-                string paddedKey = k + ":";
-                cons.Write(c, i + 4, $"{paddedKey} {v}");
-
-                j += maxKeyLen;
-            }
+            EnableVoiceControl();
+            //oxrmc.Activate = speech.Said(["toggle motion compensation"], .8f);
         }
 
+        private void Watch()
+        {
+            cons.Watch(nameof(RotoPlugin.IsPluggedIn), roto.IsPluggedIn);
+            cons.Watch(nameof(RotoPluginGlobal.Status), roto.Status);
+            cons.Watch(nameof(yaw), yaw.ToString("F1").PadLeft(5));
+            cons.Watch(nameof(Roto.Telemetry.Power), roto.Telemetry.Power.ToString().PadLeft(3));
+            cons.Watch(nameof(RotoDataModel.Mode), roto.Data?.Mode.ToString());
+            cons.Watch(nameof(RotoDataModel.LerpedAngle), roto.Data?.LerpedAngle.ToString("F1").PadLeft(5));
+            cons.Watch(nameof(RotoDataModel.CalibratedAngle), roto.Data?.CalibratedAngle.ToString("F1").PadLeft(5));
+            cons.Watch(nameof(Roto.Telemetry.Delta), roto.Telemetry.Delta.ToString("F1").PadLeft(5));
+            cons.Watch(nameof(Roto.Telemetry.TargetAngle), roto.Telemetry.TargetAngle.ToString().PadLeft(3));
+            cons.Watch(nameof(Roto.Telemetry.CappedTargetAngle), roto.Telemetry.CappedTargetAngle.ToString().PadLeft(3));
+            cons.Watch(nameof(Roto.Telemetry.AngularVelocity), $"{roto.Telemetry.AngularVelocity,8:F1} °/s");
+            cons.Watch("hotkeys", $"{oxrmc.plugin.HotKeysPreseed}");
+            cons.Watch("trigger", $"{(ActivityBit)oxrmc.plugin.activityFlags.trigger}");
+            cons.Watch("confirm", $"{(ActivityBit)oxrmc.plugin.activityFlags.confirm}");
+            cons.Watch("turns", roto.Turns);
 
-        private void EnableVoiceControl(ref Dictionary<string, object> stats)
+            cons.Publish();
+        }
+
+        private void EnableVoiceControl()
         {
             oxrmc.Activate = speech.Said(["toggle motion comp"], .70f) || oxrmc.Activate;
 

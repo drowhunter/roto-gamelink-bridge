@@ -9,6 +9,7 @@ using RotoGLBridge.Services;
 
 using Sharpie.Helpers.Core.Lerping;
 using Sharpie.Helpers.Telemetry;
+using Sharpie.Plugins.SharpDX;
 using Sharpie.Plugins.Speech;
 
 using System.Diagnostics;
@@ -40,14 +41,17 @@ namespace Microsoft.Extensions.DependencyInjection
                 setup.EnginePollInterval = (1000 / 90); // 90 FPS
             })
             .AddPluginsFrom<GamelinkPlugin>()
-            .AddScriptsFrom<Main>()
+            //.AddScriptsFrom<RotoMCSender>()
+            .AddScript<Main>()
+            //.AddScript<JoystickTest>()
             .AddPlugin<SpeechPlugin>()
+            .AddPlugin<Xbox360Plugin>()
             .Build();
 
 
             //builder.Services.AddSingleton<TcpCommandFactory>();
             builder.Services.AddTransient<IByteConverter<YawGLData>, YawGLByteConverter>();
-            builder.Services.AddSingleton<IConsoleWatcher, ConsoleWatcher>();
+            builder.Services.AddTransient<IConsoleWatcher, ConsoleWatcher>();
             //builder.Services.
             builder.Services.AddRotoServices();
            
@@ -62,6 +66,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<ILerper, Lerper>();
             services.AddTransient<Stopwatch>();
             services.AddSingleton<Roto>();
+            
             //services.AddTransient<IMmfSender, RotoMCSender>();
             services.AddTransient<IMmfSender, FlyPtSender>();
         }
