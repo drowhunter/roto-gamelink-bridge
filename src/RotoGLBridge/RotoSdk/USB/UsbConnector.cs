@@ -439,30 +439,34 @@ namespace com.rotovr.sdk
             m_usbMessage[1] = (byte)'M';
             m_usbMessage[2] = 0x01;
 
-            if (model.Direction.Equals("Right"))
-            {
-                m_usbMessage[3] = 0x52;
-            }
-            else
-            {
-                m_usbMessage[3] = 0x4C;
-            }
+            //if (model.Direction.Equals("Right"))
+            //{
+              //  m_usbMessage[3] = 0x52;
+            //}
+            //else
+            //{
+            //    m_usbMessage[3] = 0x4C;
+            //}
 
             var angle = model.Angle;
 
             if (angle == 360)
                 angle -= 1;
-
-            if (angle >= 256)
-            {
-                m_usbMessage[4] = 0x01;
-                m_usbMessage[5] = (byte)(angle - 256);
-            }
-            else
-            {
-                m_usbMessage[4] = 0x00;
-                m_usbMessage[5] = (byte)angle;
-            }
+             
+            byte high = (byte)((angle >> 8) & 0xFF);
+            byte low = (byte)(angle & 0xFF);
+            m_usbMessage[4] = high;
+            m_usbMessage[5] = low;
+            //if (angle >= 256)
+            //{
+             //   m_usbMessage[4] = 0x01;
+            //    m_usbMessage[5] = (byte)(angle - 256);
+            //}
+            //else
+            //{
+            //    m_usbMessage[4] = 0x00;
+            //    m_usbMessage[5] = (byte)angle;
+            //}
 
             m_usbMessage[6] = (byte)model.Power;
             m_usbMessage[7] = 0x00;
