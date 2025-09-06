@@ -29,7 +29,8 @@ AppDomain.CurrentDomain.UnhandledException += (s, e) =>
 //_ = RunTestAsync(cts.Token);
 //return;
 
-var serviceProvider = CreateServices();
+var services = new ServiceCollection();
+var serviceProvider = ConfigureServices(services);
 serviceProvider.GetRequiredService<App>().Run(cts.Token);
 
 await WaitForCtrlQ(cts);
@@ -38,26 +39,21 @@ await WaitForCtrlQ(cts);
 //Console.ReadLine();
 Environment.Exit(0);
 
-ServiceProvider CreateServices()
+ServiceProvider ConfigureServices(IServiceCollection services)
 {
-    var services = new ServiceCollection()
-        .AddLogging(b =>
-        {
-            b.AddFilter("Microsoft", LogLevel.Warning)
-             .AddFilter("System", LogLevel.Warning)
-             //.AddFilter("Sharpie", LogLevel.Debug)
-             .AddFilter("RotoGLBridge", LogLevel.Debug);
-        })
 
-        //.AddLogging(builder =>
-        //                builder.AddConsole()
-        //                        .AddFilter(level => level >= LogLevel.Information)
-        //                       // .AddFilter<ConsoleLoggerProvider>(level => level >= LogLevel.Debug)
-        //                        .AddFilter("Sharpie.Engine", l => l >= LogLevel.Warning)
-        //                        )
-        .AddSingleton<App>()
-        
-        .AddSingleton(sp => runargs);
+    services.AddLogging(b =>
+    {
+        b.AddFilter("Microsoft", LogLevel.Warning)
+            .AddFilter("System", LogLevel.Warning)
+            //.AddFilter("Sharpie", LogLevel.Debug)
+            .AddFilter("RotoGLBridge", LogLevel.Debug);
+    });
+
+    services.AddSingleton<App>();
+
+
+    services.AddSingleton(sp => runargs);
 
     
 
