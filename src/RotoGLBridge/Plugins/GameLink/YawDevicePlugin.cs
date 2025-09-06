@@ -3,6 +3,9 @@ using Sharpie.Helpers.Telemetry;
 
 namespace RotoGLBridge.Plugins.GameLink
 {
+    /// <summary>
+    /// This plugin handles TCP comminication with GameLink
+    /// </summary>
     [GlobalType(Type = typeof(YawDeviceGlobal))]
     public class YawDevicePlugin() : UpdateablePlugin
     {

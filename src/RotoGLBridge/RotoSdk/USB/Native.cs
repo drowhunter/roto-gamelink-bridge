@@ -85,7 +85,14 @@ namespace com.rotovr.sdk
         {
             return Task.Run(() =>
             {
-                CloseHIDDevice(device);
+                try
+                {
+                    CloseHIDDevice(device);
+                }
+                finally
+                {
+
+                }
             });
         }
 

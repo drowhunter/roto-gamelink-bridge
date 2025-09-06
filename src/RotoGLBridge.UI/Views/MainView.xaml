@@ -1,0 +1,81 @@
+﻿<Window x:Class="RotoGLBridge.UI.MainView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:helix="http://helix-toolkit.org/wpf"
+        xmlns:local="clr-namespace:RotoGLBridge.UI"
+        
+        Title="STL Yaw Viewer" Height="600" Width="1000" WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <local:BooleanToInvertedBooleanConverter x:Key="booleanConverter" />
+    </Window.Resources>
+    <Grid>
+        <helix:HelixViewport3D x:Name="viewPort" ZoomExtentsWhenLoaded="True" ShowCameraInfo="False">
+            <helix:HelixViewport3D.Camera>
+                <PerspectiveCamera Position="-122 -222 196" LookDirection="122 220 -158" UpDirection="0 0 1"/>
+            </helix:HelixViewport3D.Camera>
+            <helix:DefaultLights />
+            <ModelVisual3D Content="{Binding RotoChairGroup}" />
+            <ModelVisual3D Content="{Binding RotoBaseGroup}" />
+        </helix:HelixViewport3D>
+        
+        <!-- Left Panel - Model Loading -->
+        <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10" Background="#F0F0F0" 
+                    Opacity="0.9">
+            <GroupBox Header="Model Loading" Padding="10">
+                <StackPanel>
+                    <!--<Button Content="Load Model 1 (Static)" Command="{Binding LoadModel1Command}" Margin="0,0,0,5"/>
+                    <TextBlock Text="{Binding Model1FileName}" FontSize="10" Foreground="Gray" Margin="0,0,0,10"/>
+                    
+                    <Button Content="Load Model 2 (Rotatable)" Command="{Binding LoadModel2Command}" Margin="0,0,0,5"/>
+                    <TextBlock Text="{Binding Model2FileName}" FontSize="10" Foreground="Gray" Margin="0,0,0,10"/>-->
+                    <Button Content="Reset View" Command="{Binding ResetViewCommand}" Margin="0,0,0,5"/>
+                    
+                    <Button Content="Zoom to Fit" Command="{Binding ZoomExtentsCommand}"/>                    
+                  
+                </StackPanel>
+            </GroupBox>
+        </StackPanel>
+
+        <!-- Right Panel - Controls -->
+        <StackPanel HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10" Background="#F0F0F0" 
+                    Opacity="0.9">
+            <GroupBox Header="Model 2 Controls" Padding="10">
+                <StackPanel>
+                    <!-- Yaw Control -->
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                        <TextBlock Text="Yaw:" VerticalAlignment="Center" Width="40"/>
+                        <Slider Value="{Binding Yaw, Mode=TwoWay}" Minimum="0" Maximum="360" Width="150" Margin="5,0"/>
+                        <TextBlock Text="{Binding Yaw, StringFormat='{}{0:F1}°'}" VerticalAlignment="Center" Width="50" Margin="5,0,0,0"/>
+                    </StackPanel>
+                    
+                    <!-- Animation Controls -->
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                        <Button Content="Start Animation" Command="{Binding StartYawAnimationCommand}" Margin="0,0,5,0"/>
+                        <Button Content="Stop" Command="{Binding StopYawAnimationCommand}" Margin="0,0,5,0"/>
+                        <Button Content="Reset" Command="{Binding ResetYawCommand}"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                        <Button Content="Start Engine" Command="{Binding StartEngineCommand}" Margin="0,0,5,0" IsEnabled="{Binding IsEngineRunning , Converter={StaticResource booleanConverter}}"/>
+                        <Button Content="Stop Engine" Command="{Binding StopEngineCommand}" Margin="0,0,5,0" IsEnabled="{Binding IsEngineRunning}" />
+                    </StackPanel>
+                </StackPanel>
+            </GroupBox>
+        </StackPanel>
+
+        <!-- Status Bar -->
+        <StatusBar VerticalAlignment="Bottom">
+            <StatusBarItem>
+                <TextBlock Text="{Binding RotoChairFileName, StringFormat='Model 1: {0}'}"/>
+            </StatusBarItem>
+            <Separator/>
+            <StatusBarItem>
+                <TextBlock Text="{Binding RotoBaseFileName, StringFormat='Model 2: {0}'}"/>
+            </StatusBarItem>
+            <Separator/>
+            <StatusBarItem>
+                <TextBlock Text="{Binding Yaw, StringFormat='Yaw: {0:F1}°'}"/>
+            </StatusBarItem>
+        </StatusBar>
+    </Grid>
+</Window>
