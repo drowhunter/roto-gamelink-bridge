@@ -1,12 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
-using RotoGLBridge.UI.ViewModels;
-
-using System;
-using System.Configuration;
-using System.Data;
-using System.Threading;
 using System.Windows;
 using System.Windows.Threading;
 

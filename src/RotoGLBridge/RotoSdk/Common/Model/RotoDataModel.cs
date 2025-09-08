@@ -8,6 +8,7 @@ namespace com.rotovr.sdk
     public class RotoDataModel
     {
         private string mode;
+        private float _lerpedAngle;
 
         internal RotoDataModel(string json)
         {
@@ -47,12 +48,14 @@ namespace com.rotovr.sdk
         /// <returns>A JSON string representing the current state of the chair.</returns>
         public string ToJson()
         {
-            var dict = new Dictionary<string, object>();
-            dict.Add("Mode", Mode);
-            dict.Add("ModeType", (int)ModeType);
-            dict.Add("Angle", Angle);
-            dict.Add("TargetCockpit", TargetCockpit);
-            dict.Add("MaxPower", MaxPower);
+            var dict = new Dictionary<string, object>
+            {
+                { "Mode", Mode },
+                { "ModeType", (int)ModeType },
+                { "Angle", Angle },
+                { "TargetCockpit", TargetCockpit },
+                { "MaxPower", MaxPower }
+            };
 
             return JsonSerializer.Serialize(dict);
         }
@@ -84,7 +87,7 @@ namespace com.rotovr.sdk
         /// <summary>
         /// Gets or sets the current rotation angle of the chair (in degrees) and high frame rate.
         /// </summary>
-        public float LerpedAngle { get; set; }
+        public float LerpedAngle { get => _lerpedAngle != 0?_lerpedAngle : Angle ; set => _lerpedAngle = value; }
 
         /// <summary>
         /// The Lerped angle of the chair, adjusted for calibration.
