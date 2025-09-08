@@ -1,18 +1,30 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+
 using HelixToolkit.Wpf;
+
 using Microsoft.Win32;
+
+using RotoGLBridge.Plugins;
+
 using System;
 using System.Windows;
+using System.Windows.Media;
 using System.Windows.Media.Media3D;
 using System.Windows.Threading;
 
-namespace RotoGLBridge.UI.ViewModels
+namespace RotoGLBridge.UI
 {
     public partial class MainViewModel : ObservableObject
     {
         [ObservableProperty]
         private double yaw;
+        partial void OnYawChanged(double value)
+        {
+            yawRotation?.Angle = value;
+        }
+
+        
 
         [ObservableProperty]
         private Model3DGroup rotoBaseGroup = new();
@@ -32,86 +44,107 @@ namespace RotoGLBridge.UI.ViewModels
         [ObservableProperty]
         private string rotoBaseFileName = "No model loaded";
 
-        // 3D transformation objects
-        private AxisAngleRotation3D? yawRotation;
-        private RotateTransform3D? yawTransform;
-        private Transform3DGroup? combinedTransform;
-        private TranslateTransform3D? centeringTransform;
-
-        // Animation timer
-        private DispatcherTimer? yawTimer;
-        private double currentYaw = 0;
-
-        private string version = "rotovr";
-
-        private readonly ISharpieEngine sharpieEngine;
-        
-       
-        
-    // Pseudocode plan:
-    // - Replace the private getter-only property with a public computed property for binding.
-    // - Raise PropertyChanged for this computed property whenever engine state may change.
-    // - Update StartEngine to notify after starting.
-    // - Update StopEngine to be async, await engine.Stop(), and notify after stopping.
-    // - Ensure Task is available via using System.Threading.Tasks.
-
-   
-
-    // Replace this private property with a public computed property
-    public bool IsEngineRunning => sharpieEngine?.IsRunning ?? false;
-
-    // Replace StartEngine to notify bindings that IsEngineRunning may have changed
-    [RelayCommand]
-    private void StartEngine()
-    {
-        sharpieEngine?.Start(cts.Token);
-        OnPropertyChanged(nameof(IsEngineRunning));
-    }
-
-    // Replace StopEngine to await engine stop and notify bindings
-    [RelayCommand]
-    private async Task StopEngine()
-    {
-        cts?.Cancel();
-        if (sharpieEngine != null)
-        {
-            try
-            {
-                await sharpieEngine.Stop();
-            }
-            catch
-            {
-                // swallow or handle as needed
-            }
-        }
-        cts = new CancellationTokenSource();
-        OnPropertyChanged(nameof(IsEngineRunning));
-    }
-
-        CancellationTokenSource cts;
-
-        public MainViewModel( ISharpieEngine sharpieEngine) 
+        // Updated constructor to safely update Yaw from background thread via dispatcher
+        public MainViewModel(ISharpieEngine sharpieEngine, RotoPluginGlobal roto)
         {
             SetupModels();
 
             cts = new CancellationTokenSource();
             this.sharpieEngine = sharpieEngine;
+            _roto = roto;
+
+            _uiDispatcher = Application.Current?.Dispatcher ?? Dispatcher.CurrentDispatcher;
+
+            _roto.OnUpdate += () =>
+            {
+                // Extract latest angle (prefer lerped if non-zero)
+                var data = _roto?.Data;
+                if (data == null) return;
+
+                currentYaw = -data.LerpedAngle;
+
+                //if (_uiDispatcher.CheckAccess())
+                //{
+                //    Yaw = currentYaw;
+                //}
+                //else
+                //{
+                //    _ = _uiDispatcher.BeginInvoke(new Action(() => Yaw = currentYaw));
+                //}
+            };
+
+            
         }
 
+        private AxisAngleRotation3D yawRotation;
+        private RotateTransform3D yawTransform;
+        private Transform3DGroup combinedTransform;
+        private TranslateTransform3D _centeringTransform;        
+        private DispatcherTimer yawTimer;
+        private double currentYaw = 0;
+        private string version = "rotovr";
+        private readonly ISharpieEngine sharpieEngine;
+        private readonly RotoPluginGlobal _roto;
+        private bool _smoothYawEnabled = true;
+        private int _fps = 60;
+        private float _frameTime { get => 1000f / _fps; }
+        private float _timePerTurn = 2000f;
+        private float _dps { get => 360f / _timePerTurn * _frameTime; }
+        public bool IsEngineRunning => sharpieEngine?.IsRunning ?? false;
+        private CancellationTokenSource cts;
+        // Added field inside MainViewModel class (with other private fields)
+        private readonly Dispatcher _uiDispatcher;
         public event Action ZoomExtentsRequested;
-
         public event Action ResetViewRequested;
+        Dictionary<int, string?> modelFileNames = new()
+        {
+            { 1, null },
+            { 2, null }
+        };
+        private bool _renderSubscribed;
+        public event Action<double> CameraPitchRequested;
 
+        // Replace StartEngine to notify bindings that IsEngineRunning may have changed
+        [RelayCommand]
+        private void StartEngine()
+        {
+            sharpieEngine?.Start(cts.Token);
+            OnPropertyChanged(nameof(IsEngineRunning));
+            StartSmoothYaw();
+        }
+
+        // Replace StopEngine to await engine stop and notify bindings
+        [RelayCommand]
+        private async Task StopEngine()
+        {
+            StopSmoothYaw();
+            cts?.Cancel();
+            if (sharpieEngine != null)
+            {
+                try
+                {
+                    await sharpieEngine.Stop();
+                }
+                catch
+                {
+                    // swallow or handle as needed
+                }
+            }
+            cts = new CancellationTokenSource();
+            OnPropertyChanged(nameof(IsEngineRunning));
+        }
+
+        
         private void SetupModels()
         {
             // Setup for rotatable model (model2)
             yawRotation = new AxisAngleRotation3D(new Vector3D(0, 0, 1), 0);
             yawTransform = new RotateTransform3D(yawRotation);
-            centeringTransform = new TranslateTransform3D();
+            _centeringTransform = new TranslateTransform3D();
 
             // Combine transforms: first translate to center, then rotate
             combinedTransform = new Transform3DGroup();
-            combinedTransform.Children.Add(centeringTransform);
+            combinedTransform.Children.Add(_centeringTransform);
             combinedTransform.Children.Add(yawTransform);
 
             RotoChairGroup.Transform = combinedTransform;
@@ -119,17 +152,7 @@ namespace RotoGLBridge.UI.ViewModels
             LoadModels();
             
         }
-
-
         
-
-        public event Action<double>? CameraPitchRequested;
-
-        partial void OnYawChanged(double value)
-        {
-            UpdateYaw(value);
-        }
-
         [RelayCommand]
         private void LoadModels()
         {
@@ -180,20 +203,22 @@ namespace RotoGLBridge.UI.ViewModels
         [RelayCommand]
         private void StartYawAnimation()
         {
+            if (_smoothYawEnabled)
+            {
+                StartSmoothYaw();
+                return;
+            }
+
             if (yawTimer?.IsEnabled == true)
                 return;
 
-            var fps = 60;
-            var frameTime = 1000f / fps;
-            var timePerTurn = 2000f; // milliseconds for a full 360-degree turn
+            yawTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(_frameTime) };
 
-            yawTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(frameTime) };
-
-            var dps = 360f / timePerTurn * frameTime;
+            
 
             yawTimer.Tick += (s, e) =>
             {
-                currentYaw += dps;
+                currentYaw += _dps;
                 if (currentYaw > 360) 
                     currentYaw -= 360;
                 Yaw = currentYaw;
@@ -204,6 +229,12 @@ namespace RotoGLBridge.UI.ViewModels
         [RelayCommand]
         private void StopYawAnimation()
         {
+            if (_smoothYawEnabled)
+            {
+                StopSmoothYaw();
+                return;
+            }
+
             yawTimer?.Stop();
         }
 
@@ -250,11 +281,6 @@ namespace RotoGLBridge.UI.ViewModels
         //    cts = new CancellationTokenSource();
         //}
 
-        Dictionary<int, string?> modelFileNames = new()
-        {
-            { 1, null },
-            { 2, null }
-        };
         
 
         private string BrowseModel()
@@ -315,12 +341,33 @@ namespace RotoGLBridge.UI.ViewModels
             return model;
         }
 
-        private void UpdateYaw(double yawDegrees)
+        
+
+        
+    
+
+        public void StartSmoothYaw()
         {
-            if (yawRotation != null)
-            {
-                yawRotation.Angle = yawDegrees;
-            }
+            if (_renderSubscribed) return;
+            CompositionTarget.Rendering += OnRender;
+            _renderSubscribed = true;
         }
+
+        public void StopSmoothYaw()
+        {
+            if (!_renderSubscribed) return;
+            CompositionTarget.Rendering -= OnRender;
+            _renderSubscribed = false;
+        }
+
+        void OnRender(object s, EventArgs e)
+        {
+            //currentYaw += _dps; 
+            //if (currentYaw >= 360) currentYaw -= 360;
+            Yaw = currentYaw;
+        }
+
+        
+
     }
 }

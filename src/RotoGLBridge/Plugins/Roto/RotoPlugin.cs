@@ -16,6 +16,7 @@ namespace RotoGLBridge.Plugins
         ) : UpdateablePlugin
     {
 
+        
         public RotoDataModel RotoDataModel = new();
 
         public ConnectionStatus ConnectionStatus = ConnectionStatus.Unknown;
@@ -24,7 +25,7 @@ namespace RotoGLBridge.Plugins
 
         public int Turns => roto.turns;
 
-        CancellationTokenSource _cts;
+        private CancellationTokenSource _cts;
 
         public bool IsPluggedIn => roto.IsPluggedIn;
 
@@ -57,7 +58,6 @@ namespace RotoGLBridge.Plugins
             if (ConnectionStatus != ConnectionStatus.Connected)
             {
                 bool connected = await roto.ConnectAsync(_cts.Token);
-
             }
             else
             {

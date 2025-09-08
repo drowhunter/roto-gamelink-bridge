@@ -1,9 +1,12 @@
 ﻿<Window x:Class="RotoGLBridge.UI.MainView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:helix="http://helix-toolkit.org/wpf"
         xmlns:local="clr-namespace:RotoGLBridge.UI"
-        
+        d:DataContext="{d:DesignInstance local:MainViewModel}"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
         Title="STL Yaw Viewer" Height="600" Width="1000" WindowStartupLocation="CenterScreen">
     <Window.Resources>
         <local:BooleanToInvertedBooleanConverter x:Key="booleanConverter" />

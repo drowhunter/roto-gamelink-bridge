@@ -1,16 +1,10 @@
-﻿using HelixToolkit.Wpf;
-
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Media.Media3D;
 
 
 
 namespace RotoGLBridge.UI
 {
-    using SharpDX;
-
-    using ViewModels;
-
     public partial class MainView : Window
     {
         private MainViewModel ViewModel => (MainViewModel)DataContext;
