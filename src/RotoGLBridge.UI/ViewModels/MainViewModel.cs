@@ -8,6 +8,7 @@ using Microsoft.Win32;
 using RotoGLBridge.Plugins;
 
 using System;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
@@ -44,17 +45,32 @@ namespace RotoGLBridge.UI
         [ObservableProperty]
         private string rotoBaseFileName = "No model loaded";
 
+
+        [ObservableProperty]
+        private string _programVersion;
+
+
+        [RelayCommand]
+        public void OpenSettings()
+        {
+            //var settingsWindow = new SettingsWindow();
+            //settingsWindow.Owner = Application.Current.MainWindow;
+            //settingsWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            //settingsWindow.ShowDialog();
+        }
+
         // Updated constructor to safely update Yaw from background thread via dispatcher
         public MainViewModel(ISharpieEngine sharpieEngine, RotoPluginGlobal roto)
         {
             SetupModels();
+            ProgramVersion = GetProgramVersion();
 
             cts = new CancellationTokenSource();
             this.sharpieEngine = sharpieEngine;
             _roto = roto;
 
-            _uiDispatcher = Application.Current?.Dispatcher ?? Dispatcher.CurrentDispatcher;
-
+            //_uiDispatcher = Application.Current?.Dispatcher ?? Dispatcher.CurrentDispatcher;
+            
             _roto.OnUpdate += () =>
             {
                 // Extract latest angle (prefer lerped if non-zero)
@@ -63,40 +79,48 @@ namespace RotoGLBridge.UI
 
                 currentYaw = -data.LerpedAngle;
 
-                //if (_uiDispatcher.CheckAccess())
-                //{
-                //    Yaw = currentYaw;
-                //}
-                //else
-                //{
-                //    _ = _uiDispatcher.BeginInvoke(new Action(() => Yaw = currentYaw));
-                //}
+                
             };
 
             
+        }
+
+        private string GetProgramVersion()
+        {
+            var assembly = typeof(MainViewModel).Assembly;
+            var fileVersion = FileVersionInfo.GetVersionInfo(assembly.Location).FileVersion;
+            return fileVersion ?? assembly.GetName().Version?.ToString() ?? "Unknown";
         }
 
         private AxisAngleRotation3D yawRotation;
         private RotateTransform3D yawTransform;
         private Transform3DGroup combinedTransform;
         private TranslateTransform3D _centeringTransform;        
-        private DispatcherTimer yawTimer;
+       
         private double currentYaw = 0;
+
+
         private string version = "rotovr";
+        
         private readonly ISharpieEngine sharpieEngine;
         private readonly RotoPluginGlobal _roto;
-        private bool _smoothYawEnabled = true;
+
+        
+                
         private int _fps = 60;
         private float _frameTime { get => 1000f / _fps; }
         private float _timePerTurn = 2000f;
         private float _dps { get => 360f / _timePerTurn * _frameTime; }
         public bool IsEngineRunning => sharpieEngine?.IsRunning ?? false;
         private CancellationTokenSource cts;
+
         // Added field inside MainViewModel class (with other private fields)
-        private readonly Dispatcher _uiDispatcher;
+        //private readonly Dispatcher _uiDispatcher;
         public event Action ZoomExtentsRequested;
         public event Action ResetViewRequested;
-        Dictionary<int, string?> modelFileNames = new()
+
+
+        Dictionary<int, string> modelFileNames = new()
         {
             { 1, null },
             { 2, null }
@@ -198,44 +222,43 @@ namespace RotoGLBridge.UI
 
         }
 
-        
+        [ObservableProperty]
+        bool animated = false;
+
+        partial void OnAnimatedChanging(bool value)
+        {
+            
+            if (value)
+            {
+                StartYawAnimation();
+            }
+            else
+            {
+                StopYawAnimation();
+            }
+        }
+
 
         [RelayCommand]
         private void StartYawAnimation()
-        {
-            if (_smoothYawEnabled)
+        {           
+            if (!Animated)
             {
                 StartSmoothYaw();
                 return;
             }
 
-            if (yawTimer?.IsEnabled == true)
-                return;
-
-            yawTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(_frameTime) };
-
-            
-
-            yawTimer.Tick += (s, e) =>
-            {
-                currentYaw += _dps;
-                if (currentYaw > 360) 
-                    currentYaw -= 360;
-                Yaw = currentYaw;
-            };
-            yawTimer.Start();
         }
 
         [RelayCommand]
         private void StopYawAnimation()
         {
-            if (_smoothYawEnabled)
+            if (Animated)
             {
                 StopSmoothYaw();
                 return;
             }
 
-            yawTimer?.Stop();
         }
 
         [RelayCommand]
@@ -362,8 +385,11 @@ namespace RotoGLBridge.UI
 
         void OnRender(object s, EventArgs e)
         {
-            //currentYaw += _dps; 
-            //if (currentYaw >= 360) currentYaw -= 360;
+            if (Animated)
+            {
+                currentYaw += _dps;
+                if (currentYaw >= 360) currentYaw -= 360;
+            }
             Yaw = currentYaw;
         }
 
