@@ -80,7 +80,7 @@ namespace RotoGLBridge.Plugins
         /// <summary>
         /// Gets or sets whether the plugin is currently connected to a GameLink client.
         /// </summary>
-        public bool IsConnected { get; set; } = false;
+        public bool IsConnected { get; set; } = true;
 
         /// <summary>
         /// Gets or sets the current YAW GameLink data in a thread-safe manner.

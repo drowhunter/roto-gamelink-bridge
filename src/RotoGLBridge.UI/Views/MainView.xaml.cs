@@ -41,11 +41,18 @@ namespace RotoGLBridge.UI
         public void MoveCamera()
         {
             viewPort.Camera = new PerspectiveCamera(
-                new Point3D(-122.326, - 222.055, 195.867),  // Position" LookDirection="" UpDirection="-0.158 -0.284 0.946
-                new Vector3D(122.325, 219.549, -157.8),     // LookDirection
-                new Vector3D(-0.158, -0.284, 0.946),         // UpDirection
+                new Point3D(56, -104, 111),  // Position" LookDirection="" UpDirection="-0.158 -0.284 0.946
+                new Vector3D(56, 102, -73),     // LookDirection
+                new Vector3D(0, 0, 1),         // UpDirection
                 45                                          // Field of View (for PerspectiveCamera)
             );
+
+            //viewPort.Camera = new PerspectiveCamera(
+            //    new Point3D(-122.326, - 222.055, 195.867),  // Position" LookDirection="" UpDirection="-0.158 -0.284 0.946
+            //    new Vector3D(122.325, 219.549, -157.8),     // LookDirection
+            //    new Vector3D(-0.158, -0.284, 0.946),         // UpDirection
+            //    45                                          // Field of View (for PerspectiveCamera)
+            //);
         }
         
 
