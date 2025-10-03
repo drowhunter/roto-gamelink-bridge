@@ -27,7 +27,7 @@ namespace RotoGLBridge.Plugins.GameLink
             _cancellationTokenSource = new CancellationTokenSource();
             tcp = new TcpTelemetry<byte[]>(new ()
             {
-                IpAddress = new System.Net.IPEndPoint(System.Net.IPAddress.Any, 50020)
+                IpAddress = new System.Net.IPEndPoint(System.Net.IPAddress.Loopback, 50020)
             }, new RawBytesConverter());
 
             _ = tcp.BeginAsync(_cancellationTokenSource.Token);

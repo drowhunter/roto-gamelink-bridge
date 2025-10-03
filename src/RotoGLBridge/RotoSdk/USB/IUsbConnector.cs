@@ -1,5 +1,0 @@
-﻿
-namespace com.rotovr.sdk
-{
-    
-}

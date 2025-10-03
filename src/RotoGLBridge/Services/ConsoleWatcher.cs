@@ -12,6 +12,8 @@ namespace RotoGLBridge.Services
 
         void Watch(Dictionary<string, object> watch);
 
+        void Watch(object obj);
+
         void Publish();
     }
     public class ConsoleWatcher : IConsoleWatcher
@@ -89,6 +91,20 @@ namespace RotoGLBridge.Services
 
                 j += maxKeyLen;
             }
+        }
+
+        public void Watch(object obj)
+        {
+            if (obj is IDictionary dictionary)
+            {
+                foreach (var key in dictionary.Keys)
+                {
+                    Watch(key.ToString(), dictionary[key]);
+                }
+                return;
+            }
+
+            Watch(obj.GetType().GetProperties().ToDictionary(p => p.Name, p => p.GetValue(obj)));
         }
     }
 }
