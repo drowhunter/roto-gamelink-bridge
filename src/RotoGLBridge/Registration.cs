@@ -11,6 +11,7 @@ using Sharpie.Helpers.Core.Lerping;
 using Sharpie.Helpers.Telemetry;
 using Sharpie.Plugins.SharpDX;
 using Sharpie.Plugins.Speech;
+using Sharpie.Plugins.UsbWatcher;
 
 using System.Diagnostics;
 
@@ -40,12 +41,18 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 setup.EnginePollInterval = (1000 / 90); // 90 FPS
             })
-            .AddPluginsFrom<GamelinkPlugin>()
+            //.AddPluginsFrom<GamelinkPlugin>()
+            .AddPlugin<GamelinkPlugin>()
+            .AddPlugin<YawDevicePlugin>()
+            .AddPlugin<Roto2Plugin>()
+            .AddPlugin<OxrmcPlugin>()
             //.AddScriptsFrom<RotoMCSender>()
             .AddScript<Main>()
             //.AddScript<JoystickTest>()
+            //.AddScript<UsbWatcherTest>()
             .AddPlugin<SpeechPlugin>()
             .AddPlugin<Xbox360Plugin>()
+            .AddPlugin<UsbWatcherPlugin>()
             .Build();
 
 

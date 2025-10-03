@@ -12,7 +12,7 @@ namespace RotoGLBridge.Plugins
     public class RotoPlugin(
         ILogger<RotoPlugin> logger,
         IEnumerable<IMmfSender> mmfSenders,
-        Roto roto
+        com.rotovr.sdk.Roto roto
         ) : UpdateablePlugin
     {
 
@@ -40,7 +40,7 @@ namespace RotoGLBridge.Plugins
             }
         }
 
-        internal Roto.Telemetry Telemetry => roto.telemetry;
+        internal com.rotovr.sdk.Roto.Telemetry Telemetry => roto.telemetry;
 
 
         public override async Task Start()
@@ -232,7 +232,7 @@ namespace RotoGLBridge.Plugins
 
         public RotoDataModel Data => plugin.RotoDataModel;
 
-        public Roto.Telemetry Telemetry => plugin.Telemetry;        
+        public com.rotovr.sdk.Roto.Telemetry Telemetry => plugin.Telemetry;        
 
         public string Status => plugin.ConnectionStatus.ToString();
 

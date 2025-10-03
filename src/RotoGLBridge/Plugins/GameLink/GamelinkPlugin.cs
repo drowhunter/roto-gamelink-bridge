@@ -126,7 +126,7 @@ namespace RotoGLBridge.Plugins
         /// <returns>A task that completes after a short delay.</returns>
         public override Task Stop()
         {
-            IsConnected = false;
+            //IsConnected = false;
 
             _cancellationTokenSource?.Cancel();
 
@@ -166,8 +166,8 @@ namespace RotoGLBridge.Plugins
         /// <param name="data">The received string data.</param>
         private void OnUdpReceiveAsync(UdpReceiveResult result, string data)
         {
-            if (!IsConnected)
-                return;
+            //if (!IsConnected)
+            //    return;
 
             if (data == "YAW_CALLING")
             {

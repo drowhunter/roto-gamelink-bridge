@@ -7,25 +7,27 @@ using RotoGLBridge.Services;
 using Sharpie.Helpers.Core;
 using Sharpie.Plugins.Speech;
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 
 namespace RotoGLBridge.Scripts
 {
-    public class Main(
-        ILogger<Main> logger, 
-        GamelinkGlobal gamelink, 
-        RotoPluginGlobal roto,
-        
+    internal class RotoScript(
+        ILogger<Main> logger,
+        GamelinkGlobal gamelink,
+        //RotoPluginGlobal roto,
+        Roto2PluginGlobal roto,
         YawDeviceGlobal yawDevice,
         SpeechGlobal speech,
         OxrmcGlobal oxrmc,
-        IConsoleWatcher cons ) : SharpieScript
+        IConsoleWatcher cons) : SharpieScript
     {
-        float yaw;
-        //int i = 0;
-        float roll;
-        //int mode = 1;
 
+        public event Action<float> OnYawUpdate;
 
 
         public override async Task Start()
@@ -46,7 +48,7 @@ namespace RotoGLBridge.Scripts
 
             roto.SetPower(.8f);
 
-            
+
 
             yawDevice.OnUpdate += () =>
             {
@@ -54,23 +56,21 @@ namespace RotoGLBridge.Scripts
             };
 
 
-            roto.OnUpdate += () =>
-            {
-               gamelink.IsConnected = roto.IsConnected;
-            };
-
             
+
+
         }
 
         private void OnGameLinkUpdate()
         {
-            yaw = gamelink.yaw;
+            //yaw = gamelink.yaw;
+            OnYawUpdate?.Invoke(gamelink.yaw);
 
-            var r = Filters.EnsureMapRange(gamelink.roll, -40, 40, -1, 1);
-            roll = r > 180 ? r - 360 : r;
+            //var r = Filters.EnsureMapRange(gamelink.roll, -40, 40, -1, 1);
+            //roll = r > 180 ? r - 360 : r;
         }
 
-        
+
 
         public override void Update()
         {
@@ -110,6 +110,5 @@ namespace RotoGLBridge.Scripts
 
             oxrmc.StabilizerToggle = speech.Said(["stabilize"], .70f);
         }
-        
     }
 }
