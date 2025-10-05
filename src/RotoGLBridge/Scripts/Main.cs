@@ -41,8 +41,8 @@ namespace RotoGLBridge.Scripts
 
             gamelink.OnUpdate += OnGameLinkUpdate;
 
-            var options = new JsonSerializerOptions { WriteIndented = false };
-            options.Converters.Add(new JsonStringEnumConverter());
+            //var options = new JsonSerializerOptions { WriteIndented = false };
+            //options.Converters.Add(new JsonStringEnumConverter());
 
             await roto.SwitchModeAsync(ModeType.FollowObject, () => {
 

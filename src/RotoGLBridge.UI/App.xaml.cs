@@ -44,7 +44,7 @@ namespace RotoGLBridge.UI
 
             _cts = new();
            
-            //_engine.Start(_cts.Token);
+            _engine.Start(_cts.Token);
 
 
             if (!_engine.IsRunning)

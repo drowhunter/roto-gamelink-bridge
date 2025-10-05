@@ -6,13 +6,9 @@ using System.Diagnostics;
 
 namespace rotoUSB
 {
-    public class RotoChair //: IRotoChair
+    public class RotoChair : IRotoChair
     {
-#if !DEBUG
-        public bool _isConsoleDebug = false;
-#else
-        public bool _isConsoleDebug = true;
-#endif
+
         // =============== Constant ===============
         // Constant for  Roto VR Chair Run Mode status 
         public const int MODE_IDLE = 0x00;
@@ -82,30 +78,35 @@ namespace rotoUSB
 
 
         // Write USB precision timer  
-        private HighPrecisionTimer _writeTimer = new HighPrecisionTimer();
+        private IHighPrecisionTimer _writeTimer; //= new HighPrecisionTimer();
         private ConcurrentQueue<byte[]> _sendQueue = new ConcurrentQueue<byte[]>();
-        private RotoActionStruct chairAction = null;
-
-
+        private IRotoActionStruct _rotoAction = null;
+        private readonly IUSBNative _usbNative;
+        private readonly IWriteLogger<RotoChair> _logger;
         private bool isSettingZero = false;
 
-        // Logger for writing debug logs to console and file
-        private StreamWriter logger = null;
-
+        
 
         // =============== RotoChair Singleton ===========
         // Private static field to hold the single instance
-        private static readonly Lazy<RotoChair> instance = new Lazy<RotoChair>(() => new RotoChair());
+        //private static readonly Lazy<RotoChair> instance = new Lazy<RotoChair>(() => new RotoChair());
 
 
         // Public static property to access the instance
-        public static RotoChair Instance => instance.Value;
+        //public static RotoChair Instance => instance.Value;
 
 
         // Private constructor for singleton pattern
-        private RotoChair()
+        public RotoChair(
+            IHighPrecisionTimer highPrecisionTimer, 
+            IRotoActionStruct rotoAction, 
+            IUSBNative usbNative, 
+            IWriteLogger<RotoChair> logger)
         {
-            chairAction = new RotoActionStruct();
+            _writeTimer = highPrecisionTimer;
+            _rotoAction = rotoAction;
+            _usbNative = usbNative;
+            _logger = logger;
         }
 
 
@@ -113,8 +114,8 @@ namespace rotoUSB
         public void LoadUSBLibrary()
         {
             // load the USB dll 
-            if (!USBNative.LoadLibrary())
-                WriteLog(GetUSBError());
+            if (!_usbNative.LoadLibrary())
+                _logger.WriteLog(GetUSBError());
         }
 
 
@@ -122,7 +123,7 @@ namespace rotoUSB
         // Enables/disables console debug output
         public void EnableConsoleDebug(bool isEnabled = true)
         {
-            _isConsoleDebug = isEnabled;
+            _logger.EnableConsoleDebug(isEnabled);
 
         }
 
@@ -130,7 +131,7 @@ namespace rotoUSB
         // Retrieves the last USB error message
         public string GetUSBError()
         {
-            return USBNative.LastErrorMessage;
+            return _usbNative.LastErrorMessage;
         }
 
         // ============== Helper functions =============
@@ -148,30 +149,9 @@ namespace rotoUSB
 
 
 
-
-
-        // write debug logs to console and file
-        private void WriteLog(string log)
-        {
-            if (_isConsoleDebug)
-            {
-                Console.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + " " + log);
-
-
-                if (logger == null)
-                    logger = new StreamWriter(DateTime.Now.ToString("yyyy-MM-dd ") + "log.txt", append: true);
-                logger.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + " " + log);
-                logger.Flush();
-
-
-            }
-        }
-
-
-
         // ===============  USB command  ===============
 
-        public static int Clamp(int value, int min, int max)
+        private int Clamp(int value, int min, int max)
         {
             return (value < min) ? min : (value > max) ? max : value;
         }
@@ -181,8 +161,8 @@ namespace rotoUSB
         // Initiates connection to the Roto VR Chair and checks version
         private void ConnectRoto()
         {
-            WriteLog("Connect Roto and Checkversion !");
-            byte[] data = new byte[ROTO_PACKET_LEN] { 0xF1, (byte)'A', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+            _logger.WriteLog("Connect Roto and Checkversion !");
+            byte[] data = [0xF1, (byte)'A', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
             data[CHECKSUM_INDEX] = ComputeCheckSum(data);
             //EnqueueBaseCommand(data);
             sendBaseCommand(data);
@@ -194,25 +174,25 @@ namespace rotoUSB
         // Sets the current chair position as the zero position
         public void SetZeroBaseCommand()
         {
-            byte[] data = new byte[ROTO_PACKET_LEN] { 0xF1, (byte)'B', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+            byte[] data = [0xF1, (byte)'B', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
             data[CHECKSUM_INDEX] = ComputeCheckSum(data);
 
 
-            //WriteLog("set zero ...");
+            //_logger.WriteLog("set zero ...");
             isSettingZero = true;
 
             // reset the object follow degree
-            chairAction.UpdateObjectFollowDegree(_rotoStatus.MaxPowerLimit, 0);
+            _rotoAction.UpdateObjectFollowDegree(_rotoStatus.MaxPowerLimit, 0);
             EnqueueBaseCommand(data);
 
-            //WriteLog("set zero 2...");
+            //_logger.WriteLog("set zero 2...");
         }
 
         // Disconnects the Roto VR Chair
         private void DisconnectRoto()
         {
-            WriteLog("Disconnect Roto !");
-            byte[] data = new byte[ROTO_PACKET_LEN] { 0xF1, (byte)'Z', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+            _logger.WriteLog("Disconnect Roto !");
+            byte[] data = [0xF1, (byte)'Z', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
             data[CHECKSUM_INDEX] = ComputeCheckSum(data);
             // EnqueueBaseCommand(data);
             sendBaseCommand(data);
@@ -233,7 +213,7 @@ namespace rotoUSB
         // Disposes resources and disconnects the chair
         public void Dispose()
         {
-            _isConsoleDebug = false;
+           
             Disconnect();
         }
 
@@ -250,7 +230,7 @@ namespace rotoUSB
                 DisconnectRoto();
 
                 // close the USB connection
-                USBNative.CloseUSBDevice(_usbDeviceW);
+                _usbNative.CloseUSBDevice(_usbDeviceW);
             }
             _usbDeviceW = IntPtr.Zero;
         }
@@ -300,13 +280,13 @@ namespace rotoUSB
 
             if (_usbDeviceR == IntPtr.Zero || _usbDeviceW == IntPtr.Zero)
             {
-                _usbDeviceR = USBNative.OpenUSBDevice();
-                _usbDeviceW = USBNative.OpenUSBDevice();
+                _usbDeviceR = _usbNative.OpenUSBDevice();
+                _usbDeviceW = _usbNative.OpenUSBDevice();
                 if (_usbDeviceR != IntPtr.Zero && _usbDeviceW != IntPtr.Zero)
                 {
                     // Enable USB-HID to 115200 baud rate
-                    bool success = USBNative.ConfigUSBDevice(_usbDeviceW);
-                    WriteLog($"Set Feature success: {success}");
+                    bool success = _usbNative.ConfigUSBDevice(_usbDeviceW);
+                    _logger.WriteLog($"Set Feature success: {success}");
 
                     stopwatch = Stopwatch.StartNew();
 
@@ -316,7 +296,12 @@ namespace rotoUSB
                     // Create new reading task
                     _ctsRead = new CancellationTokenSource();
                     // Start the reading loop in a background task
-                    Task.Run(() => ReadLoop(_ctsRead.Token));
+
+                    Task.Factory.StartNew(() => {
+
+                        ReadLoop(_ctsRead.Token);
+                    }, TaskCreationOptions.LongRunning);
+                    //Task.Run(() => ReadLoop(_ctsRead.Token));
 
 
 
@@ -335,7 +320,7 @@ namespace rotoUSB
                 }
 
                 if (!result)
-                    WriteLog(GetUSBError());
+                    _logger.WriteLog(GetUSBError());
             }
             return result;
         }
@@ -344,7 +329,7 @@ namespace rotoUSB
         // Resets chair movement parameters
         private void ResetChairMovement()
         {
-            chairAction.Reset();
+            _rotoAction.Reset();
         }
 
 
@@ -359,7 +344,7 @@ namespace rotoUSB
         {
             if (_rotoStatus.RunMode == MODE_COCKPIT || _rotoStatus.RunMode == MODE_FREE)
             {
-                chairAction.UpdateChairSpeed(speed, angle);
+                _rotoAction.UpdateChairSpeed(speed, angle);
             }
         }
 
@@ -368,30 +353,40 @@ namespace rotoUSB
         {
             if (_rotoStatus.RunMode == MODE_OBJECT_FOLLOW)
             {
-                chairAction.UpdateObjectFollowDegree(_rotoStatus.MaxPowerLimit, degree);
+                _rotoAction.UpdateObjectFollowDegree(_rotoStatus.MaxPowerLimit, degree);
             }
         }
 
-        // Activates chair rumble effect
+        /// <summary>
+        /// Activates chair rumble effect.
+        /// </summary>
+        /// <param name="power">The power.</param>
+        /// <param name="milliSeconds">The milli seconds.</param>
         public void SetRumble(int power, ushort milliSeconds)
         {
             if (_rotoStatus.RunMode != MODE_IDLE)
             {
-                chairAction.UpdateRumble(power, milliSeconds);
+                _rotoAction.UpdateRumble(power, milliSeconds);
             }
         }
 
-        // Stops the chair rumble effect
+        /// <summary>
+        /// Stops the chair rumble effect by setting the rumble power and duration to zero.
+        /// </summary>
         public void StopRumble()
         {
             if (_rotoStatus.RunMode != MODE_IDLE)
             {
-                chairAction.UpdateRumble(0, 0);
+                _rotoAction.UpdateRumble(0, 0);
             }
         }
 
 
-        // Updates chair actions based on current status
+        
+        /// <summary>
+        /// Updates chair actions based on current status
+        /// </summary>
+        /// <returns></returns>
         private bool UpdateChairAction()
         {
             bool success = true;
@@ -412,7 +407,7 @@ namespace rotoUSB
 
 
 
-            bool isValueChange = chairAction.GetRotoAction(out motorChanged, out chairSpeed, out objectAngle, out chairAngle, out rumbleChanged, out rumblePower, out rumbleDurationMS);
+            bool isValueChange = _rotoAction.GetRotoAction(out motorChanged, out chairSpeed, out objectAngle, out chairAngle, out rumbleChanged, out rumblePower, out rumbleDurationMS);
 
             //Console.WriteLine("Chair degree: " + objectAngle);
 
@@ -490,21 +485,21 @@ namespace rotoUSB
 
             if (_usbDeviceW != IntPtr.Zero && sendPacket != null)
             {
-
+#if DEBUG
                 string timeStr = stopwatch.ElapsedMilliseconds.ToString("D8");
                 stopwatch.Reset();
                 stopwatch.Start();
 
-                WriteLog(">> " + timeStr + "ms  Send Packet: [" + USBNative.ToHexString(sendPacket, 0, sendPacket.Length) + "]");
+                _logger.WriteLog(">> " + timeStr + "ms  Send Packet: [" + _usbNative.ToHexString(sendPacket, 0, sendPacket.Length) + "]");
+#endif
 
-
-                success = USBNative.WritePacket(_usbDeviceW, sendPacket);
+                success = _usbNative.WritePacket(_usbDeviceW, sendPacket);
 
 
 
                 if (sendPacket[1] == (byte)'B')
                 {
-                    WriteLog("Setting zero complete!");
+                    _logger.WriteLog("Setting zero complete!");
                     isSettingZero = false;
                 }
 
@@ -513,7 +508,7 @@ namespace rotoUSB
 
             if (!success)
             {
-                WriteLog("Error: " + GetUSBError());
+                _logger.WriteLog("Error: " + GetUSBError());
 
                 // if write error, stop read/write thread
                 _writeTimer.Stop();
@@ -541,15 +536,15 @@ namespace rotoUSB
             byte[] buffer = new byte[HID_REPORT_LEN];
 
             _isReadingLoop = true;
-            WriteLog($"USB baseReadLoop start");
+            _logger.WriteLog($"USB baseReadLoop start");
             while (_isReadingLoop && !token.IsCancellationRequested)
             {
                 ReadPacket(buffer, HID_REPORT_LEN);
             }
-            WriteLog($"USB baseReadLoop closed ");
+            _logger.WriteLog($"USB baseReadLoop closed ");
 
             // Disconnect USB device if possible
-            USBNative.CloseUSBDevice(_usbDeviceR);
+            _usbNative.CloseUSBDevice(_usbDeviceR);
 
             _usbDeviceR = IntPtr.Zero;
             _isReadingLoop = false;
@@ -581,7 +576,7 @@ namespace rotoUSB
         {
 
             bool result = false;
-            byte[] data = new byte[ROTO_PACKET_LEN] { 0xF1, (byte)'M', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+            byte[] data = [0xF1, (byte)'M', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
             if (enableMotor)
             {
@@ -612,7 +607,7 @@ namespace rotoUSB
         {
             bool result = false;
 
-            byte[] data = new byte[ROTO_PACKET_LEN] { 0xF1, (byte)'M', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+            byte[] data = [0xF1, (byte)'M', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
 
             if (enableMotor)
@@ -659,7 +654,7 @@ namespace rotoUSB
             if (_usbDeviceW != IntPtr.Zero)
             {
 
-                byte[] runModePacket = new byte[ROTO_PACKET_LEN] { 0xF1, (byte)'S', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+                byte[] runModePacket = [0xF1, (byte)'S', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
                 runModePacket[2] = (byte)newMode;
                 runModePacket[3] = (byte)(motorHardStop ? 1 : 0);
@@ -791,11 +786,11 @@ namespace rotoUSB
                             // get chair revision number
                             int chairVersion = data[6] - (int)'0';
 
-                            WriteLog("rotoVR Chair version: " + chairVersion.ToString() + " detected");
+                            _logger.WriteLog("rotoVR Chair version: " + chairVersion.ToString() + " detected");
 
                             if (chairVersion != 2)
                             {
-                                WriteLog("Error: This library only support roto VR explorer! ");
+                                _logger.WriteLog("Error: This library only support roto VR explorer! ");
                             }
 
                             lock (_rotoStatus)
@@ -807,21 +802,21 @@ namespace rotoUSB
                         }
                         break;
                     case (byte)'L':
-                        //WriteLog("Move Left received");
+                        //_logger.WriteLog("Move Left received");
                         break;
                     case (byte)'R':
-                        //WriteLog("Move Right received");
+                        //_logger.WriteLog("Move Right received");
                         break;
                     case (byte)'P':  // Parse the current setting of the rotoVR base
 
                         try
                         {
-                            WriteLog("Receive Packet: " + USBNative.ToHexString(data, 0, data.Length));
+                            _logger.WriteLog("Receive Packet: " + _usbNative.ToHexString(data, 0, data.Length));
                             ParseChairSetting(data);
                         }
                         catch (Exception ex)
                         {
-                            WriteLog(ex.ToString());
+                            _logger.WriteLog(ex.ToString());
                         }
                         // printChairStatus();
                         break;
@@ -829,7 +824,7 @@ namespace rotoUSB
             }
             else
             {
-                WriteLog("USB Packet Checksum Error!!!!");
+                _logger.WriteLog("USB Packet Checksum Error!!!!");
             }
         } // parse USB Device
 
@@ -842,9 +837,9 @@ namespace rotoUSB
             try
             {
                 // read out a USB-HID packet 
-                if (!USBNative.ReadHIDPacket(_usbDeviceR, buffer, reportLen))
+                if (!_usbNative.ReadHIDPacket(_usbDeviceR, buffer, reportLen))
                 {
-                    //WriteLog("...");
+                    //_logger.WriteLog("...");
                 }
                 else
                 {
@@ -874,13 +869,13 @@ namespace rotoUSB
                         }
                     }
 
-                    // WriteLog("==========>  RX Buffer: " + USBNative.ToHexString(buffer,0, reportLen)) ;
+                    // _logger.WriteLog("==========>  RX Buffer: " + _usbNative.ToHexString(buffer,0, reportLen)) ;
 
                 }
             }
             catch (Exception ex)
             {
-                WriteLog("Read USB Exception: " + ex.ToString());
+                _logger.WriteLog("Read USB Exception: " + ex.ToString());
             }
 
             return completePacketRead;

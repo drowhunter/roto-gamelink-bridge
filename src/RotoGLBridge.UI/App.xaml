@@ -3,7 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
             
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-             xmlns:local="clr-namespace:RotoGLBridge.UI">
+             xmlns:local="clr-namespace:RotoGLBridge.UI"
+             xmlns:c="clr-namespace:RotoGLBridge.UI.Convertors">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -14,7 +15,9 @@
                                                  SecondaryColor="#FF5100" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign3.Defaults.xaml" />
                 <ResourceDictionary>
-                    <local:InverseBooleanConverter x:Key="inverseBooleanConverter" />
+                    <c:InverseBooleanConverter x:Key="inverseBooleanConverter" />
+                    <c:NegateConverter x:Key="negateConverter" />
+
                     <DrawingImage x:Key="rotoLogo">
                         <DrawingImage.Drawing>
                             <DrawingGroup ClipGeometry="M0,0 V402 H1544 V0 H0 Z">

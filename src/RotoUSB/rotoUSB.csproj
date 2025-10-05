@@ -7,12 +7,6 @@
     <Platforms>x64;x86</Platforms>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="Contracts\**" />
-    <EmbeddedResource Remove="Contracts\**" />
-    <None Remove="Contracts\**" />
-  </ItemGroup>
-
   <!-- Keep the files as content (None), but custom copy logic will handle placing them in TargetDir -->
   <ItemGroup>
     <None Include="Libs\x64\HIDApi.dll">

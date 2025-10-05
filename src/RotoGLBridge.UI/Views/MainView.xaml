@@ -63,7 +63,7 @@
                  Margin="0">
                 <materialDesign:PackIcon Kind="Cog" Width="22" Height="22"/>
             </Button>
-            <TextBlock x:Name="YawTB" HorizontalAlignment="Center" Margin="0,0,0,0" TextWrapping="Wrap" Text="{Binding Yaw, StringFormat=' {0:F1}°'}" FontSize="36" FontWeight="Bold"  VerticalAlignment="Top"/>
+            <TextBlock x:Name="YawTB" HorizontalAlignment="Center" Margin="0,0,0,0" TextWrapping="Wrap" Text="{Binding Yaw,Converter={StaticResource negateConverter}, StringFormat=' {0:F1}°'}" FontSize="36" FontWeight="Bold"  VerticalAlignment="Top"/>
         </Grid>
 
         <StackPanel Grid.Column="0" Grid.Row="1" Margin="10">
