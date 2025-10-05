@@ -4,7 +4,7 @@
     {
         //static abstract RotoChair Instance { get; }
 
-        int Clamp(int value, int min, int max);
+        //int Clamp(int value, int min, int max);
 
         bool Connect();
         void Disconnect();

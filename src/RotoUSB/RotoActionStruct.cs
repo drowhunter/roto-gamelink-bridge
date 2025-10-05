@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace rotoUSB
 {
-    internal class RotoActionStruct //: IRotoActionStruct
+    internal class RotoActionStruct : IRotoActionStruct
     {
 
         private readonly object _lockChairStatus = new object();
@@ -38,6 +38,7 @@ namespace rotoUSB
         public RotoActionStruct()
         {
             Reset();
+            
         }
 
 

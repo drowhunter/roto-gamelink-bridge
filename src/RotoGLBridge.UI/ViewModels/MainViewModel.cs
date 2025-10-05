@@ -6,6 +6,7 @@ using HelixToolkit.Wpf;
 using Microsoft.Win32;
 
 using RotoGLBridge.Plugins;
+using RotoGLBridge.Scripts;
 
 using System;
 using System.Diagnostics;
@@ -18,6 +19,35 @@ namespace RotoGLBridge.UI
 {
     public partial class MainViewModel : ObservableObject
     {
+        private AxisAngleRotation3D yawRotation;
+        private RotateTransform3D yawTransform;
+        private Transform3DGroup combinedTransform;
+        private TranslateTransform3D _centeringTransform;
+
+        private double currentYaw = 0;
+
+
+        private string version = "rotovr";
+
+        private readonly ISharpieEngine sharpieEngine;
+        private readonly RotoScript _rotoScript;
+
+        //private readonly RotoPluginGlobal _roto;
+
+
+
+        private int _fps = 60;
+        private float _frameTime { get => 1000f / _fps; }
+        private float _timePerTurn = 2000f;
+        private float _dps { get => 360f / _timePerTurn * _frameTime; }
+        public bool IsEngineRunning => sharpieEngine?.IsRunning ?? false;
+        private CancellationTokenSource cts;
+
+        // Added field inside MainViewModel class (with other private fields)
+        //private readonly Dispatcher _uiDispatcher;
+        public event Action ZoomExtentsRequested;
+        public event Action ResetViewRequested;
+
         [ObservableProperty]
         private double yaw;
         partial void OnYawChanged(double value)
@@ -60,29 +90,41 @@ namespace RotoGLBridge.UI
         }
 
         // Updated constructor to safely update Yaw from background thread via dispatcher
-        public MainViewModel(ISharpieEngine sharpieEngine, RotoPluginGlobal roto)
+        public MainViewModel(ISharpieEngine sharpieEngine, RotoScript rotoScript)
         {
             SetupModels();
             ProgramVersion = GetProgramVersion();
 
             cts = new CancellationTokenSource();
             this.sharpieEngine = sharpieEngine;
-            _roto = roto;
-
-            //_uiDispatcher = Application.Current?.Dispatcher ?? Dispatcher.CurrentDispatcher;
-            
-            _roto.OnUpdate += () =>
+            _rotoScript = rotoScript;
+            rotoScript.OnYawUpdate += (newYaw) =>
             {
-                // Extract latest angle (prefer lerped if non-zero)
-                var data = _roto?.Data;
-                if (data == null) return;
 
-                currentYaw = -data.LerpedAngle;
-
-                
+                // Use dispatcher to update Yaw on UI thread
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    currentYaw = -newYaw; // Invert if necessary
+                    Yaw = currentYaw;
+                });
             };
 
-            
+            //_roto = roto;
+
+            ////_uiDispatcher = Application.Current?.Dispatcher ?? Dispatcher.CurrentDispatcher;
+
+            //_roto.OnUpdate += () =>
+            //{
+            //    // Extract latest angle (prefer lerped if non-zero)
+            //    var data = _roto?.Data;
+            //    if (data == null) return;
+
+            //    currentYaw = -data.LerpedAngle;
+
+
+            //};
+
+
         }
 
         private string GetProgramVersion()
@@ -92,32 +134,7 @@ namespace RotoGLBridge.UI
             return fileVersion ?? assembly.GetName().Version?.ToString() ?? "Unknown";
         }
 
-        private AxisAngleRotation3D yawRotation;
-        private RotateTransform3D yawTransform;
-        private Transform3DGroup combinedTransform;
-        private TranslateTransform3D _centeringTransform;        
-       
-        private double currentYaw = 0;
-
-
-        private string version = "rotovr";
         
-        private readonly ISharpieEngine sharpieEngine;
-        private readonly RotoPluginGlobal _roto;
-
-        
-                
-        private int _fps = 60;
-        private float _frameTime { get => 1000f / _fps; }
-        private float _timePerTurn = 2000f;
-        private float _dps { get => 360f / _timePerTurn * _frameTime; }
-        public bool IsEngineRunning => sharpieEngine?.IsRunning ?? false;
-        private CancellationTokenSource cts;
-
-        // Added field inside MainViewModel class (with other private fields)
-        //private readonly Dispatcher _uiDispatcher;
-        public event Action ZoomExtentsRequested;
-        public event Action ResetViewRequested;
 
 
         Dictionary<int, string> modelFileNames = new()

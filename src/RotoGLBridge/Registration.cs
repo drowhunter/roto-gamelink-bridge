@@ -47,7 +47,8 @@ namespace Microsoft.Extensions.DependencyInjection
             .AddPlugin<Roto2Plugin>()
             .AddPlugin<OxrmcPlugin>()
             //.AddScriptsFrom<RotoMCSender>()
-            .AddScript<Main>()
+            //.AddScript<Main>()
+            .AddScript<RotoScript>()
             //.AddScript<JoystickTest>()
             //.AddScript<UsbWatcherTest>()
             .AddPlugin<SpeechPlugin>()
@@ -55,6 +56,8 @@ namespace Microsoft.Extensions.DependencyInjection
             .AddPlugin<UsbWatcherPlugin>()
             .Build();
 
+
+            builder.Services.AddRotoUsb();
 
             //builder.Services.AddSingleton<TcpCommandFactory>();
             builder.Services.AddTransient<IByteConverter<YawGLData>, YawGLByteConverter>();

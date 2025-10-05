@@ -1,22 +1,12 @@
-﻿using com.rotovr.sdk;
-
-using RotoGLBridge.Plugins;
+﻿using RotoGLBridge.Plugins;
 using RotoGLBridge.Plugins.GameLink;
 using RotoGLBridge.Services;
 
-using Sharpie.Helpers.Core;
 using Sharpie.Plugins.Speech;
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace RotoGLBridge.Scripts
 {
-    internal class RotoScript(
+    public class RotoScript(
         ILogger<Main> logger,
         GamelinkGlobal gamelink,
         //RotoPluginGlobal roto,
@@ -38,26 +28,23 @@ namespace RotoGLBridge.Scripts
 
             gamelink.OnUpdate += OnGameLinkUpdate;
 
-            var options = new JsonSerializerOptions { WriteIndented = false };
-            options.Converters.Add(new JsonStringEnumConverter());
+            //var options = new JsonSerializerOptions { WriteIndented = false };
+            //options.Converters.Add(new JsonStringEnumConverter());
 
+            /*
             await roto.SwitchModeAsync(ModeType.FollowObject, () => {
 
                 return yaw;
             });
 
             roto.SetPower(.8f);
-
+            */
 
 
             yawDevice.OnUpdate += () =>
             {
                 //cons.Write(0, 12, $"tcp: {yawDevice.Command}");
             };
-
-
-            
-
 
         }
 
@@ -83,21 +70,21 @@ namespace RotoGLBridge.Scripts
 
         private void Watch()
         {
-            cons.Watch(nameof(RotoPlugin.IsPluggedIn), roto.IsPluggedIn);
-            cons.Watch(nameof(RotoPluginGlobal.Status), roto.Status);
-            cons.Watch(nameof(yaw), yaw.ToString("F1").PadLeft(5));
-            cons.Watch(nameof(Roto.Telemetry.Power), roto.Telemetry.Power.ToString().PadLeft(3));
-            cons.Watch(nameof(RotoDataModel.Mode), roto.Data?.Mode.ToString());
-            cons.Watch(nameof(RotoDataModel.LerpedAngle), roto.Data?.LerpedAngle.ToString("F1").PadLeft(5));
-            cons.Watch(nameof(RotoDataModel.CalibratedAngle), roto.Data?.CalibratedAngle.ToString("F1").PadLeft(5));
-            cons.Watch(nameof(Roto.Telemetry.Delta), roto.Telemetry.Delta.ToString("F1").PadLeft(5));
-            cons.Watch(nameof(Roto.Telemetry.TargetAngle), roto.Telemetry.TargetAngle.ToString().PadLeft(3));
-            cons.Watch(nameof(Roto.Telemetry.CappedTargetAngle), roto.Telemetry.CappedTargetAngle.ToString().PadLeft(3));
-            cons.Watch(nameof(Roto.Telemetry.AngularVelocity), $"{roto.Telemetry.AngularVelocity,8:F1} °/s");
+            //cons.Watch(nameof(RotoPlugin.IsPluggedIn), roto.IsPluggedIn);
+            //cons.Watch(nameof(RotoPluginGlobal.Status), roto.Status);
+            //cons.Watch(nameof(yaw), yaw.ToString("F1").PadLeft(5));
+            //cons.Watch(nameof(Roto.Telemetry.Power), roto.Telemetry.Power.ToString().PadLeft(3));
+            //cons.Watch(nameof(RotoDataModel.Mode), roto.Data?.Mode.ToString());
+            //cons.Watch(nameof(RotoDataModel.LerpedAngle), roto.Data?.LerpedAngle.ToString("F1").PadLeft(5));
+            //cons.Watch(nameof(RotoDataModel.CalibratedAngle), roto.Data?.CalibratedAngle.ToString("F1").PadLeft(5));
+            //cons.Watch(nameof(Roto.Telemetry.Delta), roto.Telemetry.Delta.ToString("F1").PadLeft(5));
+            //cons.Watch(nameof(Roto.Telemetry.TargetAngle), roto.Telemetry.TargetAngle.ToString().PadLeft(3));
+            //cons.Watch(nameof(Roto.Telemetry.CappedTargetAngle), roto.Telemetry.CappedTargetAngle.ToString().PadLeft(3));
+            //cons.Watch(nameof(Roto.Telemetry.AngularVelocity), $"{roto.Telemetry.AngularVelocity,8:F1} °/s");
             cons.Watch("hotkeys", $"{oxrmc.plugin.HotKeysPreseed}");
             cons.Watch("trigger", $"{(ActivityBit)oxrmc.plugin.activityFlags.trigger}");
             cons.Watch("confirm", $"{(ActivityBit)oxrmc.plugin.activityFlags.confirm}");
-            cons.Watch("turns", roto.Turns);
+            //cons.Watch("turns", roto.Turns);
 
             cons.Publish();
         }

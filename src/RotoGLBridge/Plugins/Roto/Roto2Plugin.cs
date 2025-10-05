@@ -3,9 +3,6 @@
 using rotoUSB;
 
 using Sharpie.Engine.Contracts.Plugins;
-using Sharpie.Helpers.Core;
-
-using System.Data;
 
 namespace RotoGLBridge.Plugins
 {
@@ -13,15 +10,67 @@ namespace RotoGLBridge.Plugins
     public class Roto2Plugin(
         ILogger<RotoPlugin> logger,
         IEnumerable<IMmfSender> mmfSenders,
-        RotoChair roto
+        IRotoChair roto
         ) : UpdateablePlugin
     {
     
+        public bool IsConnected { get; set; }
+
+        public override Task Start()
+        {
+            logger.LogInformation("Roto2Plugin started.");
+            return Task.CompletedTask;
+
+
+        }
+
+        public override Task Stop()
+        {
+            logger.LogInformation("Roto2Plugin stopped.");
+            return Task.CompletedTask;
+        }
+
+        
+        
+        public async Task SwitchModeAsync(int mode)
+        {
+            //RotoChair.MODE_OBJECT_FOLLOW = 2;
+            switch(mode)
+            {
+                case 0:
+                    roto.SetFreeMode();
+                    break;
+                case 1:
+                    roto.SetCockpitMode(90);
+                    break;
+                default:
+                    roto.SetObjectFollowMode();
+                    break;
+                
+            }
+            roto.SetObjectFollowMode();
+
+            //return roto.SwitchModeAsync(mode, getYaw);
+        }
+        //public void SetPower(float power)
+        //{
+        //    roto.(power);
+        //}
+
+        public async void ConnectAsync(CancellationToken cancellationToken = default)
+        {
+            
+        }
+
+        public async void DisconnectAsync(CancellationToken cancellationToken = default)
+        {
+
+        }
     }
 
     public class Roto2PluginGlobal : UpdateablePluginGlobal<Roto2Plugin>
     {
-        
+        public bool IsConnected => plugin?.IsConnected ?? false;
 
     }
 }

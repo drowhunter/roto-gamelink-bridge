@@ -7,7 +7,7 @@ namespace rotoUSB
 {
     
     // Static class for interacting with USB-HID devices using native Windows API calls
-    public static class USBNative // : IUSBNative
+    public class USBNative : IUSBNative
     {
         // USB-HID device Vendor ID (VID) and Product ID (PID) for the Roto device
         public const int VID = 0x04D9;
@@ -22,7 +22,7 @@ namespace rotoUSB
 
 
         // Stores the latest USB-related error message
-        public static string LastErrorMessage { get; private set; }
+        public string LastErrorMessage { get; private set; }
 
 
         // =============== DLL import  ===============
@@ -92,7 +92,7 @@ namespace rotoUSB
 
         // for internal use 
         // Performs a speed test for USB communication at 115200 baud rate
-        public static void USBSpeedTest()
+        public void USBSpeedTest()
         {
             bool success = false;
             //                             0       1      2   3      4    5(stop)  6(Parity)     7     8
@@ -189,15 +189,15 @@ namespace rotoUSB
         }
 
 
-        // Static constructor to initialize the LastErrorMessage
-        static USBNative()
+        // constructor to initialize the LastErrorMessage
+        public USBNative()
         {
             LastErrorMessage = "";
         }
 
 
         // Loads the HIDApi.dll library based on the process architecture (x86 or x64)
-        static public bool LoadLibrary()
+        public bool LoadLibrary()
         {
 
             bool success = false;
@@ -247,7 +247,7 @@ namespace rotoUSB
 
 
         // Opens the first available USB-HID device with the specified VID and PID
-        public static IntPtr OpenUSBDevice()
+        public IntPtr OpenUSBDevice()
         {
             IntPtr usbDevice = IntPtr.Zero;
 
@@ -264,7 +264,7 @@ namespace rotoUSB
 
 
         // Configures the USB-HID device to operate at 115200 baud rate 
-        public static bool ConfigUSBDevice(IntPtr usbDevice)
+        public bool ConfigUSBDevice(IntPtr usbDevice)
         {
             bool success = false;
             byte[] FeatureReportData = { 0x00, 0x01, 0x00, 0xC2, 0x01, 0x00, 0x01, 0x00, 0x08 };
@@ -288,7 +288,7 @@ namespace rotoUSB
 
 
         // Writes a data packet to the USB-HID device, ensuring proper packet formatting
-        public static bool WritePacket(IntPtr handle, byte[] data)
+        public bool WritePacket(IntPtr handle, byte[] data)
         {
             bool success = false;
 
@@ -314,7 +314,7 @@ namespace rotoUSB
 
 
         // Converts a byte array to a hexadecimal string for debugging or logging
-        public static string ToHexString(byte[] b, long offset, long size)
+        public string ToHexString(byte[] b, long offset, long size)
         {
             string hexStr = string.Empty;
             for (long i = offset; i < offset + size; i++)
@@ -324,7 +324,7 @@ namespace rotoUSB
 
 
         // Low-level method to write a USB-HID report packet to the device
-        private static bool WriteHIDPacket(IntPtr handle, byte[] data)
+        private bool WriteHIDPacket(IntPtr handle, byte[] data)
         {
             bool success = false;
             uint bytesWritten = 0;
@@ -353,7 +353,7 @@ namespace rotoUSB
 
 
         // Reads a USB-HID input report from the device
-        public static bool ReadHIDPacket(IntPtr handle, byte[] data, int length)
+        public bool ReadHIDPacket(IntPtr handle, byte[] data, int length)
         {
             bool success = false;
             uint bytesRead = 0;
@@ -385,7 +385,7 @@ namespace rotoUSB
         }
 
         // Closes the USB-HID device connection
-        public static void CloseUSBDevice(IntPtr device)
+        public void CloseUSBDevice(IntPtr device)
         {
             if (device != IntPtr.Zero)
             {

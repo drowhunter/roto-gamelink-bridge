@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Data;
 
-namespace RotoGLBridge.UI
+namespace RotoGLBridge.UI.Convertors
 {
     public class BooleanToInvertedBooleanConverter : IValueConverter
     {
