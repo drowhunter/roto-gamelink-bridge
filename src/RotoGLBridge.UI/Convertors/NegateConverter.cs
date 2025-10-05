@@ -15,7 +15,7 @@ namespace RotoGLBridge.UI.Convertors
 
             if (double.TryParse(value.ToString(), out double number))
             {
-                return -number;
+                return number == 0 ? 0 : -number;
             }
 
             return DependencyProperty.UnsetValue;
@@ -30,7 +30,7 @@ namespace RotoGLBridge.UI.Convertors
 
             if (double.TryParse(value.ToString(), out double number))
             {
-                return -number;
+                return number == 0 ? 0 : -number;
             }
 
             return DependencyProperty.UnsetValue;
