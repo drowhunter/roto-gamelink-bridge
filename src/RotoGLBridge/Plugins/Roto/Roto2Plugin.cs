@@ -19,6 +19,9 @@ namespace RotoGLBridge.Plugins
         public override Task Start()
         {
             logger.LogInformation("Roto2Plugin started.");
+
+            roto.LoadUSBLibrary();
+
             return Task.CompletedTask;
 
 
@@ -57,14 +60,14 @@ namespace RotoGLBridge.Plugins
         //    roto.(power);
         //}
 
-        public async void ConnectAsync(CancellationToken cancellationToken = default)
+        public Task ConnectAsync(CancellationToken cancellationToken = default)
         {
-            
+            return Task.CompletedTask;
         }
 
-        public async void DisconnectAsync(CancellationToken cancellationToken = default)
+        public Task DisconnectAsync(CancellationToken cancellationToken = default)
         {
-
+            return Task.CompletedTask;
         }
     }
 
@@ -72,5 +75,14 @@ namespace RotoGLBridge.Plugins
     {
         public bool IsConnected => plugin?.IsConnected ?? false;
 
+        internal void Connect()
+        {
+            throw new NotImplementedException();
+        }
+
+        internal void Disconnect()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
