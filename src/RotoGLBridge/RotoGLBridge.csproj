@@ -17,8 +17,6 @@
     <None Remove="Plugins\.gitignore" />
     <None Remove="Plugins\YawEmu.7z" />
   </ItemGroup>
-
-  
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.3" />		
@@ -32,15 +30,15 @@
 		<PackageReference Include="Sharpie.Plugins.UsbWatcher" Version="1.0.8" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(Configuration)' == 'Dev'">
-	  <ProjectReference Include="..\..\..\Sharpie2\src\Sharpie\Sharpie.Engine\Sharpie.Engine.csproj" />
-	  <ProjectReference Include="..\..\..\Sharpie2\src\Plugins\Sharpie.Plugins.Speech\Sharpie.Plugins.Speech.csproj" />
-	  <ProjectReference Include="..\..\..\Sharpie2\src\Sharpie\Sharpie.Helpers.Telemetry\Sharpie.Helpers.Telemetry.csproj" />
-	  <ProjectReference Include="..\..\..\Sharpie2\src\Plugins\Sharpie.Plugins.SharpDX\Sharpie.Plugins.SharpDX.csproj" />
-	  <ProjectReference Include="..\..\..\Sharpie2\src\Plugins\Sharpie.Plugins.UsbWatcher\Sharpie.Plugins.UsbWatcher.csproj" />
+		<ProjectReference Include="..\..\..\Sharpie2\src\Sharpie\Sharpie.Engine\Sharpie.Engine.csproj" />
+		<ProjectReference Include="..\..\..\Sharpie2\src\Plugins\Sharpie.Plugins.Speech\Sharpie.Plugins.Speech.csproj" />
+		<ProjectReference Include="..\..\..\Sharpie2\src\Sharpie\Sharpie.Helpers.Telemetry\Sharpie.Helpers.Telemetry.csproj" />
+		<ProjectReference Include="..\..\..\Sharpie2\src\Plugins\Sharpie.Plugins.SharpDX\Sharpie.Plugins.SharpDX.csproj" />
+		<ProjectReference Include="..\..\..\Sharpie2\src\Plugins\Sharpie.Plugins.UsbWatcher\Sharpie.Plugins.UsbWatcher.csproj" />
 	</ItemGroup>
 	<ItemGroup>
-	  <ProjectReference Include="..\RotoSDK\RotoSDK.csproj" />
-	  <ProjectReference Include="..\RotoUSB\rotoUSB.csproj" />
+		<ProjectReference Include="..\RotoSDK\RotoSDK.csproj" />
+		<ProjectReference Include="..\RotoUSB\rotoUSB.csproj" />
 	</ItemGroup>
 	
 	

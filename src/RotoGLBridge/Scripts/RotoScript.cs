@@ -3,6 +3,7 @@ using RotoGLBridge.Plugins.GameLink;
 using RotoGLBridge.Services;
 
 using Sharpie.Plugins.Speech;
+using Sharpie.Plugins.UsbWatcher;
 
 namespace RotoGLBridge.Scripts
 {
@@ -14,6 +15,7 @@ namespace RotoGLBridge.Scripts
         YawDeviceGlobal yawDevice,
         SpeechGlobal speech,
         OxrmcGlobal oxrmc,
+        UsbWatcherGlobal usbWatcher,
         IConsoleWatcher cons) : SharpieScript
     {
 
@@ -27,6 +29,27 @@ namespace RotoGLBridge.Scripts
             speech.Say("Roto Chair Initialized");
 
             gamelink.OnUpdate += OnGameLinkUpdate;
+
+            usbWatcher.OnDeviceChange += (vidpid, isConnected) =>
+            {
+                
+                if (isConnected)
+                {
+                    logger.LogInformation("Roto detected.");
+                    speech.Say("Roto Chair Connected");
+                    roto.ConnectAsync();
+                }
+                else
+                {
+                    logger.LogInformation("Roto disconnected.");
+                    speech.Say("Roto Chair Disconnected");
+                    roto.Disconnect();
+                }
+                
+            };
+
+            usbWatcher.Watch(0x04D9, 0xB564);
+
 
             //var options = new JsonSerializerOptions { WriteIndented = false };
             //options.Converters.Add(new JsonStringEnumConverter());
