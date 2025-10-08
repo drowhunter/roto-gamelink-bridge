@@ -275,9 +275,6 @@ namespace rotoUSB
         // Connects to the Roto VR Chair
         public bool Connect()
         {
-
-
-
             bool result = false;
 
             if (_usbDeviceR == IntPtr.Zero || _usbDeviceW == IntPtr.Zero)
@@ -314,8 +311,6 @@ namespace rotoUSB
 
                     _sendQueue.Clear();
                     _writeTimer.Start(WriteTimerTick, 10);
-
-
 
                     result = true;
 
@@ -685,10 +680,8 @@ namespace rotoUSB
         // Sets the chair to object follow mode
         public bool SetObjectFollowMode()
         {
-
             SetZeroBaseCommand();
             return SetV2BaseMode(MODE_OBJECT_FOLLOW, false, ENABLE_HT);
-
         }
 
         // Sets the chair to idle mode

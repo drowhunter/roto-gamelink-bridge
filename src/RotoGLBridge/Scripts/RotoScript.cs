@@ -37,7 +37,7 @@ namespace RotoGLBridge.Scripts
                 {
                     logger.LogInformation("Roto detected.");
                     speech.Say("Roto Chair Connected");
-                    roto.ConnectAsync();
+                    roto.Connect();
                 }
                 else
                 {
@@ -49,6 +49,7 @@ namespace RotoGLBridge.Scripts
             };
 
             usbWatcher.Watch(0x04D9, 0xB564);
+
 
 
             //var options = new JsonSerializerOptions { WriteIndented = false };
@@ -64,17 +65,20 @@ namespace RotoGLBridge.Scripts
             */
 
 
-            yawDevice.OnUpdate += () =>
-            {
+            //yawDevice.OnUpdate += () =>
+            //{
                 //cons.Write(0, 12, $"tcp: {yawDevice.Command}");
-            };
+            //};
 
         }
 
         private void OnGameLinkUpdate()
         {
             //yaw = gamelink.yaw;
-            OnYawUpdate?.Invoke(gamelink.yaw);
+            if(roto.IsConnected)
+                roto.SetTargetAngle(gamelink.yaw);
+            else
+                OnYawUpdate?.Invoke(gamelink.yaw);
 
             //var r = Filters.EnsureMapRange(gamelink.roll, -40, 40, -1, 1);
             //roll = r > 180 ? r - 360 : r;
@@ -88,7 +92,6 @@ namespace RotoGLBridge.Scripts
             Watch();
 
             EnableVoiceControl();
-            //oxrmc.Activate = speech.Said(["toggle motion compensation"], .8f);
         }
 
         private void Watch()
