@@ -4,6 +4,9 @@ using rotoUSB;
 
 using Sharpie.Engine.Contracts.Plugins;
 
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
+
 namespace RotoGLBridge.Plugins
 {
     [GlobalType(Type = typeof(Roto2PluginGlobal))]
@@ -14,9 +17,9 @@ namespace RotoGLBridge.Plugins
         ) : UpdateablePlugin
     {
     
-        public bool UsbConnected { get; set; }
+        
 
-        public RotoStatus State { get; set; } = new RotoStatus();
+        internal BehaviorSubject<RotoStatus> State { get; set; }
 
         public override Task Start()
         {
@@ -33,19 +36,12 @@ namespace RotoGLBridge.Plugins
         {
             var state = rotoChair.GetRotoStatus();
 
-            if (state != null)
-            {
-                if(!UsbConnected && state.USBConnected)
-                {
-                    logger.LogInformation("RotoChair connected.");
-                }
-                else if (UsbConnected && !state.USBConnected)
-                {
-                    logger.LogInformation("RotoChair disconnected.");
-                }
-            }
+            //if (state != null)
+            //{
+            //    UsbConnected.OnNext(state.USBConnected);
+            //}
 
-            this.State = state;
+            State.OnNext(state);
         }
 
         public override Task Stop()
@@ -97,7 +93,7 @@ namespace RotoGLBridge.Plugins
 
     public class Roto2PluginGlobal : UpdateablePluginGlobal<Roto2Plugin>
     {
-        public bool IsConnected => plugin?.UsbConnected ?? false;
+        public IObservable<RotoStatus> State => plugin.State.AsObservable();
 
         internal void Connect()
         {

@@ -6,9 +6,17 @@ namespace rotoUSB
     public class RotoStatus : ICloneable
     {
 
-        // Connection status
+        /// <summary>
+        /// Connection status
+        /// </summary>
         public bool USBConnected;  //  USB connected
-        public bool HTConnected;   // Headtracker connected
+
+        /// <summary>
+        /// Headtracker connected
+        /// </summary>
+        public bool HTConnected;   
+
+
         public bool AndroidConnected; // Android connected
 
 
