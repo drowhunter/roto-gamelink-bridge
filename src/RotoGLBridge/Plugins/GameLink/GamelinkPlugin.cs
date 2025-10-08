@@ -126,7 +126,7 @@ namespace RotoGLBridge.Plugins
         /// <returns>A task that completes after a short delay.</returns>
         public override Task Stop()
         {
-            //IsConnected = false;
+            //UsbConnected = false;
 
             _cancellationTokenSource?.Cancel();
 
@@ -166,7 +166,7 @@ namespace RotoGLBridge.Plugins
         /// <param name="data">The received string data.</param>
         private void OnUdpReceiveAsync(UdpReceiveResult result, string data)
         {
-            //if (!IsConnected)
+            //if (!UsbConnected)
             //    return;
 
             if (data == "YAW_CALLING")
@@ -183,7 +183,7 @@ namespace RotoGLBridge.Plugins
                     }.ToString()
                     );
 
-                    // IsConnected = true;
+                    // UsbConnected = true;
                 }
 #endif
             }

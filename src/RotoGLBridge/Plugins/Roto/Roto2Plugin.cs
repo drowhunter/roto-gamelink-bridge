@@ -10,25 +10,47 @@ namespace RotoGLBridge.Plugins
     public class Roto2Plugin(
         ILogger<RotoPlugin> logger,
         IEnumerable<IMmfSender> mmfSenders,
-        IRotoChair roto
+        IRotoChair rotoChair
         ) : UpdateablePlugin
     {
     
-        public bool IsConnected { get; set; }
+        public bool UsbConnected { get; set; }
+
+        public RotoStatus State { get; set; } = new RotoStatus();
 
         public override Task Start()
         {
             logger.LogInformation("Roto2Plugin started.");
 
-            roto.LoadUSBLibrary();
+            rotoChair.LoadUSBLibrary();
 
             return Task.CompletedTask;
 
 
         }
 
+        public override void Execute()
+        {
+            var state = rotoChair.GetRotoStatus();
+
+            if (state != null)
+            {
+                if(!UsbConnected && state.USBConnected)
+                {
+                    logger.LogInformation("RotoChair connected.");
+                }
+                else if (UsbConnected && !state.USBConnected)
+                {
+                    logger.LogInformation("RotoChair disconnected.");
+                }
+            }
+
+            this.State = state;
+        }
+
         public override Task Stop()
         {
+            rotoChair.Disconnect();
             logger.LogInformation("Roto2Plugin stopped.");
             return Task.CompletedTask;
         }
@@ -41,27 +63,29 @@ namespace RotoGLBridge.Plugins
             switch(mode)
             {
                 case 0:
-                    roto.SetFreeMode();
+                    rotoChair.SetFreeMode();
                     break;
                 case 1:
-                    roto.SetCockpitMode(90);
+                    rotoChair.SetCockpitMode(90);
                     break;
                 default:
-                    roto.SetObjectFollowMode();
+                    rotoChair.SetObjectFollowMode();
                     break;
                 
             }
-            roto.SetObjectFollowMode();
+            rotoChair.SetObjectFollowMode();
 
-            //return roto.SwitchModeAsync(mode, getYaw);
+            //return rotoChair.SwitchModeAsync(mode, getYaw);
         }
         //public void SetPower(float power)
         //{
-        //    roto.(power);
+        //    rotoChair.(power);
         //}
 
         public Task ConnectAsync(CancellationToken cancellationToken = default)
         {
+            rotoChair.Connect();
+            rotoChair.SetObjectFollowMode();
             return Task.CompletedTask;
         }
 
@@ -73,7 +97,7 @@ namespace RotoGLBridge.Plugins
 
     public class Roto2PluginGlobal : UpdateablePluginGlobal<Roto2Plugin>
     {
-        public bool IsConnected => plugin?.IsConnected ?? false;
+        public bool IsConnected => plugin?.UsbConnected ?? false;
 
         internal void Connect()
         {
@@ -83,6 +107,11 @@ namespace RotoGLBridge.Plugins
         internal void Disconnect()
         {
             throw new NotImplementedException();
+        }
+
+        internal void SetTargetAngle(float yaw)
+        {
+            plugin
         }
     }
 }
