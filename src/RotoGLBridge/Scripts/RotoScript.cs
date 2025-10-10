@@ -22,7 +22,7 @@ namespace RotoGLBridge.Scripts
         public event Action<float> OnYawUpdate;
 
 
-        public override async Task Start()
+        public override Task Start()
         {
             logger.LogInformation($"Main script started.");
 
@@ -30,27 +30,12 @@ namespace RotoGLBridge.Scripts
 
             gamelink.OnUpdate += OnGameLinkUpdate;
 
-            usbWatcher.OnDeviceChange += (vidpid, isConnected) =>
-            {
-                
-                if (isConnected)
-                {
-                    logger.LogInformation("Roto detected.");
-                    speech.Say("Roto Chair Connected");
-                    roto.Connect();
-                }
-                else
-                {
-                    logger.LogInformation("Roto disconnected.");
-                    speech.Say("Roto Chair Disconnected");
-                    roto.Disconnect();
-                }
-                
-            };
+            usbWatcher.OnDeviceChange += OnUsbChange;
 
             usbWatcher.Watch(0x04D9, 0xB564);
 
 
+            
 
             //var options = new JsonSerializerOptions { WriteIndented = false };
             //options.Converters.Add(new JsonStringEnumConverter());
@@ -67,27 +52,36 @@ namespace RotoGLBridge.Scripts
 
             //yawDevice.OnUpdate += () =>
             //{
-                //cons.Write(0, 12, $"tcp: {yawDevice.Command}");
+            //cons.Write(0, 12, $"tcp: {yawDevice.Command}");
             //};
 
+            return Task.CompletedTask;
         }
 
         private void OnGameLinkUpdate()
         {
             //yaw = gamelink.yaw;
-            if(roto.IsConnected)
-                roto.SetTargetAngle(gamelink.yaw);
+            if (roto.IsConnected)
+            {
+                roto.Yaw = gamelink.yaw;
+            }
             else
+            {
                 OnYawUpdate?.Invoke(gamelink.yaw);
+            }
 
             //var r = Filters.EnsureMapRange(gamelink.roll, -40, 40, -1, 1);
             //roll = r > 180 ? r - 360 : r;
         }
 
-
-
-        public override void Update()
+        
+        public override void Execute()
         {
+            if (roto.IsConnected)
+            {
+                OnYawUpdate?.Invoke((float)roto.Yaw);
+            }
+
 
             Watch();
 
@@ -122,6 +116,22 @@ namespace RotoGLBridge.Scripts
             oxrmc.CrosshairToggle = speech.Said(["crosshair"], .70f);
 
             oxrmc.StabilizerToggle = speech.Said(["stabilize"], .70f);
+        }
+
+        private void OnUsbChange(VidPid vidpid, bool isConnected)
+        {
+            if (isConnected)
+            {
+                logger.LogInformation("Roto detected.");
+                speech.Say("Roto Chair Connected");
+                roto.Connect();
+            }
+            else
+            {
+                logger.LogInformation("Roto disconnected.");
+                speech.Say("Roto Chair Disconnected");
+                roto.Disconnect();
+            }
         }
     }
 }

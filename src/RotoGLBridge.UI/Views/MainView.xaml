@@ -94,6 +94,10 @@
                         <Button Content="Start" Foreground="White" Command="{Binding StartEngineCommand}" Margin="0,0,5,0" IsEnabled="{Binding IsEngineRunning, Converter={StaticResource inverseBooleanConverter}}"/>
                         <Button Content="Stop" Foreground="White" Command="{Binding StopEngineCommand}" Margin="0,0,5,0" IsEnabled="{Binding IsEngineRunning}" />
                         </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Status:" FontWeight="Bold" Margin="0,10,10,5" />
+                        <TextBlock Text="{Binding RotoConnected}" FontSize="14" FontWeight="Normal" />
+                    </StackPanel>
                 </StackPanel>
             </GroupBox>
         </StackPanel>

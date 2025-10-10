@@ -10,6 +10,7 @@ using RotoGLBridge.Scripts;
 
 using System;
 using System.Diagnostics;
+using System.Reactive.Linq;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
@@ -48,6 +49,9 @@ namespace RotoGLBridge.UI
         public event Action ZoomExtentsRequested;
         public event Action ResetViewRequested;
 
+        IObservable<System.Reactive.EventPattern<EventArgs>> _renderObservable;
+
+
         [ObservableProperty]
         private double yaw;
         partial void OnYawChanged(double value)
@@ -79,6 +83,9 @@ namespace RotoGLBridge.UI
         [ObservableProperty]
         private string _programVersion;
 
+        [ObservableProperty]
+        private bool _rotoConnected;
+
 
         [RelayCommand]
         public void OpenSettings()
@@ -89,15 +96,28 @@ namespace RotoGLBridge.UI
             //settingsWindow.ShowDialog();
         }
 
+
+
         // Updated constructor to safely update Yaw from background thread via dispatcher
-        public MainViewModel(ISharpieEngine sharpieEngine, RotoScript rotoScript)
+        public MainViewModel(ISharpieEngine sharpieEngine, RotoScript rotoScript, Roto2PluginGlobal rotoGlobal)
         {
             SetupModels();
+            
+
             ProgramVersion = GetProgramVersion();
 
             cts = new CancellationTokenSource();
             this.sharpieEngine = sharpieEngine;
             _rotoScript = rotoScript;
+
+           _renderObservable = Observable.FromEventPattern<EventHandler, EventArgs>(
+                h => CompositionTarget.Rendering += h,
+                h => CompositionTarget.Rendering -= h);
+
+
+
+            
+
             rotoScript.OnYawUpdate += (newYaw) =>
             {
 
@@ -108,6 +128,7 @@ namespace RotoGLBridge.UI
                     Yaw = currentYaw;
                 });
             };
+
 
             //_roto = roto;
 
@@ -124,6 +145,10 @@ namespace RotoGLBridge.UI
 
             //};
 
+            _renderObservable.Subscribe(_ =>
+            {
+                RotoConnected = rotoGlobal.IsConnected;
+            });
 
         }
 
@@ -390,6 +415,12 @@ namespace RotoGLBridge.UI
         {
             if (_renderSubscribed) return;
             CompositionTarget.Rendering += OnRender;
+
+            
+
+               
+
+
             _renderSubscribed = true;
         }
 

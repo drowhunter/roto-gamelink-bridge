@@ -25,7 +25,7 @@ namespace RotoGLBridge.Scripts
             
         }
 
-        public override void Update()
+        public override void Execute()
         {
             var x = xbox360[0].LeftStickX;
             var y = xbox360[0].LeftStickY;

@@ -16,6 +16,9 @@
         void MoveChair(int speed);
         void MoveChairByAngle(int speed, int angle);
         bool SetCockpitMode(int cockpitLimit);
+
+        bool SetRunMode(RunMode mode);
+
         bool SetFreeMode();
         bool SetIdleMode();
         void SetObjectFollowDegree(int degree);

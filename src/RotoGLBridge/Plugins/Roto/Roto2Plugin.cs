@@ -11,12 +11,12 @@ namespace RotoGLBridge.Plugins
         ILogger<RotoPlugin> logger,
         IEnumerable<IMmfSender> mmfSenders,
         IRotoChair rotoChair
-        ) : UpdateablePlugin
+        ) : SharpiePlugin //UpdateablePlugin
     {
     
         public bool UsbConnected { get; set; }
 
-        public RotoStatus State { get; set; } = new RotoStatus();
+        public RotoStatus State { get; private set; } = new RotoStatus();
 
         public override Task Start()
         {
@@ -25,27 +25,25 @@ namespace RotoGLBridge.Plugins
             rotoChair.LoadUSBLibrary();
 
             return Task.CompletedTask;
-
-
         }
 
         public override void Execute()
         {
             var state = rotoChair.GetRotoStatus();
-
-            if (state != null)
+            
+            
+            if(!UsbConnected && state.USBConnected)
             {
-                if(!UsbConnected && state.USBConnected)
-                {
-                    logger.LogInformation("RotoChair connected.");
-                }
-                else if (UsbConnected && !state.USBConnected)
-                {
-                    logger.LogInformation("RotoChair disconnected.");
-                }
+                logger.LogInformation("RotoChair connected.");
             }
+            else if (UsbConnected && !state.USBConnected)
+            {
+                logger.LogInformation("RotoChair disconnected.");
+            }
+            
 
             this.State = state;
+           // OnUpdate();
         }
 
         public override Task Stop()
@@ -57,61 +55,58 @@ namespace RotoGLBridge.Plugins
 
         
         
-        public async Task SwitchModeAsync(int mode)
+        public void SetRunMode(RunMode mode)
         {
-            //RotoChair.MODE_OBJECT_FOLLOW = 2;
-            switch(mode)
-            {
-                case 0:
-                    rotoChair.SetFreeMode();
-                    break;
-                case 1:
-                    rotoChair.SetCockpitMode(90);
-                    break;
-                default:
-                    rotoChair.SetObjectFollowMode();
-                    break;
-                
-            }
-            rotoChair.SetObjectFollowMode();
-
-            //return rotoChair.SwitchModeAsync(mode, getYaw);
+            rotoChair.SetRunMode(mode);
         }
+
         //public void SetPower(float power)
         //{
         //    rotoChair.(power);
         //}
 
-        public Task ConnectAsync(CancellationToken cancellationToken = default)
+        public void Connect()
         {
             rotoChair.Connect();
-            rotoChair.SetObjectFollowMode();
-            return Task.CompletedTask;
+            rotoChair.SetObjectFollowMode();            
         }
 
-        public Task DisconnectAsync(CancellationToken cancellationToken = default)
-        {
-            return Task.CompletedTask;
-        }
+        internal void Disconnect() => rotoChair.Disconnect();
+
+        internal void SetFollowDegree(int degree) => rotoChair.SetObjectFollowDegree(degree);
+
     }
 
-    public class Roto2PluginGlobal : UpdateablePluginGlobal<Roto2Plugin>
+    public class Roto2PluginGlobal : SharpieGlobal //UpdateablePluginGlobal
+                                                   <Roto2Plugin>
     {
+        //public RotoStatus State => plugin?.State;
+
+
+        //public bool IsConnected => plugin?.UsbConnected ?? false;
+        #region  Exposed Properties
+
         public bool IsConnected => plugin?.UsbConnected ?? false;
 
-        internal void Connect()
+        public RunMode RunMode => plugin.State.RunMode;
+
+        public RotoStatus State => plugin.State;
+
+        public float Yaw
         {
-            throw new NotImplementedException();
+            get => (float)plugin.State.BaseDegree;
+            set
+            {
+                plugin.SetFollowDegree((int)value);
+            }
         }
 
-        internal void Disconnect()
-        {
-            throw new NotImplementedException();
-        }
 
-        internal void SetTargetAngle(float yaw)
-        {
-            plugin
-        }
+        #endregion
+        internal void Connect() => plugin.Connect();
+
+        internal void Disconnect() => plugin.Disconnect();
+
+
     }
 }

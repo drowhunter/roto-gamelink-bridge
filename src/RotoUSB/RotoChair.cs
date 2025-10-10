@@ -13,24 +13,24 @@ namespace rotoUSB
 
         // =============== Constant ===============
         // Constant for  Roto VR Chair Run Mode status 
-        public const int MODE_IDLE = 0x00;
-        private const int MODE_CAL = 0x01;           // HT is calibrating
+        //public const int MODE_IDLE = 0x00;
+        //private const int MODE_CAL = 0x01;           // HT is calibrating
 
-        public const int MODE_OBJECT_FOLLOW = 0x02;  // Object follow mode
-        public const int MODE_FREE = 0x03;           // Free mode
-        public const int MODE_COCKPIT = 0x04;        // Cockpit mode
+        //public const int MODE_OBJECT_FOLLOW = 0x02;  // Object follow mode
+        //public const int MODE_FREE = 0x03;           // Free mode
+        //public const int MODE_COCKPIT = 0x04;        // Cockpit mode
 
         private const int MODE_APP = 0x05;           // Android/Quest APP control mode 
 
 
         // Constant for   Roto VR Chair connection status 
-        private const int STATE_HT_CONNECT = 0x01;       //   head tracker connected
-        private const int STATE_ANDROID_CONNECT = 0x02;  //   android connected  
-        private const int STATE_HT_IR_DETECT = 0x04;     //   head tracker detected   
-        private const int STATE_HT_CAL_DONE = 0x08;      //   head tracker calibrated
+        //private const int STATE_HT_CONNECT = 0x01;       //   head tracker connected
+        //private const int STATE_ANDROID_CONNECT = 0x02;  //   android connected  
+        //private const int STATE_HT_IR_DETECT = 0x04;     //   head tracker detected   
+        //private const int STATE_HT_CAL_DONE = 0x08;      //   head tracker calibrated
 
 
-        private const int STATE_PC_CONNECT = 0x10;       //   PC connected - Not use for PC 
+        //private const int STATE_PC_CONNECT = 0x10;       //   PC connected - Not use for PC 
 
         // FOR USB BASE ERROR MODE - Internal Use only
         private const int MODE_EMERGENCY_STOP = 0x10;           //   Emergency stop from HT 
@@ -60,6 +60,9 @@ namespace rotoUSB
 
 
         private RotoStatus _rotoStatus = new RotoStatus();
+
+        private object _lockObject = new object();
+
         private readonly object _statusLock = new object();
 
         private Stopwatch stopwatch;
@@ -339,7 +342,7 @@ namespace rotoUSB
         // Moves the chair by a specified angle and speed
         public void MoveChairByAngle(int speed, int angle)
         {
-            if (_rotoStatus.RunMode == MODE_COCKPIT || _rotoStatus.RunMode == MODE_FREE)
+            if (_rotoStatus.RunMode == RunMode.Cockpit || _rotoStatus.RunMode == RunMode.Free)
             {
                 _rotoAction.UpdateChairSpeed(speed, angle);
             }
@@ -348,7 +351,7 @@ namespace rotoUSB
         // Sets the object follow degree for tracking
         public void SetObjectFollowDegree(int degree)
         {
-            if (_rotoStatus.RunMode == MODE_OBJECT_FOLLOW)
+            if (_rotoStatus.RunMode == RunMode.Follow)
             {
                 _rotoAction.UpdateObjectFollowDegree(_rotoStatus.MaxPowerLimit, degree);
             }
@@ -361,7 +364,7 @@ namespace rotoUSB
         /// <param name="milliSeconds">The milli seconds.</param>
         public void SetRumble(int power, ushort milliSeconds)
         {
-            if (_rotoStatus.RunMode != MODE_IDLE)
+            if (_rotoStatus.RunMode != RunMode.Idle)
             {
                 _rotoAction.UpdateRumble(power, milliSeconds);
             }
@@ -372,7 +375,7 @@ namespace rotoUSB
         /// </summary>
         public void StopRumble()
         {
-            if (_rotoStatus.RunMode != MODE_IDLE)
+            if (_rotoStatus.RunMode != RunMode.Idle)
             {
                 _rotoAction.UpdateRumble(0, 0);
             }
@@ -387,29 +390,16 @@ namespace rotoUSB
         private bool UpdateChairAction()
         {
             bool success = true;
-
-            bool enableMotor = false;
-            bool enableRumble = false;
-            bool isTurnLeft = false;
-
-            bool motorChanged = false;
-            bool rumbleChanged = false;
+            bool isValueChange = _rotoAction.GetRotoAction(out bool motorChanged, out int chairSpeed, out int objectAngle, out int chairAngle, 
+                out bool rumbleChanged, out int rumblePower, out int rumbleDurationMS);
 
 
-            int chairSpeed;
-            int objectAngle;
-            int rumblePower;
-            int rumbleDurationMS;
-            int chairAngle;
-
-
-
-            bool isValueChange = _rotoAction.GetRotoAction(out motorChanged, out chairSpeed, out objectAngle, out chairAngle, out rumbleChanged, out rumblePower, out rumbleDurationMS);
-
+            bool enableMotor;
+            bool enableRumble;
             //_logger.LogDebug("Chair degree: " + objectAngle);
 
             // Only object following provides realtime chair angle synchronization
-            if (_rotoStatus.RunMode == MODE_OBJECT_FOLLOW)
+            if (_rotoStatus.RunMode == RunMode.Follow)
             {
 
                 if (isSettingZero == false)
@@ -421,11 +411,11 @@ namespace rotoUSB
                 }
 
             }
-            else if (_rotoStatus.RunMode == MODE_FREE || _rotoStatus.RunMode == MODE_COCKPIT)
+            else if (_rotoStatus.RunMode == RunMode.Free || _rotoStatus.RunMode == RunMode.Cockpit)
             {
                 enableRumble = rumbleChanged;
                 enableMotor = motorChanged;
-                isTurnLeft = (chairSpeed < 0 ? true : false);
+                bool isTurnLeft = (chairSpeed < 0 ? true : false);
 
                 // why keep movement??
                 if (isValueChange)
@@ -557,7 +547,8 @@ namespace rotoUSB
         {
             lock (_statusLock)
             {
-                return (RotoStatus)_rotoStatus.Clone();
+                //return (RotoStatus)_rotoStatus.Clone();
+                return _rotoStatus;
 
             }
 
@@ -641,7 +632,7 @@ namespace rotoUSB
 
 
         // Sets the chair's operating mode
-        private bool SetV2BaseMode(int newMode, bool motorHardStop, bool enableTracker)
+        private bool SetV2BaseMode(RunMode newMode, bool motorHardStop, bool enableTracker)
         {
             bool success = false;
 
@@ -676,25 +667,35 @@ namespace rotoUSB
         }
 
 
+        public bool SetRunMode(RunMode mode)
+        {
+            if(mode == RunMode.Follow)
+            {
+                SetZeroBaseCommand();
+            }
+
+            return SetV2BaseMode(mode, false, ENABLE_HT);
+        }
+
 
         // Sets the chair to object follow mode
         public bool SetObjectFollowMode()
         {
             SetZeroBaseCommand();
-            return SetV2BaseMode(MODE_OBJECT_FOLLOW, false, ENABLE_HT);
+            return SetV2BaseMode(RunMode.Follow, false, ENABLE_HT);
         }
 
         // Sets the chair to idle mode
         public bool SetIdleMode()
         {
-            return SetV2BaseMode(MODE_IDLE, false, ENABLE_HT);
+            return SetV2BaseMode(RunMode.Idle, false, ENABLE_HT);
         }
 
         // Sets the chair to free mode
         public bool SetFreeMode()
         {
 
-            return SetV2BaseMode(MODE_FREE, false, ENABLE_HT);
+            return SetV2BaseMode(RunMode.Free, false, ENABLE_HT);
 
         }
 
@@ -704,7 +705,7 @@ namespace rotoUSB
         {
 
             cockpitAngleLimit = Clamp(cockpitLimit, 60, 140);
-            return SetV2BaseMode(MODE_COCKPIT, false, ENABLE_HT);
+            return SetV2BaseMode(RunMode.Cockpit, false, ENABLE_HT);
         }
 
 
@@ -712,11 +713,11 @@ namespace rotoUSB
         private void ParseChairSetting(byte[] data)
         {
 
-            int runMode = (data[2]) & 0x0F;
+            var runMode = (RunMode)((data[2]) & 0x0F);
             int errorMode = (data[2]) & 0xF0;
 
-            bool htConnected = ((data[3] & STATE_HT_CONNECT) == STATE_HT_CONNECT) ? true : false;
-            bool androidConnected = ((data[3] & STATE_ANDROID_CONNECT) == STATE_ANDROID_CONNECT) ? true : false;
+            bool htConnected = (ConnectionState)(data[3] & (int)ConnectionState.HeadTrackerConnected) == ConnectionState.HeadTrackerConnected;
+            bool androidConnected = (ConnectionState)(data[3] & (int)ConnectionState.AndroidConnected) == ConnectionState.AndroidConnected;
 
             int baseDegree = (int)((data[5] << 8) + data[6]);
             int compassDegree = (int)((data[7] << 8) + data[8]);
@@ -727,7 +728,7 @@ namespace rotoUSB
             int maxPower = data[12];
             int firmwareVersion = data[13];
 
-            bool htEnabled = ((data[14] & 0x01) == 1) ? true : false;
+            bool htEnabled = ((data[14] & 0x01) == 1);
 
             lock (_statusLock)
             {
@@ -788,7 +789,7 @@ namespace rotoUSB
                                 _logger.LogError("Error: This library only support roto VR explorer! ");
                             }
 
-                            lock (_rotoStatus)
+                            lock (_statusLock)
                             {
                                 _rotoStatus.ChairVersion = chairVersion;
                             }
