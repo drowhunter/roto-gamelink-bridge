@@ -1,4 +1,4 @@
-﻿using com.rotovr.sdk;
+﻿
 
 using RotoGLBridge.Plugins;
 using RotoGLBridge.Services;
@@ -11,7 +11,7 @@ namespace RotoGLBridge.Scripts
     internal class JoystickTest(
         Xbox360GlobalIndexer xbox360,
         IConsoleWatcher cons,
-        RotoPluginGlobal roto
+        Roto2PluginGlobal roto
         ) : SharpieScript
     {
 
@@ -19,8 +19,8 @@ namespace RotoGLBridge.Scripts
 
         public override async Task Start()
         {
-            roto.SetPower(1);
-            await roto.SwitchModeAsync(ModeType.FollowObject, () => yaw);
+            //roto.SetPower(1);
+            //await roto.SwitchModeAsync(ModeType.FollowObject, () => yaw);
 
             
         }

@@ -14,6 +14,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="Plugins\Roto\RotoPlugin.cs" />
+    <Compile Remove="Scripts\JoystickTest.cs" />
+    <Compile Remove="Scripts\Main.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="Plugins\.gitignore" />
     <None Remove="Plugins\YawEmu.7z" />
   </ItemGroup>
@@ -38,7 +44,6 @@
 		<ProjectReference Include="..\..\..\Sharpie2\src\Plugins\Sharpie.Plugins.UsbWatcher\Sharpie.Plugins.UsbWatcher.csproj" />
 	</ItemGroup>
 	<ItemGroup>
-		<ProjectReference Include="..\RotoSDK\RotoSDK.csproj" />
 		<ProjectReference Include="..\RotoUSB\rotoUSB.csproj" />
 	</ItemGroup>
 	

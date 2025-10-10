@@ -8,7 +8,7 @@ using Sharpie.Plugins.UsbWatcher;
 namespace RotoGLBridge.Scripts
 {
     public class RotoScript(
-        ILogger<Main> logger,
+        ILogger<RotoScript> logger,
         GamelinkGlobal gamelink,
         //RotoPluginGlobal roto,
         Roto2PluginGlobal roto,
