@@ -223,7 +223,7 @@ namespace rotoUSB
                             IntPtr handle = IntPtr.Zero;
                             if (libraryName == "HIDApi.dll")
                             {
-                                NativeLibrary.TryLoad(dllFullPath, out handle);
+                              NativeLibrary.TryLoad(dllFullPath, out handle);
                                 _isLibaryLoaded = true;
                             }
                             return handle;

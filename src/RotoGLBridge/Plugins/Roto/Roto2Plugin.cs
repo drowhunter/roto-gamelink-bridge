@@ -8,13 +8,13 @@ namespace RotoGLBridge.Plugins
 {
     [GlobalType(Type = typeof(Roto2PluginGlobal))]
     public class Roto2Plugin(
-        ILogger<RotoPlugin> logger,
+        ILogger<Roto2Plugin> logger,
         IEnumerable<IMmfSender> mmfSenders,
         IRotoChair rotoChair
         ) : SharpiePlugin //UpdateablePlugin
     {
     
-        public bool UsbConnected { get; set; }
+        public bool UsbConnected { get => State.USBConnected;  }
 
         public RotoStatus State { get; private set; } = new RotoStatus();
 
@@ -40,9 +40,8 @@ namespace RotoGLBridge.Plugins
             {
                 logger.LogInformation("RotoChair disconnected.");
             }
-            
 
-            this.State = state;
+            State = state;
            // OnUpdate();
         }
 
@@ -71,7 +70,11 @@ namespace RotoGLBridge.Plugins
             rotoChair.SetObjectFollowMode();            
         }
 
-        internal void Disconnect() => rotoChair.Disconnect();
+        internal void Disconnect()
+        {
+            
+            rotoChair.Disconnect();
+        }
 
         internal void SetFollowDegree(int degree) => rotoChair.SetObjectFollowDegree(degree);
 
