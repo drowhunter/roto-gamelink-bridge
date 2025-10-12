@@ -9,7 +9,7 @@ namespace rotoUSB
 #if !DEBUG
         public bool _isConsoleDebug = false;
 #else
-        public bool _isConsoleDebug = true;
+        public bool _isConsoleDebug = false;
 #endif
         public WriteLogger(ILogger<T> logger)
         {
