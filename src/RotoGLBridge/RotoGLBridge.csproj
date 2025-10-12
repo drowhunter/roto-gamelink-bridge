@@ -37,11 +37,11 @@
 		<PackageReference Include="Sharpie.Plugins.UsbWatcher" Version="1.0.8" />
 	</ItemGroup>
 	<ItemGroup Condition="'$(Configuration)' == 'Dev'">
-		<ProjectReference Include="..\..\..\Sharpie2\src\Sharpie\Sharpie.Engine\Sharpie.Engine.csproj" />
-		<ProjectReference Include="..\..\..\Sharpie2\src\Plugins\Sharpie.Plugins.Speech\Sharpie.Plugins.Speech.csproj" />
-		<ProjectReference Include="..\..\..\Sharpie2\src\Sharpie\Sharpie.Helpers.Telemetry\Sharpie.Helpers.Telemetry.csproj" />
-		<ProjectReference Include="..\..\..\Sharpie2\src\Plugins\Sharpie.Plugins.SharpDX\Sharpie.Plugins.SharpDX.csproj" />
-		<ProjectReference Include="..\..\..\Sharpie2\src\Plugins\Sharpie.Plugins.UsbWatcher\Sharpie.Plugins.UsbWatcher.csproj" />
+		<ProjectReference Include="..\..\..\Sharpie\src\Sharpie\Sharpie.Engine\Sharpie.Engine.csproj" />
+		<ProjectReference Include="..\..\..\Sharpie\src\Plugins\Sharpie.Plugins.Speech\Sharpie.Plugins.Speech.csproj" />
+		<ProjectReference Include="..\..\..\Sharpie\src\Sharpie\Sharpie.Helpers.Telemetry\Sharpie.Helpers.Telemetry.csproj" />
+		<ProjectReference Include="..\..\..\Sharpie\src\Plugins\Sharpie.Plugins.SharpDX\Sharpie.Plugins.SharpDX.csproj" />
+		<ProjectReference Include="..\..\..\Sharpie\src\Plugins\Sharpie.Plugins.UsbWatcher\Sharpie.Plugins.UsbWatcher.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\RotoUSB\rotoUSB.csproj" />
