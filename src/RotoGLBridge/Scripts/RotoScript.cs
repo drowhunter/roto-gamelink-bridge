@@ -79,7 +79,7 @@ namespace RotoGLBridge.Scripts
         {
             if (roto.IsConnected)
             {
-                OnYawUpdate?.Invoke((float)roto.Yaw);
+                OnYawUpdate?.Invoke(roto.Yaw);
             }
 
 
@@ -125,6 +125,7 @@ namespace RotoGLBridge.Scripts
                 logger.LogInformation("Roto detected.");
                 speech.Say("Roto Chair Connected");
                 roto.Connect();
+                
             }
             else
             {

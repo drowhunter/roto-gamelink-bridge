@@ -17,13 +17,29 @@ namespace RotoGLBridge.Plugins
 
         public ActivityFlags activityFlags = new();
 
-        public override async Task Start()
+        public bool IsConnected => mmf?.IsConnected ?? false;
+
+        public override Task Start()
         {
-            mmf = new MmfTelemetry<ActivityFlags>(new() { Create = false, Name = "OXRMC_ActivityInput" }, new MarshalByteConverter<ActivityFlags>());
+            mmf = new MmfTelemetry<ActivityFlags>(new() { 
+                Create = false, 
+                Name = "OXRMC_ActivityInput" 
+            }, new MarshalByteConverter<ActivityFlags>());
 
-            //var res = await mmf.TryOpenAsync(0, cts.Token);
+            
+            if (mmf.IsConnected)
+            {
+                logger.LogInformation("OXRMC Activity Input MmfTelemetry opened successfully.");
+                
+                //return Task.CompletedTask;
+            }
+            else
+            {
+                logger.LogWarning("OXRMC Activity Input MmfTelemetry failed to open.");
+                //return Task.FromException(new Exception("OXRMC Activity Input MmfTelemetry failed to open."));
+            }
 
-            //logger.LogInformation("OXRMC Activity Input MmfTelemetry opened: {result}", res);
+            return Task.CompletedTask;
         }
 
         public override Task Stop()
@@ -81,6 +97,8 @@ namespace RotoGLBridge.Plugins
 
     public class OxrmcGlobal : SharpieGlobal<OxrmcPlugin>
     {
+        
+
         private void SetActivityBit(ActivityBit bit, bool value)
         {
             if (plugin != null)
