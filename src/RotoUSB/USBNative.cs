@@ -1,6 +1,7 @@
 ﻿using System;
-using System.Text;
+using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
+using System.Text;
 
 
 namespace rotoUSB
@@ -358,36 +359,94 @@ namespace rotoUSB
 
 
         // Reads a USB-HID input report from the device
+        //public bool ReadHIDPacket(IntPtr handle, byte[] data, int length)
+        //{
+        //    bool success = false;
+        //    uint bytesRead = 0;
+
+        //    if (handle != IntPtr.Zero && data != null && data.Length >= USB_REPORT_LEN)
+        //    {
+        //        lock (_lockUSBR)
+        //        {
+        //            try
+        //            {
+        //                success = ReadFile(handle, data, (uint)USB_REPORT_LEN, out bytesRead, IntPtr.Zero);
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                success = false;
+        //                LastErrorMessage = "ReadFile exception: " + ex.Message;
+        //            }
+        //        }
+        //        if (!success)
+        //            LastErrorMessage = GetIOError();
+        //    }
+        //    else
+        //    {
+        //        LastErrorMessage = "Read USB packet error! Either handle is null or  data buffer is not allocated ";
+        //    }
+
+
+        //    return success;
+        //}
+
+        [HandleProcessCorruptedStateExceptions]
         public bool ReadHIDPacket(IntPtr handle, byte[] data, int length)
         {
             bool success = false;
             uint bytesRead = 0;
 
-            if (handle != IntPtr.Zero && data != null && data.Length >= USB_REPORT_LEN)
+            if (handle == IntPtr.Zero)
             {
-                lock (_lockUSBR)
-                {
-                    try
-                    {
-                        success = ReadFile(handle, data, (uint)USB_REPORT_LEN, out bytesRead, IntPtr.Zero);
-                    }
-                    catch (Exception ex)
-                    {
-                        success = false;
-                        LastErrorMessage = "ReadFile exception: " + ex.Message;
-                    }
-                }
-                if (!success)
-                    LastErrorMessage = GetIOError();
+                LastErrorMessage = "Read USB packet error! Handle is null.";
+                return false;
             }
-            else
+            if (data == null || data.Length < USB_REPORT_LEN)
             {
-                LastErrorMessage = "Read USB packet error! Either handle is null or  data buffer is not allocated ";
+                LastErrorMessage = "Read USB packet error! Data buffer is not allocated or too small.";
+                return false;
             }
 
+            lock (_lockUSBR)
+            {
+                try
+                {
+                    success = ReadFile(handle, data, (uint)USB_REPORT_LEN, out bytesRead, IntPtr.Zero);
+                    if (!success)
+                    {
+                        LastErrorMessage = GetIOError();
+                    }
+                    else if (bytesRead == 0)
+                    {
+                        LastErrorMessage = "No data read from USB device.";
+                        success = false;
+                    }
+                }
+                catch (IOException ioEx)
+                {
+                    LastErrorMessage = $"ReadFile IOException: {ioEx.Message}";
+                    success = false;
+                }
+                catch (Exception ex)
+                {
+                    LastErrorMessage = $"ReadFile exception: {ex.Message}";
+                    success = false;
+                }
+                catch
+                {
+                    LastErrorMessage = "ReadFile encountered a corrupted state exception.";
+                    var e = Marshal.GetExceptionForHR(Marshal.GetHRForLastWin32Error());
+                    if (e != null)
+                    {
+                        LastErrorMessage += $" Exception: {e.Message}";
+                    }
+                    success = false;
+                }
+            }
 
             return success;
         }
+
 
         // Closes the USB-HID device connection
         public void CloseUSBDevice(IntPtr device)

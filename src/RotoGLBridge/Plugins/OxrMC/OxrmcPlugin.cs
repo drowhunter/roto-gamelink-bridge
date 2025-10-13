@@ -97,7 +97,7 @@ namespace RotoGLBridge.Plugins
 
     public class OxrmcGlobal : SharpieGlobal<OxrmcPlugin>
     {
-        
+        public bool IsConnected => plugin.IsConnected;
 
         private void SetActivityBit(ActivityBit bit, bool value)
         {

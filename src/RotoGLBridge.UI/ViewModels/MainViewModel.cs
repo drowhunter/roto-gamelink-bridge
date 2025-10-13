@@ -10,6 +10,7 @@ using RotoGLBridge.Scripts;
 
 using System;
 using System.Diagnostics;
+using System.Reactive;
 using System.Reactive.Linq;
 using System.Windows;
 using System.Windows.Media;
@@ -32,6 +33,7 @@ namespace RotoGLBridge.UI
 
         private readonly ISharpieEngine sharpieEngine;
         private readonly RotoScript _rotoScript;
+        //private readonly Roto2PluginGlobal _rotoGlobal;
 
         //private readonly RotoPluginGlobal _roto;
 
@@ -86,6 +88,14 @@ namespace RotoGLBridge.UI
         [ObservableProperty]
         private bool _rotoConnected;
 
+        [ObservableProperty]
+        private bool _oxrmcConnected;
+
+        [ObservableProperty]
+        private bool _gamelinkConnected;
+
+        [ObservableProperty]
+        private bool _tcpConnected;
 
         [RelayCommand]
         public void OpenSettings()
@@ -99,7 +109,7 @@ namespace RotoGLBridge.UI
 
 
         // Updated constructor to safely update Yaw from background thread via dispatcher
-        public MainViewModel(ISharpieEngine sharpieEngine, RotoScript rotoScript, Roto2PluginGlobal rotoGlobal)
+        public MainViewModel(ISharpieEngine sharpieEngine, RotoScript rotoScript)
         {
             SetupModels();
             
@@ -109,15 +119,15 @@ namespace RotoGLBridge.UI
             cts = new CancellationTokenSource();
             this.sharpieEngine = sharpieEngine;
             _rotoScript = rotoScript;
-
-           _renderObservable = Observable.FromEventPattern<EventHandler, EventArgs>(
+            
+            _renderObservable = Observable.FromEventPattern<EventHandler, EventArgs>(
                 h => CompositionTarget.Rendering += h,
                 h => CompositionTarget.Rendering -= h);
 
 
 
-            
 
+            /*
             rotoScript.OnYawUpdate += (newYaw) =>
             {
 
@@ -128,7 +138,7 @@ namespace RotoGLBridge.UI
                     Yaw = currentYaw;
                 });
             };
-
+            */
 
             //_roto = roto;
 
@@ -145,10 +155,37 @@ namespace RotoGLBridge.UI
 
             //};
 
-            _renderObservable.Subscribe(_ =>
+            // UI thread rendering event to update properties
+            CompositionTarget.Rendering += (s, e) =>
             {
-                RotoConnected = rotoGlobal.IsConnected;
-            });
+                //_renderObservable.Subscribe(_ =>
+                //{
+                RotoConnected = _rotoScript.RotoIsConnected;
+                Yaw = currentYaw = -_rotoScript.Yaw;
+                OxrmcConnected = _rotoScript.OxrmcIsConnected;
+                GamelinkConnected = _rotoScript.GamelinkIsConnected;
+                TcpConnected = _rotoScript.TcpIsConnected;
+
+
+            };//);
+
+            
+
+        }
+
+        
+
+        void OnRender(object s, EventArgs e)
+        {
+            if (Animated)
+            {
+                currentYaw += _dps;
+                if (currentYaw >= 360) currentYaw -= 360;
+            }
+
+            Yaw = currentYaw;
+
+
 
         }
 
@@ -431,15 +468,7 @@ namespace RotoGLBridge.UI
             _renderSubscribed = false;
         }
 
-        void OnRender(object s, EventArgs e)
-        {
-            if (Animated)
-            {
-                currentYaw += _dps;
-                if (currentYaw >= 360) currentYaw -= 360;
-            }
-            Yaw = currentYaw;
-        }
+        
 
         
 

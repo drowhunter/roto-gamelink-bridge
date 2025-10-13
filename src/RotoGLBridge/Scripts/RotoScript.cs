@@ -12,15 +12,23 @@ namespace RotoGLBridge.Scripts
         GamelinkGlobal gamelink,
         //RotoPluginGlobal roto,
         Roto2PluginGlobal roto,
-        YawDeviceGlobal yawDevice,
+        YawDeviceGlobal tcpDevice,
         SpeechGlobal speech,
         OxrmcGlobal oxrmc,
         UsbWatcherGlobal usbWatcher,
         IConsoleWatcher cons) : SharpieScript
     {
 
-        public event Action<float> OnYawUpdate;
+        //public event Action<float> OnYawUpdate;
+        public float Yaw { get; set; }
 
+        public bool OxrmcIsConnected => oxrmc.IsConnected;
+
+        public bool RotoIsConnected => roto.IsConnected;
+
+        public bool GamelinkIsConnected => gamelink.IsConnected;
+
+        public bool TcpIsConnected => tcpDevice.IsConnected;
 
         public override Task Start()
         {
@@ -67,7 +75,8 @@ namespace RotoGLBridge.Scripts
             }
             else
             {
-                OnYawUpdate?.Invoke(gamelink.yaw);
+                Yaw = gamelink.yaw;
+                //OnYawUpdate?.Invoke(gamelink.yaw);
             }
 
             //var r = Filters.EnsureMapRange(gamelink.roll, -40, 40, -1, 1);
@@ -79,7 +88,8 @@ namespace RotoGLBridge.Scripts
         {
             if (roto.IsConnected)
             {
-                OnYawUpdate?.Invoke(roto.Yaw);
+                //OnYawUpdate?.Invoke(roto.Yaw);
+                Yaw = gamelink.yaw;
             }
 
 
@@ -123,7 +133,7 @@ namespace RotoGLBridge.Scripts
             if (isConnected)
             {
                 logger.LogInformation("Roto detected.");
-                speech.Say("Roto Chair Connected");
+                speech.Say("Roto Chair Detected, connecting..");
                 roto.Connect();
                 
             }
