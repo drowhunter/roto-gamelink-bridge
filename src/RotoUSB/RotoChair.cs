@@ -2,6 +2,7 @@
 
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 
 
@@ -298,14 +299,27 @@ namespace rotoUSB
                     // Create new reading task
                     _ctsRead = new CancellationTokenSource();
                     // Start the reading loop in a background task
+                    
+                    var ts = new ThreadStart(() => {
+                        Thread.CurrentThread.IsBackground = true;
+                        Thread.CurrentThread.Name = "RotoChair USB Read Thread";
+                        Thread.Sleep(1000);
+                        ReadLoop(_ctsRead.Token);
+                    });
 
-                    Task.Factory.StartNew(() => {
+                    var thread = new Thread(ts);
+
+                   
+                    //thread.Start();
+
+                    /*
+                    var t = Task.Factory.StartNew((a) =>
+                    {
 
                         ReadLoop(_ctsRead.Token);
-                    }, TaskCreationOptions.LongRunning);
-                    //Task.Run(() => ReadLoop(_ctsRead.Token));
-
-
+                    }, TaskCreationOptions.LongRunning, _ctsRead.Token);
+                    
+                   */
 
                     Thread.Sleep(10);
 

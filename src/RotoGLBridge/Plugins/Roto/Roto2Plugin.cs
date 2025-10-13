@@ -91,9 +91,13 @@ namespace RotoGLBridge.Plugins
 
         public bool IsConnected => plugin?.UsbConnected ?? false;
 
-        public RunMode RunMode => plugin.State.RunMode;
+        public RunMode RunMode
+        {
+            get => plugin.State.RunMode;
+            set => plugin.SetRunMode(value);
+        }
 
-        public RotoStatus State => plugin.State;
+        //public new RotoStatus State => plugin.State;
 
         public float Yaw
         {

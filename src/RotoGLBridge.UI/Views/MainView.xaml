@@ -4,20 +4,14 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:helix="http://helix-toolkit.org/wpf"
         xmlns:local="clr-namespace:RotoGLBridge.UI"
+        xmlns:controls="clr-namespace:RotoGLBridge.UI.Controls"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         d:DataContext="{d:DesignInstance local:MainViewModel}"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="Roto Gamelink Bridge" Height="600" Width="960" WindowStartupLocation="CenterScreen" ResizeMode="NoResize">
-    <!-- Pseudocode:
-         1. Locate StatusBar.
-         2. Add new StatusBarItem containing:
-            - Label 'Animate'.
-            - Toggle switch styled with MaterialDesignSwitchToggleButton.
-            - Bind IsChecked to existing 'Animated' property used elsewhere.
-         3. Keep existing items unchanged.
-    -->
     <Window.Resources>
+        <local:BooleanToBrushConverter x:Key="BooleanToBrushConverter"/>
     </Window.Resources>
     <Grid Background="#DFDFDF">
         <Grid.RowDefinitions>
@@ -94,10 +88,28 @@
                         <Button Content="Start" Foreground="White" Command="{Binding StartEngineCommand}" Margin="0,0,5,0" IsEnabled="{Binding IsEngineRunning, Converter={StaticResource inverseBooleanConverter}}"/>
                         <Button Content="Stop" Foreground="White" Command="{Binding StopEngineCommand}" Margin="0,0,5,0" IsEnabled="{Binding IsEngineRunning}" />
                         </StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Status:" FontWeight="Bold" Margin="0,10,10,5" />
-                        <TextBlock Text="{Binding RotoConnected}" FontSize="14" FontWeight="Normal" />
+                    <StackPanel Orientation="Vertical" >
+                        <controls:ConnectionStatusControl Status="{Binding GamelinkConnected}" Label="Gamelink"  Margin="0,10,10,5"/>
+                        <controls:ConnectionStatusControl Status="{Binding RotoConnected}" Label="Chair"  Margin="0,10,10,5"/>
+                        <controls:ConnectionStatusControl Status="{Binding TcpConnected}" Label="Tcp"  Margin="0,10,10,5"/>
+                        <controls:ConnectionStatusControl Status="{Binding OxrmcConnected}" Label="OXRMC"  Margin="0,10,10,5"/>
+                        <!--<StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Roto:" FontWeight="Bold" Margin="0,10,10,5" />
+                            <TextBlock Text="{Binding RotoConnected}" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" Margin="0,4,0,0"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <controls:ConnectionStatusControl Status="{Binding OxrmcConnected}" Label="OXRMC"  Margin="0,10,10,5"/>                           
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Gamlink:" FontWeight="Bold" Margin="0,10,10,5" />
+                            <TextBlock Text="{Binding GamelinkConnected}" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" Margin="0,4,0,0"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="TCP:" FontWeight="Bold" Margin="0,10,10,5" />
+                            <TextBlock Text="{Binding TcpConnected}" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" Margin="0,4,0,0"/>
+                        </StackPanel>-->
                     </StackPanel>
+                    
                 </StackPanel>
             </GroupBox>
         </StackPanel>

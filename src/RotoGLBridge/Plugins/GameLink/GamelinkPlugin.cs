@@ -185,6 +185,7 @@ namespace RotoGLBridge.Plugins
 
                     // UsbConnected = true;
                 }
+                IsConnected = false;
 #endif
             }
             else if (result.Buffer.Length < 5)
@@ -195,6 +196,7 @@ namespace RotoGLBridge.Plugins
             }
             else
             {
+                IsConnected = true;
                 Data = converter.FromBytes(result.Buffer);
 
                 OnUpdate();

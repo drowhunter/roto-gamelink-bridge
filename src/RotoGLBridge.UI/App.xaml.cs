@@ -95,6 +95,7 @@ namespace RotoGLBridge.UI
 
             services.AddTransient<MainView>();
             services.AddTransient<MainViewModel>();
+            services.AddTransient<ConnectionStatusViewModel>();
 
             services.AddRotoGLBridge();
         }
