@@ -57,7 +57,7 @@
                  Margin="0">
                 <materialDesign:PackIcon Kind="Cog" Width="22" Height="22"/>
             </Button>
-            <TextBlock x:Name="YawTB" HorizontalAlignment="Center" Margin="0,0,0,0" TextWrapping="Wrap" Text="{Binding Yaw,Converter={StaticResource negateConverter}, StringFormat=' {0:F1}°'}" FontSize="36" FontWeight="Bold"  VerticalAlignment="Top"/>
+            <!--<TextBlock x:Name="YawTB" HorizontalAlignment="Center" Margin="0,0,0,0" TextWrapping="Wrap" Text="{Binding Yaw,Converter={StaticResource negateConverter}, StringFormat=' {0:F1}°'}" FontSize="36" FontWeight="Bold"  VerticalAlignment="Top"/>-->
         </Grid>
 
         <StackPanel Grid.Column="0" Grid.Row="1" Margin="10">
@@ -73,7 +73,7 @@
                         <Slider IsEnabled="{Binding Animated, Converter={StaticResource inverseBooleanConverter}}" Value="{Binding Yaw, Mode=TwoWay}" Minimum="0" Maximum="360" Width="393" Margin="5,0"/>
                         <TextBlock Text="{Binding Yaw, StringFormat='{}{0:F1}°'}" VerticalAlignment="Center" Width="50" Margin="5,0,0,0"/>
                     </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                    <!--<StackPanel Orientation="Horizontal" Margin="0,0,0,5">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Spin" VerticalAlignment="Center" Margin="0,0,4,0" />
                             <ToggleButton IsChecked="{Binding Animated}" 
@@ -81,19 +81,19 @@
                   VerticalAlignment="Center"
                   ToolTip="Toggle animation"/>
                         </StackPanel>
-                        <!--<Button Content="Spin" Command="{Binding StartYawAnimationCommand}" Margin="0,0,5,0" Foreground="White" IsEnabled="{Binding Animated, Converter={StaticResource inverseBooleanConverter}}"/>
-                        <Button Content="Stop" Command="{Binding StopYawAnimationCommand}" Margin="0,0,5,0" Foreground="White" IsEnabled="{Binding Animated}"/>-->
+                        --><!--<Button Content="Spin" Command="{Binding StartYawAnimationCommand}" Margin="0,0,5,0" Foreground="White" IsEnabled="{Binding Animated, Converter={StaticResource inverseBooleanConverter}}"/>
+                        <Button Content="Stop" Command="{Binding StopYawAnimationCommand}" Margin="0,0,5,0" Foreground="White" IsEnabled="{Binding Animated}"/>--><!--
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
                         <Button Content="Start" Foreground="White" Command="{Binding StartEngineCommand}" Margin="0,0,5,0" IsEnabled="{Binding IsEngineRunning, Converter={StaticResource inverseBooleanConverter}}"/>
                         <Button Content="Stop" Foreground="White" Command="{Binding StopEngineCommand}" Margin="0,0,5,0" IsEnabled="{Binding IsEngineRunning}" />
-                        </StackPanel>
+                        </StackPanel>-->
                     <StackPanel Orientation="Vertical" >
-                        <controls:ConnectionStatusControl Status="{Binding GamelinkConnected}" Label="Gamelink"  Margin="0,10,10,5"/>
-                        <controls:ConnectionStatusControl Status="{Binding RotoConnected}" Label="Chair"  Margin="0,10,10,5"/>
-                        <controls:ConnectionStatusControl Status="{Binding TcpConnected}" Label="Tcp"  Margin="0,10,10,5"/>
-                        <controls:ConnectionStatusControl Status="{Binding OxrmcConnected}" Label="OXRMC"  Margin="0,10,10,5"/>
-                        <!--<StackPanel Orientation="Horizontal">
+                        <controls:ConnectionStatusControl Status="{Binding GamelinkConnected}" Label="Receiving Telemetry"  Margin="0,10,10,5"/>
+                        <controls:ConnectionStatusControl Status="{Binding RotoConnected}" Label="Chair Connected"  Margin="0,10,10,5"/>
+                        <controls:ConnectionStatusControl Status="{Binding TcpConnected}" Label="Gamelink Connected"  Margin="0,10,10,5"/>
+                        <!-- <controls:ConnectionStatusControl Status="{Binding OxrmcConnected}" Label="OXRMC"  Margin="0,10,10,5" />
+                       <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Roto:" FontWeight="Bold" Margin="0,10,10,5" />
                             <TextBlock Text="{Binding RotoConnected}" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" Margin="0,4,0,0"/>
                         </StackPanel>

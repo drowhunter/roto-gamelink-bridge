@@ -3,6 +3,9 @@ using RotoGLBridge.Plugins.GameLink;
 
 using Sharpie.Plugins.Speech;
 using Sharpie.Plugins.UsbWatcher;
+using System.Reactive.Disposables.Fluent;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 
 namespace RotoGLBridge.Scripts
 {
@@ -22,6 +25,8 @@ namespace RotoGLBridge.Scripts
         //public event Action<float> OnYawUpdate;
         public float Yaw { get; set; }
 
+        public BehaviorSubject<bool> IsConnected = new(false);
+
         public bool OxrmcIsConnected => oxrmc.IsConnected;
 
         public bool RotoIsConnected => roto.IsConnected;
@@ -29,6 +34,8 @@ namespace RotoGLBridge.Scripts
         public bool GamelinkIsConnected => gamelink.IsConnected;
 
         public bool TcpIsConnected => tcpDevice.IsConnected;
+
+        List<IDisposable> disposables = new();
 
         public override Task Start()
         {
@@ -42,7 +49,40 @@ namespace RotoGLBridge.Scripts
 
             usbWatcher.Watch(0x04D9, 0xB564);
 
+            var s = IsConnected.DistinctUntilChanged().Subscribe(connected =>
+            {
+                if (connected)
+                {
+                    speech.Say("Roto Chair Connected");
+                }
+                else
+                {
+                    speech.Say("Roto Chair Disconnected");
+                }
+            });
 
+            disposables.Add(s);
+
+
+
+            return Task.CompletedTask;
+        }
+
+        override public Task Stop()
+        {
+            gamelink.OnUpdate -= OnGameLinkUpdate;
+            
+            usbWatcher.OnDeviceChange -= OnUsbChange;
+
+            foreach (var disposable in disposables)
+            {
+                disposable.Dispose();
+            }
+
+           
+
+            roto.Disconnect();
+            logger.LogInformation($"Main script stopped.");
             return Task.CompletedTask;
         }
 
@@ -64,11 +104,18 @@ namespace RotoGLBridge.Scripts
         
         public override void Execute()
         {
+            IsConnected.OnNext(roto.IsConnected); 
+            
             if (roto.IsConnected)
             {
                 Yaw = gamelink.yaw;
             }
 
+            if (!gamelink.IsConnected)
+            {
+                IsConnected.OnNext(false);
+            }
+            
 
             //Watch();
 

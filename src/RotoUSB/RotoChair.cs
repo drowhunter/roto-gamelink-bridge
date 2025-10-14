@@ -283,8 +283,9 @@ namespace rotoUSB
 
             if (_usbDeviceR == IntPtr.Zero || _usbDeviceW == IntPtr.Zero)
             {
-                _usbDeviceR = _usbNative.OpenUSBDevice();
                 _usbDeviceW = _usbNative.OpenUSBDevice();
+                _usbDeviceR = _usbNative.OpenUSBDevice();
+                
                 if (_usbDeviceR != IntPtr.Zero && _usbDeviceW != IntPtr.Zero)
                 {
                     // Enable USB-HID to 115200 baud rate
@@ -299,18 +300,18 @@ namespace rotoUSB
                     // Create new reading task
                     _ctsRead = new CancellationTokenSource();
                     // Start the reading loop in a background task
-                    
-                    var ts = new ThreadStart(() => {
-                        Thread.CurrentThread.IsBackground = true;
-                        Thread.CurrentThread.Name = "RotoChair USB Read Thread";
-                        Thread.Sleep(1000);
-                        ReadLoop(_ctsRead.Token);
-                    });
 
-                    var thread = new Thread(ts);
+                    //var ts = new ThreadStart(() => {
+                    //    Thread.CurrentThread.IsBackground = true;
+                    //    Thread.CurrentThread.Name = "RotoChair USB Read Thread";
+                    //    Thread.Sleep(10000);
+                    //    ReadLoop(_ctsRead.Token);
+                    //});
 
-                   
-                    thread.Start();
+                    //var thread = new Thread(ts);
+
+
+                    //thread.Start();
 
                     /*
                     var t = Task.Factory.StartNew((a) =>
@@ -320,6 +321,35 @@ namespace rotoUSB
                     }, TaskCreationOptions.LongRunning, _ctsRead.Token);
                     
                    */
+                    Task.Run(() =>
+                    {
+                        
+                        Thread.CurrentThread.IsBackground = true;
+                        Thread.CurrentThread.Name = "RotoChair USB Read Thread";
+                        //Thread.Sleep(5000);
+                        ReadLoop(_ctsRead.Token);
+                    }, _ctsRead.Token).ContinueWith(t =>
+                    {
+                        if (t.IsFaulted)
+                        {
+                            _logger.LogError(t.Exception, "RotoChair USB Read Task faulted.");
+                            var sys = Marshal.GetLastSystemError();
+                            var w32 = Marshal.GetLastWin32Error();
+                            _logger.LogError($"System Error: {sys}, Win32 Error: {w32}");
+                        }
+                        else if (t.IsCanceled)
+                        {
+                            _logger.LogDebug("RotoChair USB Read Task cancelled.");
+                        }
+                        else if (t.IsCompleted)
+                        {
+                            _logger.LogDebug("RotoChair USB Read Task completed.");
+                        }
+                        else
+                        {
+                            _logger.LogDebug("RotoChair USB Read Task ended.");
+                        }
+                    });
 
                     Thread.Sleep(10);
 

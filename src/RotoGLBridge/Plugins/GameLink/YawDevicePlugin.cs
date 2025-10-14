@@ -15,6 +15,8 @@ namespace RotoGLBridge.Plugins.GameLink
 
         internal bool IsConnected => tcp?.IsConnected ?? false;
 
+        public event Action<byte[]> OnConnected;
+
         public byte[] Data { get; set; }
 
         public override void Execute()
@@ -35,6 +37,7 @@ namespace RotoGLBridge.Plugins.GameLink
             tcp.OnReceiveAsync += (sender,data) =>
             {
                 Data = data;
+                OnConnected?.Invoke(data);
                 OnUpdate(); 
             };
 
