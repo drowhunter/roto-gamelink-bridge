@@ -56,7 +56,26 @@ namespace RotoGLBridge.Plugins
 
             if (ConnectionStatus != ConnectionStatus.Connected)
             {
-                bool connected = await roto.ConnectAsync(_cts.Token);
+                var t = roto.ConnectAsync(_cts.Token).ContinueWith(t =>
+                {
+                    if (t.IsCompleted)
+                    {
+                        logger.LogInformation("Connected to Roto chair");
+                    }
+                    else if (t.IsFaulted)
+                    {
+                        logger.LogError(t.Exception, "Error connecting to Roto chair");
+                    }
+                    else if (t.IsCanceled)
+                    {
+                        logger.LogWarning("Connection to Roto chair was canceled");
+                    }
+                    else
+                    {
+                        logger.LogWarning("Connection to Roto chair ended in an unexpected state");
+                    }
+                });
+
 
             }
             else
