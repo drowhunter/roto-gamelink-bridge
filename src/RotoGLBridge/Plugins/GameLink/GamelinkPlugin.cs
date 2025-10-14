@@ -9,6 +9,8 @@ using Sharpie.Helpers.Telemetry;
 
 using System.Net;
 using System.Net.Sockets;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Text;
 
 
@@ -43,6 +45,9 @@ namespace RotoGLBridge.Plugins
     {
         #region Private Fields
 
+        private int _connectionState = 0;
+
+        
         /// <summary>
         /// Cancellation token source for stopping UDP operations.
         /// </summary>
@@ -99,6 +104,7 @@ namespace RotoGLBridge.Plugins
 
         #region IUpdateablePlugin Implementation
 
+        IDisposable updateSubscription;
         /// <summary>
         /// Starts the plugin by initializing UDP listening.
         /// </summary>
@@ -109,6 +115,8 @@ namespace RotoGLBridge.Plugins
 
             _ = StartListeningAsync(_cancellationTokenSource.Token);
 
+
+
             return Task.CompletedTask;
         }
 
@@ -118,6 +126,13 @@ namespace RotoGLBridge.Plugins
         public override void Execute()
         {
             // do nothing
+            //IsConnected = false;
+            
+            //if(IsConnected && ((DateTime.Now - _lastConnectedSubject).TotalSeconds >= 5))
+            //{
+            //    IsConnected = false;
+            //}
+            
         }
 
         /// <summary>
@@ -127,6 +142,7 @@ namespace RotoGLBridge.Plugins
         public override Task Stop()
         {
             //UsbConnected = false;
+            updateSubscription?.Dispose();
 
             _cancellationTokenSource?.Cancel();
 
@@ -135,6 +151,9 @@ namespace RotoGLBridge.Plugins
 
         #endregion
 
+        
+
+        
         /// <summary>
         /// Configures and starts UDP listening for GameLink protocol messages.
         /// </summary>
@@ -183,8 +202,11 @@ namespace RotoGLBridge.Plugins
                     }.ToString()
                     );
 
+                    
                     // UsbConnected = true;
                 }
+                _connectionState = 1;
+                
                 IsConnected = false;
 #endif
             }
@@ -196,12 +218,17 @@ namespace RotoGLBridge.Plugins
             }
             else
             {
-                IsConnected = true;
+                _connectionState = 2;
+                //IsConnected = true;
                 Data = converter.FromBytes(result.Buffer);
-
+               
+                
+                IsConnected = true;
                 OnUpdate();
             }
         }
+
+        
     }
 
 
@@ -210,10 +237,14 @@ namespace RotoGLBridge.Plugins
     /// </summary>
     public class GamelinkGlobal : UpdateablePluginGlobal<GamelinkPlugin>
     {
+        
+
         /// <summary>
         /// Gets or sets whether the GameLink connection is active.
         /// </summary>
         public bool IsConnected { get => plugin.IsConnected; }
+
+        
 
         /// <summary>
         /// Gets the yaw rotation value from the current motion data.

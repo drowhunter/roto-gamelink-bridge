@@ -120,9 +120,9 @@ namespace RotoGLBridge.UI
             this.sharpieEngine = sharpieEngine;
             _rotoScript = rotoScript;
             
-            _renderObservable = Observable.FromEventPattern<EventHandler, EventArgs>(
-                h => CompositionTarget.Rendering += h,
-                h => CompositionTarget.Rendering -= h);
+            //_renderObservable = Observable.FromEventPattern<EventHandler, EventArgs>(
+            //    h => CompositionTarget.Rendering += h,
+            //    h => CompositionTarget.Rendering -= h);
 
 
 
@@ -160,12 +160,14 @@ namespace RotoGLBridge.UI
             {
                 //_renderObservable.Subscribe(_ =>
                 //{
+                
                 RotoConnected = _rotoScript.RotoIsConnected;
                 Yaw = currentYaw = -_rotoScript.Yaw;
                 OxrmcConnected = _rotoScript.OxrmcIsConnected;
                 GamelinkConnected = _rotoScript.GamelinkIsConnected;
                 TcpConnected = _rotoScript.TcpIsConnected;
 
+                //Animated = GamelinkConnected || TcpConnected || RotoConnected;
 
             };//);
 
@@ -177,11 +179,11 @@ namespace RotoGLBridge.UI
 
         void OnRender(object s, EventArgs e)
         {
-            if (Animated)
-            {
-                currentYaw += _dps;
-                if (currentYaw >= 360) currentYaw -= 360;
-            }
+            //if (Animated)
+            //{
+            //    currentYaw += _dps;
+            //    if (currentYaw >= 360) currentYaw -= 360;
+            //}
 
             Yaw = currentYaw;
 
@@ -213,14 +215,14 @@ namespace RotoGLBridge.UI
         {
             sharpieEngine?.Start(cts.Token);
             OnPropertyChanged(nameof(IsEngineRunning));
-            StartSmoothYaw();
+           // StartSmoothYaw();
         }
 
         // Replace StopEngine to await engine stop and notify bindings
         [RelayCommand]
         private async Task StopEngine()
         {
-            StopSmoothYaw();
+            //StopSmoothYaw();
             cts?.Cancel();
             if (sharpieEngine != null)
             {
@@ -304,7 +306,7 @@ namespace RotoGLBridge.UI
         [ObservableProperty]
         bool animated = false;
 
-        partial void OnAnimatedChanging(bool value)
+        /*partial void OnAnimatedChanging(bool value)
         {
             
             if (value)
@@ -315,9 +317,9 @@ namespace RotoGLBridge.UI
             {
                 StopYawAnimation();
             }
-        }
+        }*/
 
-
+/*
         [RelayCommand]
         private void StartYawAnimation()
         {           
@@ -339,11 +341,11 @@ namespace RotoGLBridge.UI
             }
 
         }
-
+*/
         [RelayCommand]
         private void ResetYaw()
         {
-            StopYawAnimation();
+            //StopYawAnimation();
             currentYaw = 0;
             Yaw = 0;
         }
@@ -358,7 +360,7 @@ namespace RotoGLBridge.UI
         [RelayCommand]
         private void ResetView()
         {
-            StopYawAnimation();
+            //StopYawAnimation();
             currentYaw = 0;
             Yaw = 0;
             ResetViewRequested?.Invoke();
