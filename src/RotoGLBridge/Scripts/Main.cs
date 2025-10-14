@@ -31,6 +31,11 @@ namespace RotoGLBridge.Scripts
         {
             logger.LogInformation($"Main script started.");
 
+            roto.OnUpdate = () =>
+            {
+                gamelink.IsConnected = roto.IsConnected;
+            };
+
             speech.Say("Roto Chair Initialized");
 
             gamelink.OnUpdate += OnGameLinkUpdate;
@@ -47,14 +52,11 @@ namespace RotoGLBridge.Scripts
 
             
 
-            yawDevice.OnUpdate += () =>
-            {
-                //cons.Write(0, 12, $"tcp: {yawDevice.Command}");
-            };
-            roto.OnUpdate += () =>
-            {
-               gamelink.IsConnected = roto.IsConnected;
-            };
+            //yawDevice.OnUpdate = () =>
+            //{
+            //    //cons.Write(0, 12, $"tcp: {yawDevice.Command}");
+            //};
+           
 
             
         }
@@ -69,7 +71,7 @@ namespace RotoGLBridge.Scripts
 
         
 
-        public override void Update()
+        public override void Execute()
         {
 
             Watch();

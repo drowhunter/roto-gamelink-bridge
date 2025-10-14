@@ -1,45 +1,48 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net8.0-windows</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>disable</Nullable>
-    <Configurations>Debug;Release;Dev</Configurations>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net8.0-windows</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>disable</Nullable>
+		<Configurations>Debug;Release;Dev</Configurations>
+		<Platforms>AnyCPU;x64</Platforms>
+		<VersionPrefix>0.0.10</VersionPrefix>
+		<SharpieVersion>1.1.0</SharpieVersion>
+		<Platform>x64</Platform>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="Plugins\YawEmu\**" />
-    <EmbeddedResource Remove="Plugins\YawEmu\**" />
-    <None Remove="Plugins\YawEmu\**" />
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Remove="Plugins\YawEmu\**" />
+		<EmbeddedResource Remove="Plugins\YawEmu\**" />
+		<None Remove="Plugins\YawEmu\**" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Remove="Plugins\.gitignore" />
-    <None Remove="Plugins\YawEmu.7z" />
-  </ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.3" />		
-		<PackageReference Include="System.Management" Version="9.0.6" />
-	</ItemGroup>
-	<ItemGroup Condition="'$(Configuration)' != 'Dev'">
-		<PackageReference Include="Sharpie.Engine" Version="1.0.8" />
-		<PackageReference Include="Sharpie.Helpers.Telemetry" Version="1.0.8" />
-		<PackageReference Include="Sharpie.Plugins.Speech" Version="1.0.8" />
-	</ItemGroup>
-	<ItemGroup Condition="'$(Configuration)' == 'Dev'">
-	  <ProjectReference Include="..\..\..\Sharpie2\src\Sharpie\Sharpie.Engine\Sharpie.Engine.csproj" />
-	  <ProjectReference Include="..\..\..\Sharpie2\src\Plugins\Sharpie.Plugins.Speech\Sharpie.Plugins.Speech.csproj" />
-	  <ProjectReference Include="..\..\..\Sharpie2\src\Sharpie\Sharpie.Helpers.Telemetry\Sharpie.Helpers.Telemetry.csproj" />
+		<None Remove="Plugins\.gitignore" />
+		<None Remove="Plugins\YawEmu.7z" />
 	</ItemGroup>
 	<ItemGroup>
-	  <ProjectReference Include="..\..\..\Sharpie2\src\Plugins\Sharpie.Plugins.SharpDX\Sharpie.Plugins.SharpDX.csproj" />
+		<PackageReference Include="System.Management" Version="9.0.9" />
 	</ItemGroup>
-	
+	<ItemGroup Condition="'$(Configuration)' == 'Release'">
+		<PackageReference Include="Sharpie.Engine" Version="$(SharpieVersion)" />
+		<PackageReference Include="Sharpie.Helpers.Core" Version="$(SharpieVersion)" />
+		<PackageReference Include="Sharpie.Helpers.Telemetry" Version="$(SharpieVersion)" />
+		<PackageReference Include="Sharpie.Plugins.Speech" Version="$(SharpieVersion)" />
+		<PackageReference Include="Sharpie.Plugins.SharpDX" Version="$(SharpieVersion)" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(Configuration)' != 'Release'">
+		<ProjectReference Include="..\..\..\sharpie\src\Sharpie\Sharpie.Engine\Sharpie.Engine.csproj" />
+		<ProjectReference Include="..\..\..\sharpie\src\Plugins\Sharpie.Plugins.Speech\Sharpie.Plugins.Speech.csproj" />
+		<ProjectReference Include="..\..\..\sharpie\src\Sharpie\Sharpie.Helpers.Telemetry\Sharpie.Helpers.Telemetry.csproj" />
+		<ProjectReference Include="..\..\..\sharpie\src\Sharpie\Sharpie.Helpers.Core\Sharpie.Helpers.Core.csproj" />
+		<ProjectReference Include="..\..\..\sharpie\src\Plugins\Sharpie.Plugins.SharpDX\Sharpie.Plugins.SharpDX.csproj" />
+	</ItemGroup>
+
 	<ItemGroup>
-	  <None Update="HIDApi.dll">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
+		<None Update="HIDApi.dll">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
 	</ItemGroup>
 
 </Project>

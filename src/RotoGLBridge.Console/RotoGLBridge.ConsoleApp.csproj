@@ -9,7 +9,8 @@
 	<Authors>
 		  Trevor (Drowhunter) Jones
 	</Authors>
-	<Configurations>Debug;Release;Dev</Configurations>	
+	<Configurations>Debug;Release;Dev</Configurations>
+	<Platforms>AnyCPU;x64</Platforms>	
   </PropertyGroup>
 
 	<ItemGroup>
