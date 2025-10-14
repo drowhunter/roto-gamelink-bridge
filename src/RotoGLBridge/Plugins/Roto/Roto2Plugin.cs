@@ -83,10 +83,7 @@ namespace RotoGLBridge.Plugins
     public class Roto2PluginGlobal : SharpieGlobal //UpdateablePluginGlobal
                                                    <Roto2Plugin>
     {
-        //public RotoStatus State => plugin?.State;
-
-
-        //public bool IsConnected => plugin?.UsbConnected ?? false;
+        
         #region  Exposed Properties
 
         public bool IsConnected => plugin?.UsbConnected ?? false;

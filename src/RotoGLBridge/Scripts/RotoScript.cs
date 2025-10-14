@@ -1,6 +1,5 @@
 ﻿using RotoGLBridge.Plugins;
 using RotoGLBridge.Plugins.GameLink;
-using RotoGLBridge.Services;
 
 using Sharpie.Plugins.Speech;
 using Sharpie.Plugins.UsbWatcher;
@@ -15,8 +14,9 @@ namespace RotoGLBridge.Scripts
         YawDeviceGlobal tcpDevice,
         SpeechGlobal speech,
         OxrmcGlobal oxrmc,
-        UsbWatcherGlobal usbWatcher,
-        IConsoleWatcher cons) : SharpieScript
+        UsbWatcherGlobal usbWatcher
+        //IConsoleWatcher cons
+        ) : SharpieScript
     {
 
         //public event Action<float> OnYawUpdate;
@@ -43,26 +43,6 @@ namespace RotoGLBridge.Scripts
             usbWatcher.Watch(0x04D9, 0xB564);
 
 
-            
-
-            //var options = new JsonSerializerOptions { WriteIndented = false };
-            //options.Converters.Add(new JsonStringEnumConverter());
-
-            /*
-            await roto.SwitchModeAsync(ModeType.FollowObject, () => {
-
-                return yaw;
-            });
-
-            roto.SetPower(.8f);
-            */
-
-
-            //yawDevice.OnUpdate += () =>
-            //{
-            //cons.Write(0, 12, $"tcp: {yawDevice.Command}");
-            //};
-
             return Task.CompletedTask;
         }
 
@@ -76,11 +56,9 @@ namespace RotoGLBridge.Scripts
             else
             {
                 Yaw = gamelink.yaw;
-                //OnYawUpdate?.Invoke(gamelink.yaw);
             }
 
-            //var r = Filters.EnsureMapRange(gamelink.roll, -40, 40, -1, 1);
-            //roll = r > 180 ? r - 360 : r;
+           
         }
 
         
@@ -88,12 +66,11 @@ namespace RotoGLBridge.Scripts
         {
             if (roto.IsConnected)
             {
-                //OnYawUpdate?.Invoke(roto.Yaw);
                 Yaw = gamelink.yaw;
             }
 
 
-            Watch();
+            //Watch();
 
             EnableVoiceControl();
         }
@@ -111,12 +88,12 @@ namespace RotoGLBridge.Scripts
             //cons.Watch(nameof(Roto.Telemetry.TargetAngle), roto.Telemetry.TargetAngle.ToString().PadLeft(3));
             //cons.Watch(nameof(Roto.Telemetry.CappedTargetAngle), roto.Telemetry.CappedTargetAngle.ToString().PadLeft(3));
             //cons.Watch(nameof(Roto.Telemetry.AngularVelocity), $"{roto.Telemetry.AngularVelocity,8:F1} °/s");
-            cons.Watch("hotkeys", $"{oxrmc.plugin.HotKeysPreseed}");
-            cons.Watch("trigger", $"{(ActivityBit)oxrmc.plugin.activityFlags.trigger}");
-            cons.Watch("confirm", $"{(ActivityBit)oxrmc.plugin.activityFlags.confirm}");
+            //cons.Watch("hotkeys", $"{oxrmc.plugin.HotKeysPreseed}");
+            //cons.Watch("trigger", $"{(ActivityBit)oxrmc.plugin.activityFlags.trigger}");
+            //cons.Watch("confirm", $"{(ActivityBit)oxrmc.plugin.activityFlags.confirm}");
             //cons.Watch("turns", roto.Turns);
 
-            cons.Publish();
+            //cons.Publish();
         }
 
         private void EnableVoiceControl()

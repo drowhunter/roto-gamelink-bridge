@@ -411,6 +411,7 @@ namespace rotoUSB
             {
                 try
                 {
+
                     success = ReadFile(handle, data, (uint)USB_REPORT_LEN, out bytesRead, IntPtr.Zero);
                     if (!success)
                     {

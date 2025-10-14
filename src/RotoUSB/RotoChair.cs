@@ -310,7 +310,7 @@ namespace rotoUSB
                     var thread = new Thread(ts);
 
                    
-                    //thread.Start();
+                    thread.Start();
 
                     /*
                     var t = Task.Factory.StartNew((a) =>

@@ -51,7 +51,7 @@ namespace RotoGLBridge.UI
         public event Action ZoomExtentsRequested;
         public event Action ResetViewRequested;
 
-        IObservable<System.Reactive.EventPattern<EventArgs>> _renderObservable;
+        IObservable<EventPattern<EventArgs>> _renderObservable;
 
 
         [ObservableProperty]

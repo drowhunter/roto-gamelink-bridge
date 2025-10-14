@@ -28,6 +28,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionIt
 		Directory.build.props = Directory.build.props
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sharpie.Plugins.UsbWatcher", "..\..\sharpie\src\Plugins\Sharpie.Plugins.UsbWatcher\Sharpie.Plugins.UsbWatcher.csproj", "{EC1BBCBD-E7A5-F3B7-55EA-DA6F9FF5EB77}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RotoGLBridge.UI", "RotoGLBridge.UI\RotoGLBridge.UI.csproj", "{4D00369C-3D4C-CD0B-2C7D-C3A1856F3FF4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "rotoUSB", "RotoUSB\rotoUSB.csproj", "{E98C2700-A68A-B582-9849-5848968D34B3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -60,6 +66,18 @@ Global
 		{AC8A0898-0E39-AFBA-5A97-795D185551CB}.Debug|x64.ActiveCfg = Debug|x64
 		{AC8A0898-0E39-AFBA-5A97-795D185551CB}.Debug|x64.Build.0 = Debug|x64
 		{AC8A0898-0E39-AFBA-5A97-795D185551CB}.Release|x64.ActiveCfg = Release|x64
+		{EC1BBCBD-E7A5-F3B7-55EA-DA6F9FF5EB77}.Debug|x64.ActiveCfg = Debug|x64
+		{EC1BBCBD-E7A5-F3B7-55EA-DA6F9FF5EB77}.Debug|x64.Build.0 = Debug|x64
+		{EC1BBCBD-E7A5-F3B7-55EA-DA6F9FF5EB77}.Release|x64.ActiveCfg = Release|x64
+		{EC1BBCBD-E7A5-F3B7-55EA-DA6F9FF5EB77}.Release|x64.Build.0 = Release|x64
+		{4D00369C-3D4C-CD0B-2C7D-C3A1856F3FF4}.Debug|x64.ActiveCfg = Debug|x64
+		{4D00369C-3D4C-CD0B-2C7D-C3A1856F3FF4}.Debug|x64.Build.0 = Debug|x64
+		{4D00369C-3D4C-CD0B-2C7D-C3A1856F3FF4}.Release|x64.ActiveCfg = Release|x64
+		{4D00369C-3D4C-CD0B-2C7D-C3A1856F3FF4}.Release|x64.Build.0 = Release|x64
+		{E98C2700-A68A-B582-9849-5848968D34B3}.Debug|x64.ActiveCfg = Debug|x64
+		{E98C2700-A68A-B582-9849-5848968D34B3}.Debug|x64.Build.0 = Debug|x64
+		{E98C2700-A68A-B582-9849-5848968D34B3}.Release|x64.ActiveCfg = Release|x64
+		{E98C2700-A68A-B582-9849-5848968D34B3}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -71,6 +89,7 @@ Global
 		{AD7AFA9C-FE6E-7C5C-15C3-3E51116B0C5A} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{70CFBFA9-AB8A-34C3-35E5-FB8F0E368915} = {256A44E2-436C-4FF7-B9F6-F45C5F0F4DBE}
 		{AC8A0898-0E39-AFBA-5A97-795D185551CB} = {256A44E2-436C-4FF7-B9F6-F45C5F0F4DBE}
+		{EC1BBCBD-E7A5-F3B7-55EA-DA6F9FF5EB77} = {256A44E2-436C-4FF7-B9F6-F45C5F0F4DBE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CC19C48B-E6E4-4508-8532-1990C11DA3E5}
