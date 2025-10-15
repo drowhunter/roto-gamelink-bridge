@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-
+using System.Globalization;
 using System.Windows;
 using System.Windows.Threading;
 
@@ -21,7 +21,9 @@ namespace RotoGLBridge.UI
         public App()
         {
             var services = new ServiceCollection();
-           
+
+            CultureInfo.DefaultThreadCurrentCulture = CultureInfo.CreateSpecificCulture("hu-HU");//CultureInfo.InvariantCulture;
+            CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.CreateSpecificCulture("hu-HU");//CultureInfo.InvariantCulture;
 
             ConfigureServices(services);
             _serviceProvider = services.BuildServiceProvider();
