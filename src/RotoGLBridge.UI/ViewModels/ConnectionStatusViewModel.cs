@@ -1,17 +1,14 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace RotoGLBridge.UI
+﻿namespace RotoGLBridge.UI.ViewModels
 {
-    public class ConnectionStatusViewModel : ObservableObject
+    public partial class ConnectionStatusViewModel : ObservableObject
     {
-        
-        public bool IsConnected { get; set; }
+        [ObservableProperty]
+        bool isConnected;
 
-        public string Label { get; set; }
+
+        [ObservableProperty]
+        string label;
+
+
     }
 }

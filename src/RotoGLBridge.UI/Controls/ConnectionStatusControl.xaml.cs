@@ -1,3 +1,5 @@
+using Microsoft.Extensions.DependencyInjection;
+using RotoGLBridge.UI.ViewModels;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -26,7 +28,7 @@ namespace RotoGLBridge.UI.Controls
         public ConnectionStatusControl()
         {
             InitializeComponent();
-            //this.DataContext = vm;
+            DataContext = App.ServiceProvider.GetService<ConnectionStatusViewModel>();
         }
     }
 }

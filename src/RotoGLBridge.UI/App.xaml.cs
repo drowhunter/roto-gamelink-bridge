@@ -1,4 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using RotoGLBridge.UI.Controls;
+using RotoGLBridge.UI.Helpers;
+using RotoGLBridge.UI.ViewModels;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Threading;
@@ -10,7 +13,8 @@ namespace RotoGLBridge.UI
     /// </summary>
     public partial class App : Application
     {
-        private readonly ServiceProvider _serviceProvider;
+        //private readonly ServiceProvider _serviceProvider;
+        public static ServiceProvider ServiceProvider;
         private ILogger<App> _logger;
         private ISharpieEngine _engine;
 
@@ -22,13 +26,13 @@ namespace RotoGLBridge.UI
         {
             var services = new ServiceCollection();
 
-            CultureInfo.DefaultThreadCurrentCulture = CultureInfo.CreateSpecificCulture("hu-HU");//CultureInfo.InvariantCulture;
-            CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.CreateSpecificCulture("hu-HU");//CultureInfo.InvariantCulture;
+            CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
+            CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
 
             ConfigureServices(services);
-            _serviceProvider = services.BuildServiceProvider();
-            _logger = _serviceProvider.GetRequiredService<ILogger<App>>();
-            _engine = _serviceProvider.GetRequiredService<ISharpieEngine>();
+            ServiceProvider = services.BuildServiceProvider();
+            _logger = ServiceProvider.GetRequiredService<ILogger<App>>();
+            _engine = ServiceProvider.GetRequiredService<ISharpieEngine>();
         }
 
         protected override void OnStartup(StartupEventArgs e)
@@ -55,7 +59,7 @@ namespace RotoGLBridge.UI
             }
 
 
-            var view = _serviceProvider.GetRequiredService<MainView>();
+            var view = ServiceProvider.GetRequiredService<MainView>();
             view.Show();
         }
 
@@ -95,16 +99,20 @@ namespace RotoGLBridge.UI
                    .AddFilter("RotoGLBridge", LogLevel.Debug);
               });
 
-            services.AddTransient<MainView>();
-            services.AddTransient<MainViewModel>();
-            services.AddTransient<ConnectionStatusViewModel>();
+            services
+                .AddView<MainView, MainViewModel>()
+                .AddView<RumbleGraphControl, RumbleGraphViewModel>()
+                .AddView<ConnectionStatusControl, ConnectionStatusViewModel>();
+
+            
 
             services.AddRotoGLBridge();
         }
 
+        
         protected override void OnExit(ExitEventArgs e)
         {
-            _serviceProvider?.Dispose();
+            ServiceProvider?.Dispose();
             base.OnExit(e);
         }
     }

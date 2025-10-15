@@ -23,7 +23,12 @@ namespace RotoGLBridge.Scripts
     {
 
         //public event Action<float> OnYawUpdate;
-        public float Yaw { get; set; }
+        public float Yaw { get; private set; }
+
+        public int Amplitude { get; private set; }
+
+        public int Frequency { get; private set; }
+
 
         public BehaviorSubject<bool> IsConnected = new(false);
 

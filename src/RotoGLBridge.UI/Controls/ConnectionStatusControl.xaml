@@ -3,19 +3,17 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:RotoGLBridge.UI"
-			
-			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:RotoGLBridge.UI.ViewModels"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             
              mc:Ignorable="d"
-             x:Name="ConnectionStatusIcon">
-	<UserControl.Resources>
-		<local:BooleanToBrushConverter x:Key="BooleanToBrushConverter"/>
-	</UserControl.Resources>
+             x:Name="ConnectionStatusIcon">    
     <StackPanel Orientation="Horizontal">
         <Ellipse Width="16" Height="16" Margin="0,10,10,5">
             <Ellipse.Fill>
-                <Binding Path="Status" ElementName="ConnectionStatusIcon" Converter="{StaticResource BooleanToBrushConverter}" />
+                <Binding Path="Status" ElementName="ConnectionStatusIcon" Converter="{StaticResource booleanToBrushConverter}" />
             </Ellipse.Fill>
         </Ellipse>
-        <TextBlock Text="{Binding Path=Label, ElementName=ConnectionStatusIcon}" FontWeight="Bold" Margin="0,10,10,5" />
+        <TextBlock Text="{Binding Path=Label, ElementName=ConnectionStatusIcon}"  FontWeight="Bold" Margin="0,10,10,5" />
     </StackPanel>
 </UserControl>

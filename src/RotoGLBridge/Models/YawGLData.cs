@@ -5,11 +5,34 @@ namespace RotoGLBridge.Models
 {
     public struct YawGLData
     {
+        /// <summary>
+        /// yaw 0 to 360 degrees
+        /// </summary>
         public float yaw;
+
+        /// <summary>
+        /// pitch -180 to 180 degrees
+        /// </summary>
         public float pitch;//-180 to 180
+
+        /// <summary>
+        /// roll -180 to 180 degrees
+        /// </summary>
         public float roll; // -180 to 180
+        
+        /// <summary>
+        /// amplitude 0-254
+        /// </summary>
         public float amp; //0-254
+
+        /// <summary>
+        /// frequency 0-254
+        /// </summary>
         public float hz; // if hz == 0 amp = 0
+
+        /// <summary>
+        /// fan speed 0-254
+        /// </summary>
         public float fan;
 
         public override string ToString()
@@ -38,6 +61,12 @@ namespace RotoGLBridge.Models
             return retval;
 
         }
+
+        public int ampPct => (int) ((amp / 254f) * 100);
+
+        public int hzPct => (int) ((hz / 254f) * 100);
+
+        public int fanPct => (int) ((fan / 254f) * 100);
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]

@@ -1,23 +1,15 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
+﻿using CommunityToolkit.Mvvm.Input;
 
 using HelixToolkit.Wpf;
 
 using Microsoft.Win32;
-
-using RotoGLBridge.Plugins;
 using RotoGLBridge.Scripts;
-
-using System;
 using System.Diagnostics;
-using System.Reactive;
-using System.Reactive.Linq;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
-using System.Windows.Threading;
 
-namespace RotoGLBridge.UI
+namespace RotoGLBridge.UI.ViewModels
 {
     public partial class MainViewModel : ObservableObject
     {
@@ -51,11 +43,16 @@ namespace RotoGLBridge.UI
         public event Action ZoomExtentsRequested;
         public event Action ResetViewRequested;
 
-        IObservable<EventPattern<EventArgs>> _renderObservable;
+        //IObservable<EventPattern<EventArgs>> _renderObservable;
 
 
         [ObservableProperty]
         private double yaw;
+        [ObservableProperty]
+        private double amp;
+        [ObservableProperty]
+        private double hz;
+
         partial void OnYawChanged(double value)
         {
             yawRotation?.Angle = value;
@@ -163,6 +160,9 @@ namespace RotoGLBridge.UI
                 
                 RotoConnected = _rotoScript.RotoIsConnected;
                 Yaw = currentYaw = -_rotoScript.Yaw;
+                Amp = _rotoScript.Amplitude;
+                Hz = _rotoScript.Frequency;
+
                 OxrmcConnected = _rotoScript.OxrmcIsConnected;
                 GamelinkConnected = _rotoScript.GamelinkIsConnected;
                 TcpConnected = _rotoScript.TcpIsConnected;

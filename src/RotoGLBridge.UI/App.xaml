@@ -1,7 +1,8 @@
 ﻿<Application x:Class="RotoGLBridge.UI.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-            
+             xmlns:vm="clr-namespace:RotoGLBridge.UI.ViewModels"
+             xmlns:controls="clr-namespace:RotoGLBridge.UI.Controls"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:local="clr-namespace:RotoGLBridge.UI"
              xmlns:c="clr-namespace:RotoGLBridge.UI.Convertors">
@@ -17,7 +18,7 @@
                 <ResourceDictionary>
                     <c:InverseBooleanConverter x:Key="inverseBooleanConverter" />
                     <c:NegateConverter x:Key="negateConverter" />
-
+                    <c:BooleanToBrushConverter x:Key="booleanToBrushConverter" />
                     <DrawingImage x:Key="rotoLogo">
                         <DrawingImage.Drawing>
                             <DrawingGroup ClipGeometry="M0,0 V402 H1544 V0 H0 Z">
@@ -42,6 +43,23 @@
                             </DrawingGroup>
                         </DrawingImage.Drawing>
                     </DrawingImage>
+                </ResourceDictionary>
+                <ResourceDictionary>
+                    <DataTemplate
+	                    x:Key="{DataTemplateKey {x:Type vm:RumbleGraphViewModel}}"
+	                    DataType="{x:Type vm:RumbleGraphViewModel}">
+                        <controls:RumbleGraphControl />
+                    </DataTemplate>
+                    <DataTemplate
+                        x:Key="{DataTemplateKey {x:Type vm:MainViewModel}}"
+                        DataType="{x:Type vm:MainViewModel}" >
+                        <local:MainView />
+                    </DataTemplate>
+                    <DataTemplate  
+                        x:Key="{DataTemplateKey {x:Type vm: ConnectionStatusViewModel}}"
+                        DataType="{x:Type vm:ConnectionStatusViewModel}" >
+                        <controls:ConnectionStatusControl />
+                    </DataTemplate>
                 </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>

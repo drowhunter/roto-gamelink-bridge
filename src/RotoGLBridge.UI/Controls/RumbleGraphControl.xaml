@@ -1,0 +1,19 @@
+﻿<UserControl x:Class="RotoGLBridge.UI.Controls.RumbleGraphControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:ScottPlot="clr-namespace:ScottPlot.WPF;assembly=ScottPlot.WPF"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:RotoGLBridge.UI.Controls"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="400" Loaded="UserControl_Loaded">
+    <StackPanel Orientation="Vertical">
+        <TextBlock Text="Amp/Hz Chart" FontWeight="Bold" Margin="0,0,0,5" />
+        <TextBlock Text="Amplitude:" Margin="0,0,0,5" />
+        <TextBox Text="{Binding Amplitude, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" Margin="0,0,0,10" />
+        <TextBlock Text="Frequency:" Margin="0,0,0,5" />
+        <TextBox Text="{Binding Frequency, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100" Margin="0,0,0,10" />
+        
+        <ScottPlot:WpfPlot x:Name="RumblePlot" Margin="5,5,5,5" Loaded="RumblePlot_Loaded" Unloaded="RumblePlot_Unloaded" Width="400" Height="300" />
+    </StackPanel>
+</UserControl>

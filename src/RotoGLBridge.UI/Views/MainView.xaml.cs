@@ -1,5 +1,7 @@
-﻿using System.Windows;
+﻿using RotoGLBridge.UI.ViewModels;
+using System.Windows;
 using System.Windows.Media.Media3D;
+using System.Windows.Threading;
 
 
 
@@ -7,18 +9,20 @@ namespace RotoGLBridge.UI
 {
     public partial class MainView : Window
     {
-        private MainViewModel ViewModel => (MainViewModel)DataContext;
+        private MainViewModel vm => (MainViewModel)DataContext;
 
-        public MainView(MainViewModel viewModel)
+        public MainView(MainViewModel vm)
         {
+            DataContext = vm;
+
             InitializeComponent();
            
-            DataContext = viewModel;
+            
             
             // Subscribe to zoom extents event
-            viewModel.ZoomExtentsRequested += () => viewPort.ZoomExtents();
+            vm.ZoomExtentsRequested += () => viewPort.ZoomExtents();
 
-            viewModel.ResetViewRequested += MoveCamera;
+            vm.ResetViewRequested += MoveCamera;
 
             // Setup the viewport with models from ViewModel
             SetupViewport();
@@ -29,8 +33,8 @@ namespace RotoGLBridge.UI
         private void SetupViewport()
         {
             // Create visual objects using models from ViewModel
-            var model1Visual = new ModelVisual3D { Content = ViewModel.RotoChairGroup };
-            var model2Visual = new ModelVisual3D { Content = ViewModel.RotoBaseGroup };
+            var model1Visual = new ModelVisual3D { Content = vm.RotoChairGroup };
+            var model2Visual = new ModelVisual3D { Content = vm.RotoBaseGroup };
 
             // Add both models to the viewport
             viewPort.Children.Add(model1Visual);
@@ -54,10 +58,9 @@ namespace RotoGLBridge.UI
             //    45                                          // Field of View (for PerspectiveCamera)
             //);
         }
-        
-
-       
 
         
+        
+
     }
 }
