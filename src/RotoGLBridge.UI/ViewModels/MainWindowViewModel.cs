@@ -11,7 +11,7 @@ using System.Windows.Media.Media3D;
 
 namespace RotoGLBridge.UI.ViewModels
 {
-    public partial class MainViewModel : ObservableObject
+    public partial class MainWindowViewModel : ObservableObject
     {
         private AxisAngleRotation3D yawRotation;
         private RotateTransform3D yawTransform;
@@ -106,7 +106,7 @@ namespace RotoGLBridge.UI.ViewModels
 
 
         // Updated constructor to safely update Yaw from background thread via dispatcher
-        public MainViewModel(ISharpieEngine sharpieEngine, RotoScript rotoScript)
+        public MainWindowViewModel(ISharpieEngine sharpieEngine, RotoScript rotoScript)
         {
             SetupModels();
             
@@ -193,7 +193,7 @@ namespace RotoGLBridge.UI.ViewModels
 
         private string GetProgramVersion()
         {
-            var assembly = typeof(MainViewModel).Assembly;
+            var assembly = typeof(MainWindowViewModel).Assembly;
             var fileVersion = FileVersionInfo.GetVersionInfo(assembly.Location).FileVersion;
             return fileVersion ?? assembly.GetName().Version?.ToString() ?? "Unknown";
         }

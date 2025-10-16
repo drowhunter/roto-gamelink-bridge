@@ -2,7 +2,7 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="clr-namespace:RotoGLBridge.UI.ViewModels"
-             xmlns:controls="clr-namespace:RotoGLBridge.UI.Controls"
+             xmlns:v="clr-namespace:RotoGLBridge.UI.Views"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:local="clr-namespace:RotoGLBridge.UI"
              xmlns:c="clr-namespace:RotoGLBridge.UI.Convertors">
@@ -45,20 +45,11 @@
                     </DrawingImage>
                 </ResourceDictionary>
                 <ResourceDictionary>
-                    <DataTemplate
-	                    x:Key="{DataTemplateKey {x:Type vm:RumbleGraphViewModel}}"
-	                    DataType="{x:Type vm:RumbleGraphViewModel}">
-                        <controls:RumbleGraphControl />
+                    <DataTemplate DataType="{x:Type vm:RumbleGraphViewModel}">
+                        <v:RumbleGraphControl />
                     </DataTemplate>
-                    <DataTemplate
-                        x:Key="{DataTemplateKey {x:Type vm:MainViewModel}}"
-                        DataType="{x:Type vm:MainViewModel}" >
-                        <local:MainView />
-                    </DataTemplate>
-                    <DataTemplate  
-                        x:Key="{DataTemplateKey {x:Type vm: ConnectionStatusViewModel}}"
-                        DataType="{x:Type vm:ConnectionStatusViewModel}" >
-                        <controls:ConnectionStatusControl />
+                    <DataTemplate DataType="{x:Type vm:ConnectionStatusViewModel}" >
+                        <v:ConnectionStatusControl />
                     </DataTemplate>
                 </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>

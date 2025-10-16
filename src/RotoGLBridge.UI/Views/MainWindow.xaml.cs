@@ -5,15 +5,15 @@ using System.Windows.Threading;
 
 
 
-namespace RotoGLBridge.UI
+namespace RotoGLBridge.UI.Views
 {
-    public partial class MainView : Window
+    public partial class MainWindow : Window
     {
-        private MainViewModel vm => (MainViewModel)DataContext;
+        private MainWindowViewModel vm => (MainWindowViewModel)DataContext;
 
-        public MainView(MainViewModel vm)
+        public MainWindow()
         {
-            DataContext = vm;
+            //DataContext = vm;
 
             InitializeComponent();
            
@@ -27,7 +27,13 @@ namespace RotoGLBridge.UI
             // Setup the viewport with models from ViewModel
             SetupViewport();
 
+            this.Loaded += MainWindow_Loaded;
             //MoveCamera();
+        }
+
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            SetupViewport();
         }
 
         private void SetupViewport()

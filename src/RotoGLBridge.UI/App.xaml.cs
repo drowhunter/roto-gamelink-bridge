@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using RotoGLBridge.UI.Controls;
+using RotoGLBridge.UI.Views;
 using RotoGLBridge.UI.Helpers;
 using RotoGLBridge.UI.ViewModels;
 using System.Globalization;
@@ -59,7 +59,7 @@ namespace RotoGLBridge.UI
             }
 
 
-            var view = ServiceProvider.GetRequiredService<MainView>();
+            var view = ServiceProvider.GetRequiredService<MainWindow>();
             view.Show();
         }
 
@@ -100,9 +100,9 @@ namespace RotoGLBridge.UI
               });
 
             services
-                .AddView<MainView, MainViewModel>()
-                .AddView<RumbleGraphControl, RumbleGraphViewModel>()
-                .AddView<ConnectionStatusControl, ConnectionStatusViewModel>();
+                .AddView<MainWindow, MainWindowViewModel>();
+            //    .AddView<RumbleGraphControl, RumbleGraphViewModel>()
+            //    .AddView<ConnectionStatusControl, ConnectionStatusViewModel>();
 
             
 

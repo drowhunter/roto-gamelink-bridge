@@ -1,0 +1,12 @@
+UsbWatcher build and add to bridge
+
+New script
+
+inject watcher and watch for roto
+
+if roto plugged tell rotoplugin o connect
+else do nothing
+
+once roto connected next yaw read will send to plugin else
+just set yaw
+
