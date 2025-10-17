@@ -1,7 +1,10 @@
-﻿namespace rotoUSB
+﻿
+namespace rotoUSB
 {
     public interface IRotoChair
     {
+        event Action<string> OnUsbError;
+
         //static abstract RotoChair Instance { get; }
 
         //int Clamp(int value, int min, int max);

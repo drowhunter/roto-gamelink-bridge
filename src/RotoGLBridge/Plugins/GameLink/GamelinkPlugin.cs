@@ -264,7 +264,7 @@ namespace RotoGLBridge.Plugins
         /// <summary>
         /// Gets the vibration amplitude value from the current motion data.
         /// </summary>
-        public float amp => plugin.Data.amp;
+        public int amp => plugin.Data.ampPct;
 
         /// <summary>
         /// Gets the vibration frequency (Hz) value from the current motion data.
@@ -275,6 +275,11 @@ namespace RotoGLBridge.Plugins
         /// Gets the fan speed value from the current motion data.
         /// </summary>
         public float fan => plugin.Data.fan;
+
+        /// <summary>
+        /// Milliseconds between waves
+        /// </summary>
+        public int frequency => plugin.Data.frequency;
     }
 
 }

@@ -39,10 +39,19 @@ namespace RotoGLBridge.Models
 
         }
 
+        /// <summary>
+        /// Gets the amplitude as a percentage of its maximum value.
+        /// </summary>
         public int ampPct => (int) ((amp / 254f) * 100);
 
-        public int hzPct => (int) ((hz / 254f) * 100);
+        /// <summary>
+        /// Gets the frequency, in hertz, calculated as the reciprocal of the period (in milliseconds).
+        /// </summary>
+        public int frequency => hz != 0 ? (int)(1000 / hz) : 0;
 
+        /// <summary>
+        /// Gets the fan speed as a percentage of its maximum value.
+        /// </summary>
         public int fanPct => (int) ((fan / 254f) * 100);
     }
 

@@ -49,14 +49,14 @@ namespace RotoGLBridge.Plugins.GameLink
                     var v = vibes.Match(dataString);
                     if (v.Success)
                     {
-                        yawGLData.amp = byte.Parse(v.Groups["amp"].Value) / byte.MaxValue;
-                        yawGLData.hz = byte.Parse(v.Groups["hz"].Value) / byte.MaxValue;
+                        yawGLData.amp = byte.Parse(v.Groups["amp"].Value);
+                        yawGLData.hz = byte.Parse(v.Groups["hz"].Value);/// byte.MaxValue;
                     }
 
                     var f = fan.Match(dataString);
                     if (f.Success)
                     {
-                        yawGLData.fan = byte.Parse(f.Groups["fan"].Value) / byte.MaxValue;
+                        yawGLData.fan = byte.Parse(f.Groups["fan"].Value);
                     }
 
                     previousData = yawGLData;

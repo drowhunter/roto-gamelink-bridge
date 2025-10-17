@@ -4,6 +4,9 @@ using rotoUSB;
 
 using Sharpie.Engine.Contracts.Plugins;
 
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
+
 namespace RotoGLBridge.Plugins
 {
     [GlobalType(Type = typeof(Roto2PluginGlobal))]
@@ -18,13 +21,27 @@ namespace RotoGLBridge.Plugins
 
         public RotoStatus State { get; private set; } = new RotoStatus();
 
+        public IObservable<string> Error { get; private set; }
+
         public override Task Start()
         {
             logger.LogInformation("Roto2Plugin started.");
 
             rotoChair.LoadUSBLibrary();
 
+            Error = Observable.FromEvent<string>(
+                h => rotoChair.OnUsbError += h,
+                h => rotoChair.OnUsbError -= h
+            );
+
+            rotoChair.OnUsbError += RotoChair_OnUsbError;
+
             return Task.CompletedTask;
+        }
+
+        public void RotoChair_OnUsbError(string errorMessage)
+        {
+            logger.LogError("Roto Chair USB Error: {0}", errorMessage);
         }
 
         public override void Execute()
@@ -34,11 +51,11 @@ namespace RotoGLBridge.Plugins
             
             if(!UsbConnected && state.USBConnected)
             {
-                logger.LogInformation("RotoChair connected.");
+                logger.LogInformation("Roto Chair connected.");
             }
             else if (UsbConnected && !state.USBConnected)
             {
-                logger.LogInformation("RotoChair disconnected.");
+                logger.LogInformation("Roto Chair disconnected.");
             }
 
             State = state;
@@ -83,7 +100,8 @@ namespace RotoGLBridge.Plugins
     public class Roto2PluginGlobal : SharpieGlobal //UpdateablePluginGlobal
                                                    <Roto2Plugin>
     {
-        
+        public IObservable<string> OnError => plugin.Error.DistinctUntilChanged();
+
         #region  Exposed Properties
 
         public bool IsConnected => plugin?.UsbConnected ?? false;

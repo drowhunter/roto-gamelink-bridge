@@ -69,7 +69,7 @@ namespace rotoUSB
         private Stopwatch stopwatch;
 
 
-
+        public event Action<string> OnUsbError;
 
 
 
@@ -137,7 +137,7 @@ namespace rotoUSB
         // Retrieves the last USB error message
         public string GetUSBError()
         {
-            return _usbNative.LastErrorMessage;
+            return _usbNative.LastErrorMessage + " win32:" + Marshal.GetLastWin32Error() + " pi:" + Marshal.GetLastPInvokeErrorMessage();
         }
 
         // ============== Helper functions =============
@@ -251,8 +251,8 @@ namespace rotoUSB
 
 
 
-                _ctsRead.Cancel();
-                _ctsRead.Dispose(); // Clean up
+                _ctsRead?.Cancel();
+                _ctsRead?.Dispose(); // Clean up                
             }
         }
 
@@ -274,7 +274,7 @@ namespace rotoUSB
 
         }
 
-
+        
 
         // Connects to the Roto VR Chair
         public bool Connect()
@@ -323,6 +323,7 @@ namespace rotoUSB
                    */
                     Task.Run(() =>
                     {
+                        
                         
                         Thread.CurrentThread.IsBackground = true;
                         Thread.CurrentThread.Name = "RotoChair USB Read Thread";
@@ -476,12 +477,27 @@ namespace rotoUSB
         }
 
 
-
+        
 
         // Timer tick handler for writing USB commands
         private void WriteTimerTick()
         {
             bool success = false;
+            // check if read thread is stuck
+            if (_isReadingLoop && !_ctsRead.IsCancellationRequested && _lastRead != null )
+            {
+                var l = (DateTime.Now - _lastRead.Value).TotalMilliseconds;
+
+                if (_isReadingLoop && l > 5000)
+                {
+                    _logger.LogWarning("Read thread seems stuck! {0:F1} s", l / 1000);
+                    //CloseReadTask();
+                    OnUsbError?.Invoke(GetUSBError());
+                    Disconnect();
+                   _lastRead = null;
+                    return;
+                }
+            }
 
             try
             {
@@ -559,7 +575,7 @@ namespace rotoUSB
 
 
 
-
+        private DateTime? _lastRead;
 
         // Reads USB packets in a loop
         private void ReadLoop(CancellationToken token)
@@ -570,6 +586,7 @@ namespace rotoUSB
             _logger.LogDebug($"USB baseReadLoop start");
             while (_isReadingLoop && !token.IsCancellationRequested)
             {
+                _lastRead = DateTime.Now;
                 ReadPacket(buffer, HID_REPORT_LEN);
             }
             _logger.LogDebug($"USB baseReadLoop closed ");
@@ -579,6 +596,7 @@ namespace rotoUSB
 
             _usbDeviceR = IntPtr.Zero;
             _isReadingLoop = false;
+            _lastRead = null;
         }
 
 

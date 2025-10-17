@@ -54,6 +54,12 @@ namespace RotoGLBridge.Scripts
 
             usbWatcher.Watch(0x04D9, 0xB564);
 
+            roto.OnError.Subscribe(errorMessage =>
+            {
+                logger.LogError("Roto Chair USB Error: {0}", errorMessage);
+                speech.Say("Roto Chair USB Error");
+            });
+
             var s = IsConnected.DistinctUntilChanged().Subscribe(connected =>
             {
                 if (connected)
@@ -101,9 +107,11 @@ namespace RotoGLBridge.Scripts
             else
             {
                 Yaw = gamelink.yaw;
+               
             }
+            Amplitude = gamelink.amp;
+            Frequency = gamelink.frequency;
 
-           
         }
 
         
@@ -113,13 +121,13 @@ namespace RotoGLBridge.Scripts
             
             if (roto.IsConnected)
             {
-                Yaw = gamelink.yaw;
+                Yaw = roto.Yaw;
             }
 
-            if (!gamelink.IsConnected)
-            {
-                IsConnected.OnNext(false);
-            }
+            //if (!gamelink.IsConnected)
+            //{
+            //    IsConnected.OnNext(false);
+            //}
             
 
             //Watch();

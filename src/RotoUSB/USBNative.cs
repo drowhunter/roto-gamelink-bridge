@@ -390,7 +390,7 @@ namespace rotoUSB
         //    return success;
         //}
 
-        [HandleProcessCorruptedStateExceptions]
+        
         public bool ReadHIDPacket(IntPtr handle, byte[] data, int length)
         {
             bool success = false;
