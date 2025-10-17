@@ -1,10 +1,10 @@
-using System;
 using System.Globalization;
 using System.Windows.Data;
 using System.Windows.Media;
 
-namespace RotoGLBridge.UI
+namespace RotoGLBridge.UI.Convertors
 {
+    [ValueConversion(typeof(bool), typeof(Brush))]
     public class BooleanToBrushConverter : IValueConverter
     {
         public Brush TrueBrush { get; set; } = Brushes.Green;

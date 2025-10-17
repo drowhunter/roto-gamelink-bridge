@@ -1,15 +1,17 @@
-﻿using System.Windows;
+﻿using RotoGLBridge.UI.ViewModels;
+
+using System.Windows;
 using System.Windows.Media.Media3D;
 
 
 
-namespace RotoGLBridge.UI
+namespace RotoGLBridge.UI.Views
 {
-    public partial class MainView : Window
+    public partial class MainWindow : Window
     {
-        private MainViewModel ViewModel => (MainViewModel)DataContext;
+        private MainWindowViewModel ViewModel => (MainWindowViewModel)DataContext;
 
-        public MainView(MainViewModel viewModel)
+        public MainWindow(MainWindowViewModel viewModel)
         {
             InitializeComponent();
            

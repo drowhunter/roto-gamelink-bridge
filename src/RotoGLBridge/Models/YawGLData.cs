@@ -38,6 +38,12 @@ namespace RotoGLBridge.Models
             return retval;
 
         }
+
+        public int ampPct => (int) ((amp / 254f) * 100);
+
+        public int hzPct => (int) ((hz / 254f) * 100);
+
+        public int fanPct => (int) ((fan / 254f) * 100);
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]

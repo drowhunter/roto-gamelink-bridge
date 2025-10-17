@@ -1,21 +1,20 @@
-<UserControl x:Class="RotoGLBridge.UI.Controls.ConnectionStatusControl"
+<UserControl x:Class="RotoGLBridge.UI.Views.ConnectionStatusControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:RotoGLBridge.UI"
-			
+			 xmlns:c="clr-namespace:RotoGLBridge.UI.Convertors"
 			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d"
-             x:Name="ConnectionStatusIcon">
+             mc:Ignorable="d">
 	<UserControl.Resources>
-		<local:BooleanToBrushConverter x:Key="BooleanToBrushConverter"/>
+		<c:BooleanToBrushConverter x:Key="BooleanToBrushConverter"/>
 	</UserControl.Resources>
     <StackPanel Orientation="Horizontal">
         <Ellipse Width="16" Height="16" Margin="0,10,10,5">
             <Ellipse.Fill>
-                <Binding Path="Status" ElementName="ConnectionStatusIcon" Converter="{StaticResource BooleanToBrushConverter}" />
+                <Binding Path="IsConnected" Converter="{StaticResource BooleanToBrushConverter}" />
             </Ellipse.Fill>
         </Ellipse>
-        <TextBlock Text="{Binding Path=Label, ElementName=ConnectionStatusIcon}" FontWeight="Bold" Margin="0,10,10,5" />
+        <TextBlock Text="{Binding Path=Label}" FontWeight="Bold" Margin="0,10,10,5" />
     </StackPanel>
 </UserControl>

@@ -1,25 +1,17 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
+﻿using CommunityToolkit.Mvvm.Input;
 
 using HelixToolkit.Wpf;
 
 using Microsoft.Win32;
-
-using RotoGLBridge.Plugins;
 using RotoGLBridge.Scripts;
-
-using System;
 using System.Diagnostics;
-using System.Reactive;
-using System.Reactive.Linq;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
-using System.Windows.Threading;
 
-namespace RotoGLBridge.UI
+namespace RotoGLBridge.UI.ViewModels
 {
-    public partial class MainViewModel : ObservableObject
+    public partial class MainWindowViewModel : ObservableObject
     {
         private AxisAngleRotation3D yawRotation;
         private RotateTransform3D yawTransform;
@@ -51,11 +43,18 @@ namespace RotoGLBridge.UI
         public event Action ZoomExtentsRequested;
         public event Action ResetViewRequested;
 
-        IObservable<EventPattern<EventArgs>> _renderObservable;
+        //IObservable<EventPattern<EventArgs>> _renderObservable;
 
 
         [ObservableProperty]
         private double yaw;
+
+        [ObservableProperty]
+        private double amp;
+
+        [ObservableProperty]
+        private double hz;
+
         partial void OnYawChanged(double value)
         {
             yawRotation?.Angle = value;
@@ -86,16 +85,17 @@ namespace RotoGLBridge.UI
         private string _programVersion;
 
         [ObservableProperty]
-        private bool _rotoConnected;
+        private ConnectionStatusViewModel _rotoConnected = new() { Label = "Chair Connected" };
+       
 
         [ObservableProperty]
-        private bool _oxrmcConnected;
+        private ConnectionStatusViewModel _gamelinkConnected = new() { Label = "Receiving Telemetry" };
 
         [ObservableProperty]
-        private bool _gamelinkConnected;
+        private ConnectionStatusViewModel _tcpConnected = new() { Label = "Gamelink Connected" };
 
         [ObservableProperty]
-        private bool _tcpConnected;
+        private ConnectionStatusViewModel _oxrmcConnected = new() { Label = "OXRMC Installed" };
 
         [RelayCommand]
         public void OpenSettings()
@@ -109,7 +109,7 @@ namespace RotoGLBridge.UI
 
 
         // Updated constructor to safely update Yaw from background thread via dispatcher
-        public MainViewModel(ISharpieEngine sharpieEngine, RotoScript rotoScript)
+        public MainWindowViewModel(ISharpieEngine sharpieEngine, RotoScript rotoScript)
         {
             SetupModels();
             
@@ -161,11 +161,14 @@ namespace RotoGLBridge.UI
                 //_renderObservable.Subscribe(_ =>
                 //{
                 
-                RotoConnected = _rotoScript.RotoIsConnected;
+                RotoConnected.IsConnected = _rotoScript.RotoIsConnected;
                 Yaw = currentYaw = -_rotoScript.Yaw;
-                OxrmcConnected = _rotoScript.OxrmcIsConnected;
-                GamelinkConnected = _rotoScript.GamelinkIsConnected;
-                TcpConnected = _rotoScript.TcpIsConnected;
+                Amp = _rotoScript.Amplitude;
+                Hz = _rotoScript.Frequency;
+
+                OxrmcConnected.IsConnected = _rotoScript.OxrmcIsConnected;
+                GamelinkConnected.IsConnected = _rotoScript.GamelinkIsConnected;
+                TcpConnected.IsConnected = _rotoScript.TcpIsConnected;
 
                 //Animated = GamelinkConnected || TcpConnected || RotoConnected;
 
@@ -193,7 +196,7 @@ namespace RotoGLBridge.UI
 
         private string GetProgramVersion()
         {
-            var assembly = typeof(MainViewModel).Assembly;
+            var assembly = typeof(MainWindowViewModel).Assembly;
             var fileVersion = FileVersionInfo.GetVersionInfo(assembly.Location).FileVersion;
             return fileVersion ?? assembly.GetName().Version?.ToString() ?? "Unknown";
         }

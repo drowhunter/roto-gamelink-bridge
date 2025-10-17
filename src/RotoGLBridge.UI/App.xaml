@@ -1,14 +1,15 @@
 ﻿<Application x:Class="RotoGLBridge.UI.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-            
+             xmlns:vm="clr-namespace:RotoGLBridge.UI.ViewModels"
+             xmlns:v="clr-namespace:RotoGLBridge.UI.Views"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:local="clr-namespace:RotoGLBridge.UI"
              xmlns:c="clr-namespace:RotoGLBridge.UI.Convertors">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                
+                <ResourceDictionary Source="DataTemplates.xaml" />
                 <!-- Use a custom color theme to specify an arbitrary hex color -->
                 <materialDesign:CustomColorTheme BaseTheme="Light"
                                                  PrimaryColor="#FF5100"
@@ -17,7 +18,7 @@
                 <ResourceDictionary>
                     <c:InverseBooleanConverter x:Key="inverseBooleanConverter" />
                     <c:NegateConverter x:Key="negateConverter" />
-
+                    <c:BooleanToBrushConverter x:Key="booleanToBrushConverter" />
                     <DrawingImage x:Key="rotoLogo">
                         <DrawingImage.Drawing>
                             <DrawingGroup ClipGeometry="M0,0 V402 H1544 V0 H0 Z">
@@ -43,6 +44,7 @@
                         </DrawingImage.Drawing>
                     </DrawingImage>
                 </ResourceDictionary>
+                
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

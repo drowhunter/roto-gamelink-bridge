@@ -1,7 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 
-namespace RotoGLBridge.UI.Controls
+namespace RotoGLBridge.UI.Views
 {
     public partial class ConnectionStatusControl : UserControl
     {

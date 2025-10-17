@@ -4,6 +4,7 @@ using System.Windows.Data;
 
 namespace RotoGLBridge.UI.Convertors
 {
+    [ValueConversion(typeof(double), typeof(double))]
     public class NegateConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
