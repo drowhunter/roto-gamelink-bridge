@@ -13,9 +13,9 @@ namespace RotoGLBridge.Plugins.GameLink
     {
         static Regex rot = new Regex($@"Y\[(?<yaw>-?[\d.]+)\]P\[(?<pitch>-?[\d.]+)\]R\[(?<roll>-?[\d.]+)\]");
 
-        static Regex vibes = new Regex($@"V\[(?<amp>\d+?),\d*?,\d*?,(?<hz>\d*?)\]");
+        static Regex vibes = new Regex($@"V\[(?<rumblePower>\d+?),\d*?,\d*?,(?<hz>\d*?)\]");
 
-        static Regex fan = new Regex($@"F\[(?<fan>\d+?)");
+        static Regex fan = new Regex($@"F\[(?<fanSpeed>\d+?)");
 
         //static CultureInfo c = CultureInfo.InvariantCulture;
 
@@ -49,14 +49,14 @@ namespace RotoGLBridge.Plugins.GameLink
                     var v = vibes.Match(dataString);
                     if (v.Success)
                     {
-                        yawGLData.amp = byte.Parse(v.Groups["amp"].Value);
+                        yawGLData.amp = byte.Parse(v.Groups["rumblePower"].Value);
                         yawGLData.hz = byte.Parse(v.Groups["hz"].Value);/// byte.MaxValue;
                     }
 
                     var f = fan.Match(dataString);
                     if (f.Success)
                     {
-                        yawGLData.fan = byte.Parse(f.Groups["fan"].Value);
+                        yawGLData.fan = byte.Parse(f.Groups["fanSpeed"].Value);
                     }
 
                     previousData = yawGLData;

@@ -283,8 +283,9 @@ namespace rotoUSB
 
             if (_usbDeviceR == IntPtr.Zero || _usbDeviceW == IntPtr.Zero)
             {
-                _usbDeviceW = _usbNative.OpenUSBDevice();
                 _usbDeviceR = _usbNative.OpenUSBDevice();
+                _usbDeviceW = _usbNative.OpenUSBDevice();
+                
                 
                 if (_usbDeviceR != IntPtr.Zero && _usbDeviceW != IntPtr.Zero)
                 {

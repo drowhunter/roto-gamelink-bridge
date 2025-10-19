@@ -8,9 +8,6 @@ using System.Windows.Threading;
 
 namespace RotoGLBridge.UI.Views
 {
-    /// <summary>
-    /// Interaction logic for RumbleGraph.xaml
-    /// </summary>
     public partial class RumbleGraphControl : UserControl
     {
         
@@ -20,7 +17,6 @@ namespace RotoGLBridge.UI.Views
         public RumbleGraphControl()
         {
             InitializeComponent();
-            //this.DataContext = App.ServiceProvider.GetService<RumbleGraphViewModel>();
         }
 
 
@@ -41,8 +37,8 @@ namespace RotoGLBridge.UI.Views
             RumblePlot.Plot.Clear();
             streamers.Clear();
 
-            CreateStreamer("Amplitude");
-            CreateStreamer("Frequency");
+            CreateStreamer("Power %");
+            CreateStreamer("Hz %");
         }
 
         private void CreateStreamer(string name)
@@ -70,13 +66,13 @@ namespace RotoGLBridge.UI.Views
 
                 foreach (var (name, strmr) in streamers)
                 {
-                    if (name == "Amplitude")
+                    if (name == "Power %")
                     {
-                        strmr.Add(vm.Amplitude);
+                        strmr.Add(vm.RumblePower);
                     }
-                    else if (name == "Frequency")
+                    else if (name == "Hz %")
                     {
-                        strmr.Add(vm.Frequency);
+                        strmr.Add(vm.RumbleSpeed);
                     }
                 }
 
@@ -97,32 +93,6 @@ namespace RotoGLBridge.UI.Views
 
         
 
-        //// DependencyProperty for Amplitude
-        //public static readonly DependencyProperty AmplitudeProperty =
-        //    DependencyProperty.Register(
-        //        nameof(Amplitude),
-        //        typeof(int),
-        //        typeof(RumbleGraphControl),
-        //        new PropertyMetadata(0));
-
-        //public int Amplitude
-        //{
-        //    get => (int)GetValue(AmplitudeProperty);
-        //    set => SetValue(AmplitudeProperty, value);
-        //}
-
-        //// DependencyProperty for Frequency
-        //public static readonly DependencyProperty FrequencyProperty =
-        //    DependencyProperty.Register(
-        //        nameof(Frequency),
-        //        typeof(int),
-        //        typeof(RumbleGraphControl),
-        //        new PropertyMetadata(0));
-
-        //public int Frequency
-        //{
-        //    get => (int)GetValue(FrequencyProperty);
-        //    set => SetValue(FrequencyProperty, value);
-        //}
+        
     }
 }

@@ -9,7 +9,7 @@ namespace RotoGLBridge.Models
         public float pitch;//-180 to 180
         public float roll; // -180 to 180
         public float amp; //0-254
-        public float hz; // if hz == 0 amp = 0
+        public float hz; // if hz == 0 rumblePower = 0
         public float fan;
 
         public override string ToString()
@@ -42,17 +42,23 @@ namespace RotoGLBridge.Models
         /// <summary>
         /// Gets the amplitude as a percentage of its maximum value.
         /// </summary>
-        public int ampPct => (int) ((amp / 254f) * 100);
+        public float rumblePower => (float) (amp / 254f * 100);
+
 
         /// <summary>
-        /// Gets the frequency, in hertz, calculated as the reciprocal of the period (in milliseconds).
+        /// 0 hz = 0% rumbleSpeed, 254 hz = 100% rumbleSpeed
         /// </summary>
-        public int frequency => hz != 0 ? (int)(1000 / hz) : 0;
+        public float rumbleSpeed => hz != 0 ? (float)(hz / 254f * 100) : 0;
 
         /// <summary>
-        /// Gets the fan speed as a percentage of its maximum value.
+        /// Gets the rumblePeriod, in hertz, calculated as the reciprocal of the period (in milliseconds).
         /// </summary>
-        public int fanPct => (int) ((fan / 254f) * 100);
+        public int rumblePeriod => hz != 0 ? (int)(1000f / hz) : 0;
+
+        /// <summary>
+        /// Gets the fanSpeed rumbleSpeed as a percentage of its maximum value.
+        /// </summary>
+        public int fanSpeed => (int) (fan / 254f * 100);
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]

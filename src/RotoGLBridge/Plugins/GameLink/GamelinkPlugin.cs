@@ -1,6 +1,4 @@
 ﻿#define FULLYINTEGRATED_ON
-using Microsoft.Extensions.Logging;
-
 using RotoGLBridge.Models;
 using RotoGLBridge.Plugins.GameLink;
 
@@ -9,8 +7,6 @@ using Sharpie.Helpers.Telemetry;
 
 using System.Net;
 using System.Net.Sockets;
-using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using System.Text;
 
 
@@ -236,15 +232,12 @@ namespace RotoGLBridge.Plugins
     /// Global interface for the GameLink plugin, exposing motion data properties.
     /// </summary>
     public class GamelinkGlobal : UpdateablePluginGlobal<GamelinkPlugin>
-    {
-        
+    {        
 
         /// <summary>
         /// Gets or sets whether the GameLink connection is active.
         /// </summary>
-        public bool IsConnected { get => plugin.IsConnected; }
-
-        
+        public bool IsConnected =>  plugin.IsConnected;        
 
         /// <summary>
         /// Gets the yaw rotation value from the current motion data.
@@ -259,27 +252,34 @@ namespace RotoGLBridge.Plugins
         /// <summary>
         /// Gets the roll rotation value from the current motion data.
         /// </summary>
-        public float roll => plugin.Data.roll;
+        public float roll => plugin.Data.roll;        
 
         /// <summary>
-        /// Gets the vibration amplitude value from the current motion data.
-        /// </summary>
-        public int amp => plugin.Data.ampPct;
-
-        /// <summary>
-        /// Gets the vibration frequency (Hz) value from the current motion data.
+        /// Gets the vibration rumblePeriod (Hz) value from the current motion data.
         /// </summary>
         public float hz => plugin.Data.hz;
-
+        
         /// <summary>
-        /// Gets the fan speed value from the current motion data.
+        /// Gets the fanSpeed rumbleSpeed value from the current motion data.
         /// </summary>
-        public float fan => plugin.Data.fan;
+        public float fanSpeed => plugin.Data.fanSpeed;
 
         /// <summary>
         /// Milliseconds between waves
         /// </summary>
-        public int frequency => plugin.Data.frequency;
+        public int rumblePeriod => plugin.Data.rumblePeriod;
+
+        /// <summary>
+        /// Gets the aplitude as a percentage from 0 - 100.
+        /// </summary>
+        public float rumblePower => plugin.Data.rumblePower;
+
+        /// <summary>
+        /// RumbleSpeed as a percentage of its maximum value.
+        /// </summary>
+        public float rumbleSpeed => plugin.Data.rumbleSpeed;
+
+
     }
 
 }

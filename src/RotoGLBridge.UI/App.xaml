@@ -16,7 +16,7 @@
                                                  SecondaryColor="#FF5100" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign3.Defaults.xaml" />
                 <ResourceDictionary>
-                    <c:InverseBooleanConverter x:Key="inverseBooleanConverter" />
+                    <c:InvertedBooleanConverter x:Key="invertedBooleanConverter" />
                     <c:NegateConverter x:Key="negateConverter" />
                     <c:BooleanToBrushConverter x:Key="booleanToBrushConverter" />
                     <DrawingImage x:Key="rotoLogo">

@@ -9,10 +9,10 @@ namespace RotoGLBridge.UI.ViewModels
         private DispatcherTimer updateTimer;
 
         [ObservableProperty]
-        int amplitude;
+        float rumblePower;
 
         [ObservableProperty]
-        int frequency;
+        float rumbleSpeed;
 
 
         public RumbleGraphViewModel()

@@ -28,33 +28,31 @@ namespace RotoGLBridge.UI.ViewModels
         //private readonly Roto2PluginGlobal _rotoGlobal;
 
         //private readonly RotoPluginGlobal _roto;
-        [ObservableProperty]
-        RumbleGraphViewModel rumbleview = new RumbleGraphViewModel();
+       
 
 
         private int _fps = 60;
         private float _frameTime { get => 1000f / _fps; }
         private float _timePerTurn = 2000f;
-        private float _dps { get => 360f / _timePerTurn * _frameTime; }
+        //private float _dps { get => 360f / _timePerTurn * _frameTime; }
         public bool IsEngineRunning => sharpieEngine?.IsRunning ?? false;
         private CancellationTokenSource cts;
 
         // Added field inside MainViewModel class (with other private fields)
+
         //private readonly Dispatcher _uiDispatcher;
         public event Action ZoomExtentsRequested;
         public event Action ResetViewRequested;
-
-        //IObservable<EventPattern<EventArgs>> _renderObservable;
 
 
         [ObservableProperty]
         private double yaw;
 
         [ObservableProperty]
-        private double amp;
+        private float rumblePower;
 
         [ObservableProperty]
-        private double hz;
+        private float rumbleSpeed;
 
         [ObservableProperty]
         private double hertz;
@@ -64,7 +62,9 @@ namespace RotoGLBridge.UI.ViewModels
             yawRotation?.Angle = value;
         }
 
-        
+
+        [ObservableProperty]
+        RumbleGraphViewModel rumbleview = new RumbleGraphViewModel();
 
         [ObservableProperty]
         private Model3DGroup rotoBaseGroup = new();
@@ -123,83 +123,46 @@ namespace RotoGLBridge.UI.ViewModels
             cts = new CancellationTokenSource();
             this.sharpieEngine = sharpieEngine;
             _rotoScript = rotoScript;
+
             
-            //_renderObservable = Observable.FromEventPattern<EventHandler, EventArgs>(
-            //    h => CompositionTarget.Rendering += h,
-            //    h => CompositionTarget.Rendering -= h);
-
-
-
-
-            /*
-            rotoScript.OnYawUpdate += (newYaw) =>
-            {
-
-                // Use dispatcher to update Yaw on UI thread
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-                    currentYaw = -newYaw; // Invert if necessary
-                    Yaw = currentYaw;
-                });
-            };
-            */
-
-            //_roto = roto;
-
-            ////_uiDispatcher = Application.Current?.Dispatcher ?? Dispatcher.CurrentDispatcher;
-
-            //_roto.OnUpdate += () =>
-            //{
-            //    // Extract latest angle (prefer lerped if non-zero)
-            //    var data = _roto?.Data;
-            //    if (data == null) return;
-
-            //    currentYaw = -data.LerpedAngle;
-
-
-            //};
+            
 
             // UI thread rendering event to update properties
             CompositionTarget.Rendering += (s, e) =>
             {
-                //_renderObservable.Subscribe(_ =>
-                //{
                 
                 RotoConnected.IsConnected = _rotoScript.RotoIsConnected;
-                Yaw = currentYaw = -_rotoScript.Yaw;
-                Amp = _rotoScript.Amplitude;
-                Hz = _rotoScript.Frequency;
-                Hertz = _rotoScript.Hertz;
-
                 OxrmcConnected.IsConnected = _rotoScript.OxrmcIsConnected;
                 GamelinkConnected.IsConnected = _rotoScript.GamelinkIsConnected;
                 TcpConnected.IsConnected = _rotoScript.TcpIsConnected;
 
-                rumbleview.Amplitude = (int) Amp;
-                rumbleview.Frequency = (int) Hz;
-                //Animated = GamelinkConnected || TcpConnected || RotoConnected;
+                RumblePower = _rotoScript.RumblePower;
+                RumbleSpeed = _rotoScript.RumbleSpeed;
+                Hertz = _rotoScript.Hertz;
 
-            };//);
+                
+
+                if (RotoConnected.IsConnected || GamelinkConnected.IsConnected || TcpConnected.IsConnected)
+                {
+                   Yaw = -_rotoScript.Yaw;
+                   SliderEnabled = false;
+                } 
+                else
+                {
+                    SliderEnabled = true;
+                }
+
+                rumbleview.RumblePower = RumblePower;
+                rumbleview.RumbleSpeed = RumbleSpeed;
+                
+
+            };
 
             
 
         }
-
         
 
-        void OnRender(object s, EventArgs e)
-        {
-            //if (Animated)
-            //{
-            //    currentYaw += _dps;
-            //    if (currentYaw >= 360) currentYaw -= 360;
-            //}
-
-            Yaw = currentYaw;
-
-
-
-        }
 
         private string GetProgramVersion()
         {
@@ -216,7 +179,7 @@ namespace RotoGLBridge.UI.ViewModels
             { 1, null },
             { 2, null }
         };
-        private bool _renderSubscribed;
+        //private bool _renderSubscribed;
         public event Action<double> CameraPitchRequested;
 
         // Replace StartEngine to notify bindings that IsEngineRunning may have changed
@@ -314,49 +277,15 @@ namespace RotoGLBridge.UI.ViewModels
         }
 
         [ObservableProperty]
-        bool animated = false;
+        //bool animated = false;
+        private bool sliderEnabled = false; 
+       
 
-        /*partial void OnAnimatedChanging(bool value)
-        {
-            
-            if (value)
-            {
-                StartYawAnimation();
-            }
-            else
-            {
-                StopYawAnimation();
-            }
-        }*/
-
-/*
-        [RelayCommand]
-        private void StartYawAnimation()
-        {           
-            if (!Animated)
-            {
-                StartSmoothYaw();
-                return;
-            }
-
-        }
-
-        [RelayCommand]
-        private void StopYawAnimation()
-        {
-            if (Animated)
-            {
-                StopSmoothYaw();
-                return;
-            }
-
-        }
-*/
         [RelayCommand]
         private void ResetYaw()
         {
             //StopYawAnimation();
-            currentYaw = 0;
+            
             Yaw = 0;
         }
 
@@ -371,7 +300,7 @@ namespace RotoGLBridge.UI.ViewModels
         private void ResetView()
         {
             //StopYawAnimation();
-            currentYaw = 0;
+            
             Yaw = 0;
             ResetViewRequested?.Invoke();
             ZoomExtentsRequested?.Invoke();
@@ -419,9 +348,9 @@ namespace RotoGLBridge.UI.ViewModels
 
 
 
-        private Model3DGroup? LoadModelFromPath(string path)
+        private Model3DGroup LoadModelFromPath(string path)
         {
-            Model3DGroup? model = null;
+            Model3DGroup model = null;
 
             if (path == null)
                 return null;
@@ -455,32 +384,6 @@ namespace RotoGLBridge.UI.ViewModels
             return model;
         }
 
-        
-
-        
-    
-
-        public void StartSmoothYaw()
-        {
-            if (_renderSubscribed) return;
-            CompositionTarget.Rendering += OnRender;
-
-            
-
-               
-
-
-            _renderSubscribed = true;
-        }
-
-        public void StopSmoothYaw()
-        {
-            if (!_renderSubscribed) return;
-            CompositionTarget.Rendering -= OnRender;
-            _renderSubscribed = false;
-        }
-
-        
 
         
 

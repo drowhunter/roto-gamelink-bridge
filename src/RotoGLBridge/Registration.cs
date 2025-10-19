@@ -74,8 +74,9 @@ namespace Microsoft.Extensions.DependencyInjection
             //services.AddTransient<IUsbWatcher, UsbWatcher>();
             services.AddTransient<ILerper, Lerper>();
             services.AddTransient<Stopwatch>();
+            services.AddTransient<IRumbleService, RumbleService>();
             //services.AddSingleton<Roto>();
-            
+
             //services.AddTransient<IMmfSender, RotoMCSender>();
             services.AddTransient<IMmfSender, FlyPtSender>();
         }

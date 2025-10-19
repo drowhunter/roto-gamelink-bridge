@@ -3,7 +3,7 @@ using RotoGLBridge.Plugins.GameLink;
 
 using Sharpie.Plugins.Speech;
 using Sharpie.Plugins.UsbWatcher;
-using System.Reactive.Disposables.Fluent;
+
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 
@@ -25,9 +25,9 @@ namespace RotoGLBridge.Scripts
         //public event Action<float> OnYawUpdate;
         public float Yaw { get; private set; }
 
-        public int Amplitude { get; private set; }
+        public float RumblePower { get; private set; }
 
-        public int Frequency { get; private set; }
+        public float RumbleSpeed { get; private set; }
 
         public float Hertz { get; private set; }
 
@@ -111,11 +111,13 @@ namespace RotoGLBridge.Scripts
                 Yaw = gamelink.yaw;
                
             }
-            Amplitude = gamelink.amp;
-            Frequency = gamelink.frequency;
+            RumblePower = gamelink.rumblePower;
+            RumbleSpeed = gamelink.rumbleSpeed;
             Hertz = gamelink.hz;
 
-            roto.Vibrate(Amplitude, Frequency);
+            //if (roto.IsConnected)
+            if(RumblePower > 0 || RumbleSpeed > 0)
+                roto.Vibrate((int)RumblePower, (int)RumbleSpeed);
 
         }
 
@@ -145,7 +147,7 @@ namespace RotoGLBridge.Scripts
             //cons.Watch(nameof(RotoPlugin.IsPluggedIn), roto.IsPluggedIn);
             //cons.Watch(nameof(RotoPluginGlobal.Status), roto.Status);
             //cons.Watch(nameof(yaw), yaw.ToString("F1").PadLeft(5));
-            //cons.Watch(nameof(Roto.Telemetry.Power), roto.Telemetry.Power.ToString().PadLeft(3));
+            //cons.Watch(nameof(Roto.Telemetry.RumblePower), roto.Telemetry.RumblePower.ToString().PadLeft(3));
             //cons.Watch(nameof(RotoDataModel.Mode), roto.Data?.Mode.ToString());
             //cons.Watch(nameof(RotoDataModel.LerpedAngle), roto.Data?.LerpedAngle.ToString("F1").PadLeft(5));
             //cons.Watch(nameof(RotoDataModel.CalibratedAngle), roto.Data?.CalibratedAngle.ToString("F1").PadLeft(5));

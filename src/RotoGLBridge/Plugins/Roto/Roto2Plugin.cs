@@ -13,10 +13,16 @@ namespace RotoGLBridge.Plugins
     public class Roto2Plugin(
         ILogger<Roto2Plugin> logger,
         IEnumerable<IMmfSender> mmfSenders,
-        IRotoChair rotoChair
+        IRotoChair rotoChair,
+        IRumbleService rumbleService
         ) : SharpiePlugin //UpdateablePlugin
     {
     
+        private BehaviorSubject<bool> _rumbleEnabled = new BehaviorSubject<bool>(false);
+
+        public IObservable<bool> RumbleEnabled => _rumbleEnabled.AsObservable();
+
+
         public bool UsbConnected { get => State.USBConnected;  }
 
         public RotoStatus State { get; private set; } = new RotoStatus();
@@ -36,9 +42,17 @@ namespace RotoGLBridge.Plugins
 
             rotoChair.OnUsbError += RotoChair_OnUsbError;
 
+            rumbleService.RumbleEvent += (power, duration) =>
+            {
+                rotoChair.SetRumble(power, (byte)duration);
+            };
+
+            rumbleService.Start();
+
             return Task.CompletedTask;
         }
 
+        
         public void RotoChair_OnUsbError(string errorMessage)
         {
             logger.LogError("Roto Chair USB Error: {0}", errorMessage);
@@ -64,6 +78,7 @@ namespace RotoGLBridge.Plugins
 
         public override Task Stop()
         {
+            rumbleService.Stop();
             rotoChair.Disconnect();
             logger.LogInformation("Roto2Plugin stopped.");
             return Task.CompletedTask;
@@ -76,9 +91,9 @@ namespace RotoGLBridge.Plugins
             rotoChair.SetRunMode(mode);
         }
 
-        //public void SetPower(float power)
+        //public void SetPower(float amplitude)
         //{
-        //    rotoChair.(power);
+        //    rotoChair.(amplitude);
         //}
 
         public void Connect()
@@ -95,9 +110,14 @@ namespace RotoGLBridge.Plugins
 
         internal void SetFollowDegree(int degree) => rotoChair.SetObjectFollowDegree(degree);
 
-        public void Vibrate(int amplitude, int duration)
+        /// <summary>
+        /// Tell the chair to rumble
+        /// </summary>
+        /// <param name="power">a value between 0 and 100</param>
+        /// <param name="speed">a value in ms between 0 - 100</param>
+        public void Vibrate(int power, int speed)
         {
-            rotoChair.SetRumble(amplitude, (ushort) duration);
+            rumbleService.Rumble(speed, speed);
         }
 
     }
@@ -134,7 +154,8 @@ namespace RotoGLBridge.Plugins
 
         internal void Disconnect() => plugin.Disconnect();
 
-        internal void Vibrate(int amplitude, int duration) => plugin.Vibrate(amplitude, duration);
+
+        internal void Vibrate(int power, int speed) => plugin.Vibrate(power, speed);
 
 
     }

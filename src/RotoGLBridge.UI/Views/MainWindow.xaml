@@ -40,6 +40,7 @@
                                    IsMoveEnabled="False"
                                    IsPanEnabled="False"
                                    IsRotationEnabled="False"
+                                   IsZoomEnabled="False"
                                    ShowViewCube="False"
                                    HorizontalAlignment="Stretch"
                                    VerticalAlignment="Stretch">
@@ -50,6 +51,11 @@
                 <ModelVisual3D Content="{Binding RotoChairGroup}" />
                 <ModelVisual3D Content="{Binding RotoBaseGroup}" />
             </helix:HelixViewport3D>
+            <StackPanel Orientation="Horizontal" Margin="0,5,0,0" VerticalAlignment="Bottom">
+                <TextBlock Text="Yaw:" VerticalAlignment="Center" Width="40" />
+                <Slider IsEnabled="{Binding SliderEnabled}" Value="{Binding Yaw, Mode=TwoWay}" Minimum="0" Maximum="360" Width="393" Margin="5,0"/>
+                <!--<TextBlock Text="{Binding Yaw, StringFormat='{}{0:F1}°'}" VerticalAlignment="Center" Width="50" Margin="5,0,0,0"/>-->
+            </StackPanel>
             <Button Width="32" Height="32"
                  Command="{Binding OpenSettingsCommand}"
                  ToolTip="Settings"
@@ -70,18 +76,13 @@
                     </DataTemplate>
                 </HeaderedContentControl.HeaderTemplate>
                 <StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                        <TextBlock Text="Yaw:" VerticalAlignment="Center" Width="40" />
-                        <Slider IsEnabled="{Binding Animated, Converter={StaticResource inverseBooleanConverter}}" Value="{Binding Yaw, Mode=TwoWay}" Minimum="0" Maximum="360" Width="393" Margin="5,0"/>
-                        <TextBlock Text="{Binding Yaw, StringFormat='{}{0:F1}°'}" VerticalAlignment="Center" Width="50" Margin="5,0,0,0"/>
-                    </StackPanel>
+                    
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
                         <TextBlock Text="Amp" VerticalAlignment="Center" Margin="0,0,4,0" />
-                        <TextBlock Text="{Binding Amp, StringFormat='{}{0:F1} %'}" VerticalAlignment="Center" Width="50" Margin="0,0,5,0"/>                         
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                        <TextBlock Text="{Binding RumblePower, StringFormat='{}{0:F1} %'}" VerticalAlignment="Center" Width="50" Margin="0,0,5,0"/>                         
+                   
                         <TextBlock Text="Freq" VerticalAlignment="Center" Margin="0,0,4,0" />
-                        <TextBlock Text="{Binding Hz, StringFormat='{}{0:F1} ms'}" VerticalAlignment="Center" Width="70" Margin="0,0,5,0"/>
+                        <TextBlock Text="{Binding RumbleSpeed, StringFormat='{}{0:F1} ms'}" VerticalAlignment="Center" Width="70" Margin="0,0,5,0"/>
 
                         <TextBlock Text="Hz" VerticalAlignment="Center" Margin="0,0,4,0" />
                         <TextBlock Text="{Binding Hertz, StringFormat='{}{0:F0} per/s'}" VerticalAlignment="Center" Width="70" Margin="0,0,5,0"/>
@@ -109,12 +110,15 @@
                         <!--<v:ConnectionStatusControl Status="{Binding GamelinkConnected}" Label="Receiving Telemetry"  Margin="0,10,10,5"/>
                         <v:ConnectionStatusControl Status="{Binding RotoConnected}" Label="Chair Connected"  Margin="0,10,10,5"/>
                         <v:ConnectionStatusControl Status="{Binding TcpConnected}" Label="Gamelink Connected"  Margin="0,10,10,5"/>-->
+                        <StackPanel Orientation="Horizontal">
+                            <ContentControl Content="{Binding GamelinkConnected}" Margin="0,10,10,5"/>
+                            <ContentControl Content="{Binding RotoConnected}" Margin="0,10,10,5"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <ContentControl Content="{Binding TcpConnected}" Margin="0,10,10,5"/>
+                            <ContentControl Content="{Binding OxrmcConnected}" Margin="0,10,10,5"/>
+                        </StackPanel>
 
-                        <ContentControl Content="{Binding GamelinkConnected}" Margin="0,10,10,5"/>
-                        <ContentControl Content="{Binding RotoConnected}" Margin="0,10,10,5"/>
-                        <ContentControl Content="{Binding TcpConnected}" Margin="0,10,10,5"/>
-                        <ContentControl Content="{Binding OxrmcConnected}" Margin="0,10,10,5"/>
-                        
                         <!-- <v:ConnectionStatusControl Status="{Binding OxrmcConnected}" Label="OXRMC"  Margin="0,10,10,5" />
                        <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Roto:" FontWeight="Bold" Margin="0,10,10,5" />
