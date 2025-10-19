@@ -29,6 +29,8 @@ namespace RotoGLBridge.Scripts
 
         public int Frequency { get; private set; }
 
+        public float Hertz { get; private set; }
+
 
         public BehaviorSubject<bool> IsConnected = new(false);
 
@@ -111,6 +113,9 @@ namespace RotoGLBridge.Scripts
             }
             Amplitude = gamelink.amp;
             Frequency = gamelink.frequency;
+            Hertz = gamelink.hz;
+
+            roto.Vibrate(Amplitude, Frequency);
 
         }
 

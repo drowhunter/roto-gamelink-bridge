@@ -28,7 +28,8 @@ namespace RotoGLBridge.UI.ViewModels
         //private readonly Roto2PluginGlobal _rotoGlobal;
 
         //private readonly RotoPluginGlobal _roto;
-
+        [ObservableProperty]
+        RumbleGraphViewModel rumbleview = new RumbleGraphViewModel();
 
 
         private int _fps = 60;
@@ -54,6 +55,9 @@ namespace RotoGLBridge.UI.ViewModels
 
         [ObservableProperty]
         private double hz;
+
+        [ObservableProperty]
+        private double hertz;
 
         partial void OnYawChanged(double value)
         {
@@ -165,11 +169,14 @@ namespace RotoGLBridge.UI.ViewModels
                 Yaw = currentYaw = -_rotoScript.Yaw;
                 Amp = _rotoScript.Amplitude;
                 Hz = _rotoScript.Frequency;
+                Hertz = _rotoScript.Hertz;
 
                 OxrmcConnected.IsConnected = _rotoScript.OxrmcIsConnected;
                 GamelinkConnected.IsConnected = _rotoScript.GamelinkIsConnected;
                 TcpConnected.IsConnected = _rotoScript.TcpIsConnected;
 
+                rumbleview.Amplitude = (int) Amp;
+                rumbleview.Frequency = (int) Hz;
                 //Animated = GamelinkConnected || TcpConnected || RotoConnected;
 
             };//);

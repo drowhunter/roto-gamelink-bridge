@@ -95,6 +95,11 @@ namespace RotoGLBridge.Plugins
 
         internal void SetFollowDegree(int degree) => rotoChair.SetObjectFollowDegree(degree);
 
+        public void Vibrate(int amplitude, int duration)
+        {
+            rotoChair.SetRumble(amplitude, (ushort) duration);
+        }
+
     }
 
     public class Roto2PluginGlobal : SharpieGlobal //UpdateablePluginGlobal
@@ -128,6 +133,8 @@ namespace RotoGLBridge.Plugins
         internal void Connect() => plugin.Connect();
 
         internal void Disconnect() => plugin.Disconnect();
+
+        internal void Vibrate(int amplitude, int duration) => plugin.Vibrate(amplitude, duration);
 
 
     }
