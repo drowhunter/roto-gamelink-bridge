@@ -172,20 +172,30 @@ namespace RotoGLBridge.Scripts
             oxrmc.StabilizerToggle = speech.Said(["stabilize"], .70f);
         }
 
+        bool? chair = null;
+
         private void OnUsbChange(VidPid vidpid, bool isConnected)
         {
             if (isConnected)
             {
+                chair = true;
                 logger.LogInformation("Roto detected.");
                 speech.Say("Roto Chair Detected, connecting..");
                 roto.Connect();
                 
             }
-            else
+            else 
             {
                 logger.LogInformation("Roto disconnected.");
-                speech.Say("Roto Chair Disconnected");
-                roto.Disconnect();
+                if (chair == true)
+                {
+                    chair = false;
+                    speech.Say("Roto Chair Disconnected");
+
+                    roto.Disconnect();
+
+                    
+                }
             }
         }
     }

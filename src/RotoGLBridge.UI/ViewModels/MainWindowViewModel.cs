@@ -89,17 +89,17 @@ namespace RotoGLBridge.UI.ViewModels
         private string _programVersion;
 
         [ObservableProperty]
-        private ConnectionStatusViewModel _rotoConnected = new() { Label = "Chair Connected" };
+        private ConnectionStatusViewModel _rotoConnected = new() { Label = "Roto" };
        
 
         [ObservableProperty]
-        private ConnectionStatusViewModel _gamelinkConnected = new() { Label = "Receiving Telemetry" };
+        private ConnectionStatusViewModel _gamelinkConnected = new() { Label = "Telemetry" };
 
         [ObservableProperty]
-        private ConnectionStatusViewModel _tcpConnected = new() { Label = "Gamelink Connected" };
+        private ConnectionStatusViewModel _tcpConnected = new() { Label = "Gamelink" };
 
         [ObservableProperty]
-        private ConnectionStatusViewModel _oxrmcConnected = new() { Label = "OXRMC Installed" };
+        private ConnectionStatusViewModel _oxrmcConnected = new() { Label = "OXRMC" };
 
         [RelayCommand]
         public void OpenSettings()

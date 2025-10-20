@@ -37,7 +37,7 @@ namespace RotoGLBridge.UI.Views
             RumblePlot.Plot.Clear();
             streamers.Clear();
 
-            CreateStreamer("Power %");
+            CreateStreamer("Amp %");
             CreateStreamer("Hz %");
         }
 

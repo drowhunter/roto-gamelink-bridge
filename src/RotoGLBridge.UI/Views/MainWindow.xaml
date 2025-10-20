@@ -11,7 +11,7 @@
         d:DataContext="{d:DesignInstance vm:MainWindowViewModel}"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Roto Gamelink Bridge" Height="600" Width="960" WindowStartupLocation="CenterScreen" ResizeMode="NoResize">
+        Title="Roto Gamelink" Height="600" Width="960" WindowStartupLocation="CenterScreen" ResizeMode="NoResize">
     <Window.Resources>
         <c:BooleanToBrushConverter x:Key="BooleanToBrushConverter"/>
     </Window.Resources>
@@ -29,7 +29,7 @@
         <!-- Left Panel -->
         <StackPanel Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10">
             <Image Source="{StaticResource rotoLogo}" Width="240"/>
-            <TextBlock Text="GameLink Bridge" FontSize="20" FontWeight="Bold" Margin="0,0,0,10" HorizontalAlignment="Right" />
+            <TextBlock Text="GameLink" FontSize="20" FontWeight="Bold" Margin="0,0,0,10" HorizontalAlignment="Right" FontStyle="Italic" />
         </StackPanel>
 
         <!-- Right Panel -->
@@ -67,29 +67,27 @@
             </Button>
             <!--<TextBlock x:Name="YawTB" HorizontalAlignment="Center" Margin="0,0,0,0" TextWrapping="Wrap" Text="{Binding Yaw,Converter={StaticResource negateConverter}, StringFormat=' {0:F1}°'}" FontSize="36" FontWeight="Bold"  VerticalAlignment="Top"/>-->
         </Grid>
-
-        <StackPanel Grid.Column="0" Grid.Row="1" Margin="10">
-            <GroupBox Header="Controls" Padding="10">
+        <Border Grid.Column="0" Grid.Row="1" Margin="10" CornerRadius="20" Background="LightGray" BorderThickness="1" >           
+        <StackPanel Background="Transparent">
+            <GroupBox Header="Status" Padding="10" BorderThickness="0">
                 <HeaderedContentControl.HeaderTemplate>
                     <DataTemplate>
                         <TextBlock Text="{Binding}" FontWeight="Normal" FontSize="14" Foreground="White"/>
                     </DataTemplate>
                 </HeaderedContentControl.HeaderTemplate>
-                <StackPanel>
-                    
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                <StackPanel>                    
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,5" HorizontalAlignment="Center">
                         <TextBlock Text="Amp" VerticalAlignment="Center" Margin="0,0,4,0" />
                         <TextBlock Text="{Binding RumblePower, StringFormat='{}{0:F1} %'}" VerticalAlignment="Center" Width="50" Margin="0,0,5,0"/>                         
                    
-                        <TextBlock Text="Freq" VerticalAlignment="Center" Margin="0,0,4,0" />
-                        <TextBlock Text="{Binding RumbleSpeed, StringFormat='{}{0:F1} ms'}" VerticalAlignment="Center" Width="70" Margin="0,0,5,0"/>
+                        <!--<TextBlock Text="Freq" VerticalAlignment="Center" Margin="0,0,4,0" />
+                        <TextBlock Text="{Binding RumbleSpeed, StringFormat='{}{0:F1} ms'}" VerticalAlignment="Center" Width="70" Margin="0,0,5,0"/>-->
 
                         <TextBlock Text="Hz" VerticalAlignment="Center" Margin="0,0,4,0" />
                         <TextBlock Text="{Binding Hertz, StringFormat='{}{0:F0} per/s'}" VerticalAlignment="Center" Width="70" Margin="0,0,5,0"/>
-                    </StackPanel>
-                    
+                    </StackPanel>                    
                     <StackPanel>
-                        <ContentControl Content="{Binding Rumbleview}" Height="200" />
+                        <ContentControl Content="{Binding Rumbleview}" Height="260" />
                     </StackPanel>
                     <!--<StackPanel Orientation="Horizontal" Margin="0,0,0,5">
                         <StackPanel Orientation="Horizontal">
@@ -107,40 +105,18 @@
                         <Button Content="Stop" Foreground="White" Command="{Binding StopEngineCommand}" Margin="0,0,5,0" IsEnabled="{Binding IsEngineRunning}" />
                         </StackPanel>-->
                     <StackPanel Orientation="Vertical" >
-                        <!--<v:ConnectionStatusControl Status="{Binding GamelinkConnected}" Label="Receiving Telemetry"  Margin="0,10,10,5"/>
-                        <v:ConnectionStatusControl Status="{Binding RotoConnected}" Label="Chair Connected"  Margin="0,10,10,5"/>
-                        <v:ConnectionStatusControl Status="{Binding TcpConnected}" Label="Gamelink Connected"  Margin="0,10,10,5"/>-->
-                        <StackPanel Orientation="Horizontal">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <ContentControl Content="{Binding TcpConnected}" Margin="0,10,10,5"/>
                             <ContentControl Content="{Binding GamelinkConnected}" Margin="0,10,10,5"/>
                             <ContentControl Content="{Binding RotoConnected}" Margin="0,10,10,5"/>
+                            <!--<ContentControl Content="{Binding OxrmcConnected}" Margin="0,10,10,5"/>-->
                         </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <ContentControl Content="{Binding TcpConnected}" Margin="0,10,10,5"/>
-                            <ContentControl Content="{Binding OxrmcConnected}" Margin="0,10,10,5"/>
-                        </StackPanel>
-
-                        <!-- <v:ConnectionStatusControl Status="{Binding OxrmcConnected}" Label="OXRMC"  Margin="0,10,10,5" />
-                       <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Roto:" FontWeight="Bold" Margin="0,10,10,5" />
-                            <TextBlock Text="{Binding RotoConnected}" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" Margin="0,4,0,0"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <v:ConnectionStatusControl Status="{Binding OxrmcConnected}" Label="OXRMC"  Margin="0,10,10,5"/>                           
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Gamlink:" FontWeight="Bold" Margin="0,10,10,5" />
-                            <TextBlock Text="{Binding GamelinkConnected}" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" Margin="0,4,0,0"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="TCP:" FontWeight="Bold" Margin="0,10,10,5" />
-                            <TextBlock Text="{Binding TcpConnected}" FontSize="14" FontWeight="Normal" VerticalAlignment="Center" Margin="0,4,0,0"/>
-                        </StackPanel>-->
                     </StackPanel>
                     
                 </StackPanel>
             </GroupBox>
         </StackPanel>
-
+        </Border>
         <StatusBar Grid.Row="2" Grid.ColumnSpan="2" VerticalAlignment="Bottom">
             <StatusBarItem>
                 <TextBlock Text="{Binding Yaw, StringFormat='Yaw: {0:F1}°'}"/>

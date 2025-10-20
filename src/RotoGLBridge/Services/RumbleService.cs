@@ -75,15 +75,18 @@ namespace RotoGLBridge.Services
 
                         while (RumbleQueue.TryDequeue(out var rumble))
                         {
-                            toProcess.Add(rumble);
+                            if(rumble.Power > 0)
+                                toProcess.Add(rumble);
                         }
                     }
+                    if (toProcess.Count > 0)
+                    {
+                        var (r, delay) = ProcessRumble(toProcess, RUMBLE_DURATION_MS);
 
-                    var (r, delay) = ProcessRumble(toProcess, RUMBLE_DURATION_MS);
+                        RumbleEvent?.Invoke(r.Power, r.Speed);
 
-                    RumbleEvent?.Invoke(r.Power, r.Speed);
-
-                    await Task.Delay(delay);
+                        await Task.Delay(delay);
+                    }
                 }
             }, _cts.Token);
         }
@@ -103,7 +106,7 @@ namespace RotoGLBridge.Services
             int delay = (int) ( duration * ((100 - s) / 100));  // (int)Filters.EnsureMapRange(s, 0, 254, 0, duration);
 
 
-            return (new Rumble((int)p, duration), duration + delay);
+            return (new Rumble((int)p, duration), duration + 0);
 
 
         }

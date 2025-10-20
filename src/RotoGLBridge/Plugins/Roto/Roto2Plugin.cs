@@ -117,7 +117,7 @@ namespace RotoGLBridge.Plugins
         /// <param name="speed">a value in ms between 0 - 100</param>
         public void Vibrate(int power, int speed)
         {
-            rumbleService.Rumble(speed, speed);
+            rumbleService.Rumble(power, speed);
         }
 
     }
