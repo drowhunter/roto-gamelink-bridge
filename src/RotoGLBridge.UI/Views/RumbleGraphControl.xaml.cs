@@ -66,7 +66,7 @@ namespace RotoGLBridge.UI.Views
 
                 foreach (var (name, strmr) in streamers)
                 {
-                    if (name == "Power %")
+                    if (name == "Amp %")
                     {
                         strmr.Add(vm.RumblePower);
                     }

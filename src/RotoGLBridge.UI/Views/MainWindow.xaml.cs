@@ -39,7 +39,8 @@ namespace RotoGLBridge.UI.Views
 
             try
             {
-                await _engine?.Stop();
+                if(_engine != null)
+                    await _engine.Stop();
             }
             catch (Exception ex)
             {

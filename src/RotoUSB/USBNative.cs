@@ -2,11 +2,21 @@
 using System.Runtime.ExceptionServices;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 
 
 namespace rotoUSB
 {
-    
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct OVERLAPPED
+    {
+        public IntPtr Internal;
+        public IntPtr InternalHigh;
+        public uint Offset;
+        public uint OffsetHigh;
+        public IntPtr hEvent;
+    }
+
     // Static class for interacting with USB-HID devices using native Windows API calls
     public class USBNative : IUSBNative
     {
@@ -20,6 +30,7 @@ namespace rotoUSB
         // Effective data length for a USB packet (19 bytes, aligned for 20-byte BLE packet)
         public const int ROTO_PACKET_LEN = 19;
 
+        
 
 
         // Stores the latest USB-related error message
@@ -46,23 +57,33 @@ namespace rotoUSB
 
 
 
+        [DllImport("kernel32.dll", SetLastError = true)]
+        static extern bool ReadFile(IntPtr hFile, IntPtr lpBuffer, uint nNumberOfBytesToRead, out uint lpNumberOfBytesRead, ref OVERLAPPED lpOverlapped);
+
+
+        internal static bool ReadFileInternal(IntPtr hFile, IntPtr lpBuffer, uint nNumberOfBytesToRead, out uint lpNumberOfBytesRead, ref OVERLAPPED lpOverlapped)
+        {
+            return ReadFile(hFile, lpBuffer, nNumberOfBytesToRead, out lpNumberOfBytesRead, ref lpOverlapped);
+        }
 
         [DllImport("kernel32.dll", SetLastError = true)]
-        static extern bool ReadFile(
-                IntPtr hFile,
-                [Out] byte[] lpBuffer,
-                uint nNumberOfBytesToRead,
-                out uint lpNumberOfBytesRead,
-                IntPtr overlapped);
+        internal static extern bool ReadFile(IntPtr hFile, [Out] byte[] lpBuffer, uint nNumberOfBytesToRead, out uint lpNumberOfBytesRead, IntPtr overlapped);
 
 
         [DllImport("kernel32.dll", SetLastError = true)]
-        static extern bool WriteFile(
-            IntPtr hFile,
-            byte[] buffer,
-            uint nNumberOfBytesToWrite,
-            out uint lpNumberOfBytesWritten,
-            IntPtr overlapped);
+        internal static extern bool WriteFile(IntPtr hFile, byte[] buffer, uint nNumberOfBytesToWrite, out uint lpNumberOfBytesWritten, IntPtr overlapped);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        internal static extern IntPtr CreateEvent(IntPtr lpEventAttributes, bool bManualReset, bool bInitialState, string lpName);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        internal static extern uint WaitForSingleObject(IntPtr hHandle, uint dwMilliseconds);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        internal static extern bool GetOverlappedResult(IntPtr hFile, ref OVERLAPPED lpOverlapped, out uint lpNumberOfBytesTransferred, bool bWait);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        internal static extern bool CancelIoEx(IntPtr hFile, ref OVERLAPPED lpOverlapped);
 
 
 
@@ -396,6 +417,15 @@ namespace rotoUSB
             bool success = false;
             uint bytesRead = 0;
 
+            //GCHandle pinnedBuffer = GCHandle.Alloc(data, GCHandleType.Pinned);
+            //IntPtr bufferPtr = pinnedBuffer.AddrOfPinnedObject();
+
+            //OVERLAPPED ov = new OVERLAPPED
+            //{
+            //    hEvent = USBNative.CreateEvent(IntPtr.Zero, true, false, null)
+            //};
+
+
             if (handle == IntPtr.Zero)
             {
                 LastErrorMessage = "Read USB packet error! Handle is null.";
@@ -413,6 +443,7 @@ namespace rotoUSB
                 {
 
                     success = ReadFile(handle, data, (uint)USB_REPORT_LEN, out bytesRead, IntPtr.Zero);
+                    //success = ReadFileInternal(handle, bufferPtr, (uint)USB_REPORT_LEN, out bytesRead, ref ov);
                     if (!success)
                     {
                         LastErrorMessage = GetIOError();

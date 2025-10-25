@@ -3,6 +3,7 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Threading;
 
 
 
@@ -315,12 +316,15 @@ namespace rotoUSB
                 {
                     Thread.CurrentThread.IsBackground = true;
                     Thread.CurrentThread.Name = "RotoChair USB Read Thread";
-                    
+
+                    //StartReadLoop(_usbDeviceR, HID_REPORT_LEN, 100, 0);
                     ReadLoop(_ctsRead.Token);
                 });
 
                 var thread = new Thread(ts);
 				
+                _ctsRead = new CancellationTokenSource();
+
                 thread.Start();
 
                 Thread.Sleep(1000);
@@ -571,6 +575,55 @@ namespace rotoUSB
         }
 
 
+        public void StartReadLoop(IntPtr deviceHandle, int packetSize = 64, int timeoutMs = 100, int throttleDelayMs = 10)
+        {
+            byte[] buffer = new byte[packetSize];
+            GCHandle pinnedBuffer = GCHandle.Alloc(buffer, GCHandleType.Pinned);
+            IntPtr bufferPtr = pinnedBuffer.AddrOfPinnedObject();
+
+            OVERLAPPED ov = new OVERLAPPED
+            {
+                hEvent = USBNative.CreateEvent(IntPtr.Zero, true, false, null)
+            };
+
+            while (true)
+            {
+                uint bytesRead = 0;
+                bool readStarted = USBNative.ReadFileInternal(deviceHandle, bufferPtr, (uint)packetSize, out bytesRead, ref ov);
+
+                if (!readStarted)
+                {
+                    uint wait = USBNative.WaitForSingleObject(ov.hEvent, (uint)timeoutMs);
+                    if (wait == 0) // WAIT_OBJECT_0
+                    {
+                        if (USBNative.GetOverlappedResult(deviceHandle, ref ov, out bytesRead, false) && bytesRead > 0)
+                        {
+                            // ✅ Successful read — process buffer
+                            ReadPacket(buffer, (int)bytesRead);
+                        }
+                        // else: read completed but failed or empty — drop it
+                    }
+                    else if (wait == 0x102) // WAIT_TIMEOUT
+                    {
+                        USBNative.CancelIoEx(deviceHandle, ref ov); // Abort the read
+                                                          // ❌ Timeout — drop packet silently
+                    }
+                    else
+                    {
+                        // ❌ Unexpected wait result — optionally log or break
+                    }
+                }
+                else
+                {
+                    // Rare: read completed immediately
+                    ReadPacket(buffer, (int) bytesRead);
+                }
+
+                Thread.Sleep(throttleDelayMs); // ⏱️ Throttle read rate
+            }
+
+            // pinnedBuffer.Free(); // Unreachable in infinite loop — wrap in cancellation logic if needed
+        }
 
 
 
