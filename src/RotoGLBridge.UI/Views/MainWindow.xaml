@@ -11,7 +11,7 @@
         d:DataContext="{d:DesignInstance vm:MainWindowViewModel}"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Roto Gamelink" Height="600" Width="960" WindowStartupLocation="CenterScreen" ResizeMode="NoResize">
+        Title="Roto Gamelink" Height="600" Width="960" WindowStartupLocation="CenterScreen" ResizeMode="NoResize" Icon="/assets/icon.ico">
     <Window.Resources>
         <c:BooleanToBrushConverter x:Key="BooleanToBrushConverter"/>
     </Window.Resources>
@@ -84,7 +84,11 @@
                         <TextBlock Text="{Binding RumbleSpeed, StringFormat='{}{0:F1} ms'}" VerticalAlignment="Center" Width="70" Margin="0,0,5,0"/>-->
 
                         <TextBlock Text="Hz" VerticalAlignment="Center" Margin="0,0,4,0" />
-                        <TextBlock Text="{Binding Hertz, StringFormat='{}{0:F0} per/s'}" VerticalAlignment="Center" Width="70" Margin="0,0,5,0"/>
+                        <TextBlock Text="{Binding Hertz, StringFormat='{}{0:F0}/s'}" VerticalAlignment="Center" Width="70" Margin="0,0,5,0"/>
+
+                        <TextBlock Text="Mode" VerticalAlignment="Center" Margin="0,0,4,0" />
+                        <TextBlock Text="{Binding RunMode}" VerticalAlignment="Center" Width="70" Margin="0,0,5,0"/>
+
                     </StackPanel>                    
                     <StackPanel>
                         <ContentControl Content="{Binding Rumbleview}" Height="260" />
@@ -129,7 +133,7 @@
             </StatusBarItem>
             <Separator/>
             <StatusBarItem HorizontalAlignment="Right">
-                <TextBlock Text="Developed by Drowhunter" FontSize="12" FontStyle="Italic"/>
+                <TextBlock Text="Version 1.0.11" FontSize="12" FontStyle="Italic"/>
             </StatusBarItem>
         </StatusBar>
     </Grid>

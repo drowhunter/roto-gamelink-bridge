@@ -1,5 +1,6 @@
 ﻿using RotoGLBridge.UI.ViewModels;
 
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Media.Media3D;
 
@@ -9,12 +10,16 @@ namespace RotoGLBridge.UI.Views
 {
     public partial class MainWindow : Window
     {
+        private readonly ISharpieEngine _engine;
+
         private MainWindowViewModel ViewModel => (MainWindowViewModel)DataContext;
 
-        public MainWindow(MainWindowViewModel viewModel)
+        public MainWindow(MainWindowViewModel viewModel, ISharpieEngine engine)
         {
             InitializeComponent();
-           
+
+            this.Closing += MainWindow_Closing;
+
             DataContext = viewModel;
             
             // Subscribe to zoom extents event
@@ -26,6 +31,23 @@ namespace RotoGLBridge.UI.Views
             SetupViewport();
 
             //MoveCamera();
+        }
+
+        private async void MainWindow_Closing(object sender, CancelEventArgs e)
+        {
+            e.Cancel = true; // Prevent immediate shutdown
+
+            try
+            {
+                await _engine?.Stop();
+            }
+            catch (Exception ex)
+            {
+                // Log or handle cleanup failure
+            }
+
+            // Now allow the window to close
+            Application.Current.Shutdown();
         }
 
         private void SetupViewport()

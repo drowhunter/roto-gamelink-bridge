@@ -3,7 +3,11 @@
 using HelixToolkit.Wpf;
 
 using Microsoft.Win32;
+
 using RotoGLBridge.Scripts;
+
+using rotoUSB;
+
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Media;
@@ -56,6 +60,9 @@ namespace RotoGLBridge.UI.ViewModels
 
         [ObservableProperty]
         private double hertz;
+
+        [ObservableProperty]
+        private string runMode;
 
         partial void OnYawChanged(double value)
         {
@@ -139,8 +146,8 @@ namespace RotoGLBridge.UI.ViewModels
                 RumblePower = _rotoScript.RumblePower;
                 RumbleSpeed = _rotoScript.RumbleSpeed;
                 Hertz = _rotoScript.Hertz;
+                RunMode = _rotoScript.Runmode;
 
-                
 
                 if (RotoConnected.IsConnected || GamelinkConnected.IsConnected || TcpConnected.IsConnected)
                 {

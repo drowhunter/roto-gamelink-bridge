@@ -9,7 +9,7 @@ namespace rotoUSB
 
         //int Clamp(int value, int min, int max);
 
-        bool Connect();
+        bool Connect(bool reConnect);
         void Disconnect();
         void Dispose();
         void EnableConsoleDebug(bool isEnabled = true);

@@ -31,6 +31,7 @@ namespace RotoGLBridge.Scripts
 
         public float Hertz { get; private set; }
 
+        public string Runmode { get; private set; }
 
         public BehaviorSubject<bool> IsConnected = new(false);
 
@@ -113,10 +114,11 @@ namespace RotoGLBridge.Scripts
             }
             RumblePower = gamelink.rumblePower;
             RumbleSpeed = gamelink.rumbleSpeed;
-            Hertz = gamelink.hz;
+            Hertz = gamelink.hz;// != 0 ? Math.Clamp(gamelink.hz, 20, 100) : 0;
+            Runmode = roto.RunMode.ToString();
 
             //if (roto.IsConnected)
-            if(RumblePower > 0 || RumbleSpeed > 0)
+            if (RumblePower > 0 || RumbleSpeed > 0)
                 roto.Vibrate((int)RumblePower, (int)RumbleSpeed);
 
         }

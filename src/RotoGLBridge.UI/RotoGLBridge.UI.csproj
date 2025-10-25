@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+	<None Remove="assets\icon.ico" />
     <None Remove="assets\rotovr\base.mtl" />
     <None Remove="assets\rotovr\base.obj" />
     <None Remove="assets\rotovr\chair.mtl" />
@@ -70,6 +71,10 @@
 	<ItemGroup>
 		<None Remove="**/*.bak" />
 	</ItemGroup>
-  
+	<ItemGroup>
+		<Resource Include="assets\icon.ico">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</Resource>
+	</ItemGroup>
 
 </Project>

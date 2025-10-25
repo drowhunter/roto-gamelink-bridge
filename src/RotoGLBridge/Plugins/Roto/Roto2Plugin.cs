@@ -98,7 +98,7 @@ namespace RotoGLBridge.Plugins
 
         public void Connect()
         {
-            rotoChair.Connect();
+            rotoChair.Connect(true);
             rotoChair.SetObjectFollowMode();            
         }
 
