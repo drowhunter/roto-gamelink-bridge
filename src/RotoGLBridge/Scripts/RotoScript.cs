@@ -1,5 +1,6 @@
 ﻿using RotoGLBridge.Plugins;
 using RotoGLBridge.Plugins.GameLink;
+using RotoGLBridge.Services;
 
 using Sharpie.Plugins.Speech;
 using Sharpie.Plugins.UsbWatcher;
@@ -17,10 +18,16 @@ namespace RotoGLBridge.Scripts
         YawDeviceGlobal tcpDevice,
         SpeechGlobal speech,
         OxrmcGlobal oxrmc,
-        UsbWatcherGlobal usbWatcher
+        UsbWatcherGlobal usbWatcher,
+        //MathService mathService
+        IFollowTargetCalculator followTargetCalculator
         //IConsoleWatcher cons
         ) : SharpieScript
     {
+
+        private float? _initialYaw = null;
+
+        private float? _initialRotoYaw = null;
 
         //public event Action<float> OnYawUpdate;
         public float Yaw { get; private set; }
@@ -49,7 +56,8 @@ namespace RotoGLBridge.Scripts
         {
             logger.LogInformation($"Main script started.");
 
-            speech.Say("Roto Chair Initialized");
+            //speech.Say("Roto Chair Initialized");
+            followTargetCalculator.Reset();
 
             gamelink.OnUpdate += OnGameLinkUpdate;
 
@@ -105,13 +113,16 @@ namespace RotoGLBridge.Scripts
             //yaw = gamelink.yaw;
             if (roto.IsConnected)
             {
-                roto.Yaw = gamelink.yaw;
+                var newRotoAngle = followTargetCalculator.Update(gamelink.yaw, roto.Yaw);
+
+                roto.Yaw = newRotoAngle;
+                
             }
             else
             {
-                Yaw = gamelink.yaw;
-               
+                Yaw = gamelink.yaw;               
             }
+
             RumblePower = gamelink.rumblePower;
             RumbleSpeed = gamelink.rumbleSpeed;
             Hertz = gamelink.hz;// != 0 ? Math.Clamp(gamelink.hz, 20, 100) : 0;
@@ -123,6 +134,27 @@ namespace RotoGLBridge.Scripts
 
         }
 
+        private float CalculateDeltaYaw(float target)
+        {
+            float retval = 0;
+
+            if (_initialYaw == null)
+            {
+                _initialYaw = target;
+                logger.LogDebug($"Initial Yaw set to {_initialYaw}");
+                _initialRotoYaw = roto.Yaw;
+                logger.LogDebug($"Initial Roto Yaw set to {_initialRotoYaw}");
+                return 0;
+            }
+
+           // var deltaTarget = mathService.CalculateDeltaAngle(_initialYaw.Value, target);
+
+
+
+
+            return retval;
+        }
+        
         
         public override void Execute()
         {

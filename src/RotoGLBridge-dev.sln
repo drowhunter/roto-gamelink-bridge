@@ -34,6 +34,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RotoGLBridge.UI", "RotoGLBr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "rotoUSB", "RotoUSB\rotoUSB.csproj", "{E98C2700-A68A-B582-9849-5848968D34B3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RotoGLBridge.Tests", "RotoGLBridge.Tests\RotoGLBridge.Tests.csproj", "{936A0F2D-5123-47BD-A30F-31EB75ABDCB7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -77,6 +79,10 @@ Global
 		{E98C2700-A68A-B582-9849-5848968D34B3}.Debug|x64.Build.0 = Debug|x64
 		{E98C2700-A68A-B582-9849-5848968D34B3}.Release|x64.ActiveCfg = Release|x64
 		{E98C2700-A68A-B582-9849-5848968D34B3}.Release|x64.Build.0 = Release|x64
+		{936A0F2D-5123-47BD-A30F-31EB75ABDCB7}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{936A0F2D-5123-47BD-A30F-31EB75ABDCB7}.Debug|x64.Build.0 = Debug|Any CPU
+		{936A0F2D-5123-47BD-A30F-31EB75ABDCB7}.Release|x64.ActiveCfg = Release|Any CPU
+		{936A0F2D-5123-47BD-A30F-31EB75ABDCB7}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

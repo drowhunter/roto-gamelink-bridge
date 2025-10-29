@@ -61,6 +61,7 @@ namespace Microsoft.Extensions.DependencyInjection
             //builder.Services.AddSingleton<TcpCommandFactory>();
             builder.Services.AddTransient<IByteConverter<YawGLData>, YawGLByteConverter>();
             builder.Services.AddTransient<IConsoleWatcher, ConsoleWatcher>();
+            
             //builder.Services.
             builder.Services.AddRotoServices();
            
@@ -76,6 +77,8 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<Stopwatch>();
             services.AddTransient<IRumbleService, RumbleService>();
             //services.AddSingleton<Roto>();
+            services.AddTransient<MathService>();
+            services.AddSingleton<IFollowTargetCalculator, FollowTargetCalculator>();
 
             //services.AddTransient<IMmfSender, RotoMCSender>();
             services.AddTransient<IMmfSender, FlyPtSender>();
