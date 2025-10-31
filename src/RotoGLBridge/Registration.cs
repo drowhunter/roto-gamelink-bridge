@@ -79,7 +79,7 @@ namespace Microsoft.Extensions.DependencyInjection
             //services.AddSingleton<Roto>();
             services.AddTransient<MathService>();
             services.AddSingleton<IFollowTargetCalculator, FollowTargetCalculator>();
-
+            services.AddSingleton<IFollowCalculator, FollowCalculator>();
             //services.AddTransient<IMmfSender, RotoMCSender>();
             services.AddTransient<IMmfSender, FlyPtSender>();
         }

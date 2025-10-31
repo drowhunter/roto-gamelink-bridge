@@ -3,7 +3,9 @@ using System.Reactive.Subjects;
 
 namespace RotoGLBridge.Services
 {
-    public interface IFollowTargetCalculator
+    
+
+    public interface IFollowTargetCalculator : IFollowCalculator
     {
         /// <summary>
         /// The current follow angle.
@@ -45,26 +47,7 @@ namespace RotoGLBridge.Services
         float OffsetDifference { get; }
 
 
-        /// <summary>
-        /// The new follow angle to apply in order to reduce the offset difference.(0 - 360)
-        /// </summary>
-        float NewFollowAngle { get; }
-
-        /// <summary>
-        /// Resets the initial target and follow angles to their default state.
-        /// </summary>
-        /// <remarks>This method clears any previously set values for the initial target and follow
-        /// angles, setting them to null. It can be used to reinitialize the angles before recalculating or reapplying
-        /// new values.</remarks>
-        void Reset();
-
-
-        /// <summary>
-        /// Updates the current target and follow angles. If the initial target angle is not set, both angles will be initialized with the provided values.
-        /// </summary>
-        /// <param name="targetAngle"></param>
-        /// <param name="followAngle"></param>
-        void Update(float targetAngle, float followAngle);
+        
     }
 
 
@@ -90,7 +73,7 @@ namespace RotoGLBridge.Services
 
         private BehaviorSubject<float> _newFollowAngleSubject = new BehaviorSubject<float>(0f);
 
-        public IObservable<float> NewFollowAngleObservable => _newFollowAngleSubject.AsObservable();
+        public IObservable<float> NewFollowAngleChanged => _newFollowAngleSubject.AsObservable();
 
 
         public float TargetOffset
@@ -101,7 +84,7 @@ namespace RotoGLBridge.Services
                 {
                     return 0;
                 }
-                return mathService.CalculateDeltaAngle(_initialTargetAngle.Value, CurrentTargetAngle.Value);
+                return mathService.CalculateOffsetAngle(_initialTargetAngle.Value, CurrentTargetAngle.Value);
             }
         }
 
@@ -114,7 +97,7 @@ namespace RotoGLBridge.Services
                 {
                     return 0;
                 }
-                return mathService.CalculateDeltaAngle(_initialFollowAngle.Value, CurrentFollowAngle.Value);
+                return mathService.CalculateOffsetAngle(_initialFollowAngle.Value, CurrentFollowAngle.Value);
             }
         }
 
@@ -123,7 +106,7 @@ namespace RotoGLBridge.Services
         {
             get
             {
-                float d = mathService.CalculateDeltaAngle(FollowOffset, TargetOffset);
+                float d = mathService.CalculateOffsetAngle(FollowOffset, TargetOffset);
 
                 return d;
             }
@@ -139,7 +122,7 @@ namespace RotoGLBridge.Services
         }
 
 
-        public void Update(float targetAngle, float followAngle)
+        public float Update(float targetAngle, float followAngle)
         {
             _currentTargetAngle = targetAngle;
             _currentFollowAngle = followAngle;
@@ -160,7 +143,7 @@ namespace RotoGLBridge.Services
 
                 _newFollowAngleSubject.OnNext(n);
 
-                return;
+                return n;
             }
             else
             {
@@ -168,7 +151,7 @@ namespace RotoGLBridge.Services
             }
 
             //_newFollowAngleSubject.OnNext(followAngle);
-            return;
+            return followAngle;
 
         }
 

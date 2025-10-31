@@ -48,7 +48,7 @@ namespace RotoGLBridge.Services
         /// If the raw difference exceeds 180 degrees it is reduced by 360 degrees; if it is less than -180 degrees it is increased by 360 degrees.
         /// This ensures rotation always takes the shortest direction.
         /// </remarks>
-        public float CalculateDeltaAngle(float currentAngle, float targetAngle)
+        public float CalculateOffsetAngle(float currentAngle, float targetAngle)
         {
             float deltaAngle = targetAngle - currentAngle;
             // Normalize the delta to the range [-180, 180]

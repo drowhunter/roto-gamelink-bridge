@@ -20,7 +20,8 @@ namespace RotoGLBridge.Scripts
         OxrmcGlobal oxrmc,
         UsbWatcherGlobal usbWatcher,
         //MathService mathService
-        IFollowTargetCalculator followTargetCalculator
+        //IFollowTargetCalculator followTargetCalculator
+        IFollowCalculator followCalculator
         //IConsoleWatcher cons
         ) : SharpieScript
     {
@@ -57,7 +58,8 @@ namespace RotoGLBridge.Scripts
             logger.LogInformation($"Main script started.");
 
             //speech.Say("Roto Chair Initialized");
-            followTargetCalculator.Reset();
+            //followTargetCalculator.Reset();
+            followCalculator.Reset();
 
             gamelink.OnUpdate += OnGameLinkUpdate;
 
@@ -113,9 +115,9 @@ namespace RotoGLBridge.Scripts
             //yaw = gamelink.yaw;
             if (roto.IsConnected)
             {
-                followTargetCalculator.Update(gamelink.yaw, roto.Yaw);
+                var result = followCalculator.Update(gamelink.yaw, roto.Yaw);
                 
-                roto.Yaw = followTargetCalculator.NewFollowAngle;
+                roto.Yaw = result.NewFollowAngle;
                 
             }
             else
@@ -147,7 +149,7 @@ namespace RotoGLBridge.Scripts
                 return 0;
             }
 
-           // var deltaTarget = mathService.CalculateDeltaAngle(_initialYaw.Value, target);
+           // var deltaTarget = mathService.CalculateOffsetAngle(_initialYaw.Value, target);
 
 
 

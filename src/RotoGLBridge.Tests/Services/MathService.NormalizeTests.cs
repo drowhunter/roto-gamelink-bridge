@@ -47,11 +47,11 @@ namespace RotoGLBridge.Tests.Services
             var svc = new MathService();
 
             // Act
-            var actual = svc.CalculateDeltaAngle(currentAngle, targetAngle);
+            var actual = svc.CalculateOffsetAngle(currentAngle, targetAngle);
 
             // Assert
             Assert.True(Math.Abs(actual - expected) < Epsilon,
-                $"CalculateDeltaAngle({currentAngle}, {targetAngle}) returned {actual} but expected {expected}");
+                $"CalculateOffsetAngle({currentAngle}, {targetAngle}) returned {actual} but expected {expected}");
         }
 
         [Theory]
