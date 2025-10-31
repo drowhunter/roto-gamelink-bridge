@@ -10,6 +10,15 @@ using Sharpie.Helpers.Core.Extensions;
 
 namespace RotoGLBridge.Services
 {
+    public interface IRumbleService
+    {
+        event RumbleService.OnRumbleDelagate RumbleEvent;
+
+        void Rumble(int amplitude, int frequencyMs);
+        Task Start();
+        void Stop();
+    }
+
     public struct Rumble
     {
         public readonly int Power;

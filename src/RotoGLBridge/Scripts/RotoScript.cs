@@ -113,9 +113,9 @@ namespace RotoGLBridge.Scripts
             //yaw = gamelink.yaw;
             if (roto.IsConnected)
             {
-                var newRotoAngle = followTargetCalculator.Update(gamelink.yaw, roto.Yaw);
-
-                roto.Yaw = newRotoAngle;
+                followTargetCalculator.Update(gamelink.yaw, roto.Yaw);
+                
+                roto.Yaw = followTargetCalculator.NewFollowAngle;
                 
             }
             else

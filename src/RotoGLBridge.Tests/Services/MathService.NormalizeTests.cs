@@ -31,6 +31,7 @@ namespace RotoGLBridge.Tests.Services
         private const float Epsilon = 1e-6f;
 
         [Theory]
+        [InlineData(125, -175, 60)]
         [InlineData(10f, 20f, 10f)]
         [InlineData(10f, 0f, -10f)]
         [InlineData(350f, 10f, 20f)]
