@@ -40,7 +40,7 @@ namespace RotoGLBridge.Tests.Services
 
     public class FollowTargetCalculatorTests
     {
-        IFollowTargetCalculator _followTargetCalculator;
+        IFollowCalculator _followTargetCalculator;
 
         
 
@@ -48,7 +48,7 @@ namespace RotoGLBridge.Tests.Services
         {
             var ms = new MathService();
 
-            _followTargetCalculator = new FollowTargetCalculator(ms);
+            _followTargetCalculator = new FollowCalculator(ms);
         }
 
         [Fact]
@@ -111,12 +111,12 @@ namespace RotoGLBridge.Tests.Services
             
             _followTargetCalculator.Update(step.TargetAngle, step.FollowAngle);
 
-            Assert.Equal(step.ExpectedInitialTargetAngle, _followTargetCalculator.InitialTargetAngle);
-            Assert.Equal(step.ExpectedInitialFollowAngle, _followTargetCalculator.InitialFollowAngle);
-            Assert.Equal(step.ExpectedTargetOffset, _followTargetCalculator.TargetOffset);
-            Assert.Equal(step.ExpectedFollowOffset, _followTargetCalculator.FollowOffset);
-            Assert.Equal(step.ExpectedOffsetDifference, _followTargetCalculator.OffsetDifference);
-            Assert.Equal(step.ExpectedNewFollowAngle, _followTargetCalculator.NewFollowAngle);
+            Assert.Equal(step.ExpectedInitialTargetAngle, _followTargetCalculator.LastResult.InitialTargetAngle);
+            Assert.Equal(step.ExpectedInitialFollowAngle, _followTargetCalculator.LastResult.InitialFollowAngle);
+            Assert.Equal(step.ExpectedTargetOffset, _followTargetCalculator.LastResult.TargetOffset);
+            Assert.Equal(step.ExpectedFollowOffset, _followTargetCalculator.LastResult.FollowOffset);
+            Assert.Equal(step.ExpectedOffsetDifference, _followTargetCalculator.LastResult.OffsetDifference);
+            Assert.Equal(step.ExpectedNewFollowAngle, _followTargetCalculator.LastResult.NewFollowAngle);
 
 
 

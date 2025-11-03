@@ -102,18 +102,15 @@ namespace RotoGLBridge.Services
         }
 
         
-        public float OffsetDifference
-        {
-            get
-            {
-                float d = mathService.CalculateOffsetAngle(FollowOffset, TargetOffset);
+        public float OffsetDifference => mathService.CalculateOffsetAngle(FollowOffset, TargetOffset);
 
-                return d;
-            }
-        }
 
 
         public float NewFollowAngle => _newFollowAngleSubject.Value;
+
+        IObservable<FollowResult> IFollowCalculator.NewFollowAngleChanged => throw new NotImplementedException();
+
+        public FollowResult LastResult => throw new NotImplementedException();
 
         public void Reset()
         {
@@ -155,6 +152,9 @@ namespace RotoGLBridge.Services
 
         }
 
-
+        FollowResult IFollowCalculator.Update(float targetAngle, float followAngle)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

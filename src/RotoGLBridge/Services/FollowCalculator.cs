@@ -5,6 +5,7 @@ namespace RotoGLBridge.Services
 {
     public interface IFollowCalculator
     {
+        FollowResult LastResult { get; }
         /// <summary>
         /// The new follow angle to apply in order to reduce the offset difference.(0 - 360)
         /// </summary>
@@ -67,7 +68,7 @@ namespace RotoGLBridge.Services
 
         public float NewFollowAngle => _newFollowAngleSubject.Value.NewFollowAngle;
 
-
+        public FollowResult LastResult => _lastResult;
 
 
         public void Reset()
@@ -76,7 +77,7 @@ namespace RotoGLBridge.Services
             _initialFollowAngle = null;
         }
 
-        private FollowResult _lastResult = null;
+        private FollowResult _lastResult = new();
 
         public FollowResult Update(float targetAngle, float followAngle)
         {
@@ -108,16 +109,22 @@ namespace RotoGLBridge.Services
 
                 if (_lastResult != result)
                 {
-                    _newFollowAngleSubject.OnNext(result);
                     _lastResult = result;
+                    _newFollowAngleSubject.OnNext(result);
+                    
                 }
             }
             else
             {
                 // TODO: If not difference track for an amount of time and then Reset.
+                if (_lastResult != result)
+                {
 
+                    _lastResult = result;
+                }
             }
 
+            
             return result;
 
         }
