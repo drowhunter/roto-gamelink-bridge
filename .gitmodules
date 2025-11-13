@@ -1,0 +1,4 @@
+[submodule "sharpie"]
+	path = sharpie
+	url = git@github.com:SharpieOrg/sharpie.git
+	branch = develop
