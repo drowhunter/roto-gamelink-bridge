@@ -465,12 +465,12 @@ namespace rotoUSB
 
                 if (_isReadingLoop && l > 5000)
                 {
-                    _logger.LogWarning("Read thread seems stuck! {0:F1} s", l / 1000);
-                    //CloseReadTask();
-                    OnUsbError?.Invoke(GetUSBError());
-                    Disconnect();
+                //    _logger.LogWarning("Read thread seems stuck! {0:F1} s", l / 1000);
+                //    //CloseReadTask();
+                //    OnUsbError?.Invoke(GetUSBError());
+                //    Disconnect();
                    _lastRead = null;
-                    return;
+                //    return;
                 }
             }
 
