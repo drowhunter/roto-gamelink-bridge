@@ -1,286 +1,161 @@
-﻿using com.rotovr.sdk;
+﻿using RotoGLBridge.Services;
 
-using RotoGLBridge.Services;
+using rotoUSB;
 
 using Sharpie.Engine.Contracts.Plugins;
-using Sharpie.Helpers.Core;
+
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 
 namespace RotoGLBridge.Plugins
 {
-
-    [GlobalType(Type = typeof(RotoPluginGlobal))]
+    [GlobalType(Type = typeof(Roto2PluginGlobal))]
     public class RotoPlugin(
-        ILogger<RotoPlugin> logger,
-        IEnumerable<IMmfSender> mmfSenders,
-        com.rotovr.sdk.Roto roto
-        ) : UpdateablePlugin
+        ILogger<RotoPlugin> logger,        
+        IRotoChair rotoChair,
+        IRumbleService rumbleService
+        ) : SharpiePlugin //UpdateablePlugin
     {
+    
+        private BehaviorSubject<bool> _rumbleEnabled = new BehaviorSubject<bool>(false);
 
-        public RotoDataModel RotoDataModel = new();
+        public IObservable<bool> RumbleEnabled => _rumbleEnabled.AsObservable();
 
-        public ConnectionStatus ConnectionStatus = ConnectionStatus.Unknown;
 
-        public ModeType Mode = default;
+        public bool UsbConnected { get => State.USBConnected;  }
 
-        public int Turns => roto.turns;
+        public RotoStatus State { get; private set; } = new RotoStatus();
 
-        CancellationTokenSource _cts;
+        public IObservable<string> Error { get; private set; }
 
-        public bool IsPluggedIn => roto.IsPluggedIn;
-
-        public float Angle
+        public override Task Start()
         {
-            get
-            {
-                if (RotoDataModel == null)
-                    return 0;
+            logger.LogInformation("RotoPlugin started.");
 
-                return RotoDataModel.CalibratedAngle;
-            }
+            rotoChair.LoadUSBLibrary();
+
+            Error = Observable.FromEvent<string>(
+                h => rotoChair.OnUsbError += h,
+                h => rotoChair.OnUsbError -= h
+            );
+
+            rotoChair.OnUsbError += RotoChair_OnUsbError;
+
+            rumbleService.RumbleEvent += (power, duration) =>
+            {
+                rotoChair.SetRumble(power, (byte)duration);
+            };
+
+            rumbleService.Start();
+
+            return Task.CompletedTask;
         }
 
-        internal com.rotovr.sdk.Roto.Telemetry Telemetry => roto.telemetry;
-
-
-        public override async Task Start()
+        
+        public void RotoChair_OnUsbError(string errorMessage)
         {
-            _cts = new();
-
-            roto.Initialize(ConnectionType.Chair);
-
-            roto.OnConnectionStatus += _roto_OnConnectionStatusChanged;
-            roto.OnRotoMode += _roto_OnModeChanged;
-            roto.OnDataChanged += _roto_OnDataChanged;
-
-            
-
-            if (ConnectionStatus != ConnectionStatus.Connected)
-            {
-                var t = roto.ConnectAsync(_cts.Token).ContinueWith(t =>
-                {
-                    if (t.IsCompleted)
-                    {
-                        logger.LogInformation("Connected to Roto chair");
-                    }
-                    else if (t.IsFaulted)
-                    {
-                        logger.LogError(t.Exception, "Error connecting to Roto chair");
-                    }
-                    else if (t.IsCanceled)
-                    {
-                        logger.LogWarning("Connection to Roto chair was canceled");
-                    }
-                    else
-                    {
-                        logger.LogWarning("Connection to Roto chair ended in an unexpected state");
-                    }
-                });
-
-
-            }
-            else
-            {
-                logger.LogWarning("Already Connected ?");
-            }
-
-        }
-
-
-        public override async Task Stop()
-        {
-            _cts.Cancel();
-
-            await roto.SetModeAsync(ModeType.IdleMode, new ModeParams { CockpitAngleLimit = 0, MaxPower = 30});
-
-            roto.OnRotoMode -= _roto_OnModeChanged;
-            roto.OnConnectionStatus -= _roto_OnConnectionStatusChanged;
-            roto.OnDataChanged -= _roto_OnDataChanged;
-
-            if (ConnectionStatus != ConnectionStatus.Disconnected)
-                await roto.DisconnectAsync();
+            logger.LogError("Roto Chair USB Error: {0}", errorMessage);
         }
 
         public override void Execute()
         {
+            var state = rotoChair.GetRotoStatus();
             
-        }
-
-        private void _roto_OnDataChanged(RotoDataModel obj)
-        {
-
-            RotoDataModel = obj;
             
-            if (Enum.TryParse(obj.Mode, out ModeType mode))
+            if(!UsbConnected && state.USBConnected)
             {
-                Mode = mode;
+                logger.LogInformation("Roto Chair connected.");
+            }
+            else if (UsbConnected && !state.USBConnected)
+            {
+                logger.LogInformation("Roto Chair disconnected.");
             }
 
-            foreach(var mmf in mmfSenders)
-            {
-                mmf.Send(-obj.CalibratedAngle);
-            }
-
-            OnUpdate();
+            State = state;
+           // OnUpdate();
         }
 
-        private void _roto_OnConnectionStatusChanged(ConnectionStatus obj)
+        public override Task Stop()
         {
-            ConnectionStatus = obj;
-
-            if (obj == ConnectionStatus.Disconnected)
-            {
-                RotoDataModel = new();
-            }
-            OnUpdate();
+            rumbleService.Stop();
+            rotoChair.Disconnect();
+            logger.LogInformation("RotoPlugin stopped.");
+            return Task.CompletedTask;
         }
 
-        private void _roto_OnModeChanged(ModeType obj)
+        
+        
+        public void SetRunMode(RunMode mode)
         {
-            Mode = obj;
-            OnUpdate();
+            rotoChair.SetRunMode(mode);
         }
 
-        public void SetPower(float power = 1)
-        {
-            var p = Filters.EnsureMapRange(power, 0, 1, 30, 100);
-            roto.SetPowerAsync(RoundDouble(p));
-        }
-
-
-        /// <summary>
-        /// Rumble the chair
-        /// </summary>
-        /// <param name="seconds"></param>
-        /// <param name="power">value 0 - 1 </param>
-        public void Rumble(float seconds, float power = 1)
-        {
-            var p = Filters.EnsureMapRange(power, 0, 1, 0, 100);
-            roto.Rumble((float)seconds, RoundDouble(p));
-        }
-
-
-        public void Rotate(float degrees, float power = 1)
-        {
-            var p = Filters.EnsureMapRange(power, 0, 1, 0, 100);
-            var (d, a) = GetAngleDirection(degrees);
-
-            roto.RotateToAngle(d, a, RoundDouble(p));
-        }
-
-        public void RotateTo(Direction direction, float degrees, float power = 1)
-        {
-            var p = Filters.EnsureMapRange(power, 0, 1, 0, 100);
-
-            roto.RotateToAngle(direction, RoundDouble(Ensure360(degrees)), RoundDouble(p));
-        }
-
-        //public void RotateClosest(float degrees, float power = 1)
+        //public void SetPower(float amplitude)
         //{
-        //    var p = Filters.EnsureMapRange(power, 0, 1, 0, 100);
-
-        //    roto.RotateToClosestAngleDirection(RoundDouble(Ensure360(degrees)), RoundDouble(p));
+        //    rotoChair.(amplitude);
         //}
 
-        public async Task SwitchModeAsync(ModeType mode, Func<float?> targetFunc = null)//, float limit, float power, RotoMovementMode movementMode)
+        public void Connect()
         {
-            if(roto == null)
-            {
-                return;
-            }
-
-            var m = (ModeType)(byte)mode;
-
-            if (mode == ModeType.FollowObject)
-            {
-                await roto.SetModeAsync(ModeType.HeadTrack, new ModeParams { CockpitAngleLimit = 0, MaxPower = 100 });
-                if(targetFunc != null)
-                    roto.FollowTarget(targetFunc);
-            }
-            else //if(m == ModeType.HeadTrack)
-            {
-                await roto.SetModeAsync(m, new ModeParams { MaxPower = 100 });
-                //SetPower(1);
-            }
+            rotoChair.Connect(true);
+            rotoChair.SetObjectFollowMode();            
         }
 
-        private float Ensure360(float degrees)
+        internal void Disconnect()
         {
-            var a = Math.Sign(degrees) * (degrees % 360);
-            if (a < 0)
-            {
-                a += 360;
-            }
-            return a;
+            
+            rotoChair.Disconnect();
         }
 
-        public void SetToZero()
-        {
-            roto.Calibration(CalibrationMode.SetCurrent);
-        }
-
-
-        private int RoundDouble(float value)
-        {
-            return (int)Math.Round(value, 0);
-        }
-
-        private (Direction direction, int angle) GetAngleDirection(float degrees)
-        {
-            var d = degrees < 0 ? Direction.Left : Direction.Right;
-
-            var ang = RoundDouble(Ensure360(degrees));
-
-            return (d, ang);
-        }
-
-        private float NormalizeAngle(float angle)
-        {
-            if (angle < 0)
-                angle += 360;
-            else if (angle > 360)
-                angle -= 360;
-
-            return angle;
-        }
-    }
-
-    public class RotoPluginGlobal : UpdateablePluginGlobal<RotoPlugin>
-    {
-        public int Turns => plugin.Turns;
-        public bool IsPluggedIn => plugin.IsPluggedIn;
-
-        public RotoDataModel Data => plugin.RotoDataModel;
-
-        public com.rotovr.sdk.Roto.Telemetry Telemetry => plugin.Telemetry;        
-
-        public string Status => plugin.ConnectionStatus.ToString();
-
-        public bool IsConnected => plugin.ConnectionStatus == ConnectionStatus.Connected;
-
-        public void Rumble(float seconds, float power = 1) => plugin.Rumble(seconds, power);
-
-        public void Rotate(float degrees, float power = 1) => plugin.Rotate(degrees, power);
-
-        public void RotateTo(Direction direction, float degrees, float power = 1) => plugin.RotateTo(direction, degrees, power);
-
-        //public void rotateClosest(float degrees, float power = 1) => plugin.RotateClosest(degrees, power);
-
-        public Task SwitchModeAsync(ModeType mode, Func<float?> targetFunc = null) => plugin.SwitchModeAsync(mode, targetFunc);
-        
-
-        public void Calibrate() => plugin.SetToZero();
+        internal void SetFollowDegree(int degree) => rotoChair.SetObjectFollowDegree(degree);
 
         /// <summary>
-        /// set the power
+        /// Tell the chair to rumble
         /// </summary>
-        /// <param name="power">between 0.3 - 1.0</param>
-        public void SetPower(float power = .5f) => plugin.SetPower(power);
-
-
-        public override string ToString()
+        /// <param name="power">a value between 0 and 100</param>
+        /// <param name="speed">a value in ms between 0 - 100</param>
+        public void Vibrate(int power, int speed)
         {
-            return plugin.RotoDataModel?.ToString() ?? "";// ToJson() ?? "";
+            rumbleService.Rumble(power, speed);
         }
-        
+
+    }
+
+    public class Roto2PluginGlobal : SharpieGlobal //UpdateablePluginGlobal
+                                                   <RotoPlugin>
+    {
+        public IObservable<string> OnError => plugin.Error.DistinctUntilChanged();
+
+        #region  Exposed Properties
+
+        public bool IsConnected => plugin?.UsbConnected ?? false;
+
+        public RunMode RunMode
+        {
+            get => plugin.State.RunMode;
+            set => plugin.SetRunMode(value);
+        }
+
+        //public new RotoStatus State => plugin.State;
+
+        public float Yaw
+        {
+            get => (float)plugin.State.BaseDegree;
+            set
+            {
+                plugin.SetFollowDegree((int)value);
+            }
+        }
+
+
+        #endregion
+        internal void Connect() => plugin.Connect();
+
+        internal void Disconnect() => plugin.Disconnect();
+
+
+        internal void Vibrate(int power, int speed) => plugin.Vibrate(power, speed);
+
+
     }
 }

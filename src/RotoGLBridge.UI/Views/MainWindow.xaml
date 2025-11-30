@@ -113,8 +113,8 @@
                             <ContentControl Content="{Binding TcpConnected}" Margin="0,10,10,5"/>
                             <ContentControl Content="{Binding GamelinkConnected}" Margin="0,10,10,5"/>
                             <ContentControl Content="{Binding RotoConnected}" Margin="0,10,10,5"/>
-                            <!--<ContentControl Content="{Binding OxrmcConnected}" Margin="0,10,10,5"/>-->
-                        </StackPanel>
+                                <ContentControl Content="{Binding OxrmcConnected}" Margin="0,10,10,5"/>
+                            </StackPanel>
                     </StackPanel>
                     
                 </StackPanel>

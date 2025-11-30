@@ -43,7 +43,7 @@ namespace Microsoft.Extensions.DependencyInjection
             //.AddPluginsFrom<GamelinkPlugin>()
             .AddPlugin<GamelinkPlugin>()
             .AddPlugin<YawDevicePlugin>()
-            .AddPlugin<Roto2Plugin>()
+            .AddPlugin<RotoPlugin>()
             .AddPlugin<OxrmcPlugin>()
             //.AddScriptsFrom<RotoMCSender>()
             //.AddScript<Main>()
@@ -51,7 +51,7 @@ namespace Microsoft.Extensions.DependencyInjection
             //.AddScript<JoystickTest>()
             //.AddScript<UsbWatcherTest>()
             .AddPlugin<SpeechPlugin>()
-            .AddPlugin<Xbox360Plugin>()
+            //.AddPlugin<Xbox360Plugin>()
             .AddPlugin<UsbWatcherPlugin>()
             .Build();
 

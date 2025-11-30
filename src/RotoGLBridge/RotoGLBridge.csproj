@@ -9,6 +9,7 @@
 		<VersionPrefix>0.0.10</VersionPrefix>
 		<SharpieVersion>1.1.0</SharpieVersion>
 		<Platform>x64</Platform>
+		<LangVersion>latest</LangVersion>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -18,7 +19,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Compile Remove="Plugins\Roto\RotoPlugin.cs" />
+	  <Compile Remove="Plugins\Roto\RotoPluginOld.cs" />
 	  <Compile Remove="Scripts\Main.cs" />
 	</ItemGroup>
 
