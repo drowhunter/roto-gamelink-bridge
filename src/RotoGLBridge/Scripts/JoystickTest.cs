@@ -11,7 +11,7 @@ namespace RotoGLBridge.Scripts
     internal class JoystickTest(
         Xbox360GlobalIndexer xbox360,
         IConsoleWatcher cons,
-        Roto2PluginGlobal roto
+        RotoPluginGlobal roto
         ) : SharpieScript
     {
 

@@ -56,7 +56,7 @@ namespace Microsoft.Extensions.DependencyInjection
             .Build();
 
 
-            builder.Services.AddRotoUsb();
+            builder.Services.AddRotoUSB();
 
             //builder.Services.AddSingleton<TcpCommandFactory>();
             builder.Services.AddTransient<IByteConverter<YawGLData>, YawGLByteConverter>();

@@ -13,7 +13,7 @@ namespace RotoGLBridge.Scripts
     public class RotoScript(
         ILogger<RotoScript> logger,
         GamelinkGlobal gamelink,
-        Roto2PluginGlobal roto,
+        RotoPluginGlobal roto,
         YawDeviceGlobal tcpDevice,
         SpeechGlobal speech,
         OxrmcGlobal oxrmc,

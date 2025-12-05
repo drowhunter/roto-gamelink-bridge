@@ -9,7 +9,7 @@ using System.Reactive.Subjects;
 
 namespace RotoGLBridge.Plugins
 {
-    [GlobalType(Type = typeof(Roto2PluginGlobal))]
+    [GlobalType(Type = typeof(RotoPluginGlobal))]
     public class RotoPlugin(
         ILogger<RotoPlugin> logger,        
         IRotoChair rotoChair,
@@ -26,7 +26,7 @@ namespace RotoGLBridge.Plugins
 
         public RotoStatus State { get; private set; } = new RotoStatus();
 
-        public IObservable<string> Error { get; private set; }
+        public IObservable<int> Error { get; private set; }
 
         public override Task Start()
         {
@@ -34,12 +34,13 @@ namespace RotoGLBridge.Plugins
 
             rotoChair.LoadUSBLibrary();
 
-            Error = Observable.FromEvent<string>(
-                h => rotoChair.OnUsbError += h,
-                h => rotoChair.OnUsbError -= h
+            Error = Observable.FromEvent<RotoChair.ErrorModeHandler, int>(
+                handler => (errorMode) => handler(errorMode),
+                h => rotoChair.ErrorModeChanged += h,
+                h => rotoChair.ErrorModeChanged -= h
             );
 
-            rotoChair.OnUsbError += RotoChair_OnUsbError;
+            rotoChair.ErrorModeChanged += RotoChair_OnUsbError;
 
             rumbleService.RumbleEvent += (power, duration) =>
             {
@@ -51,10 +52,9 @@ namespace RotoGLBridge.Plugins
             return Task.CompletedTask;
         }
 
-        
-        public void RotoChair_OnUsbError(string errorMessage)
+        private void RotoChair_OnUsbError(int errorMode)
         {
-            logger.LogError("Roto Chair USB Error: {0}", errorMessage);
+            logger.LogError("Roto Chair USB Error: {0}", errorMode);
         }
 
         public override void Execute()
@@ -87,7 +87,24 @@ namespace RotoGLBridge.Plugins
         
         public void SetRunMode(RunMode mode)
         {
-            rotoChair.SetRunMode(mode);
+            switch (mode)
+            {
+                case RunMode.Idle:
+                    rotoChair.SetIdleMode();
+                    break;
+                case RunMode.Follow:
+                    rotoChair.SetObjectFollowMode();
+                    break;
+                case RunMode.Free:
+                    rotoChair.SetFreeMode();
+                    break;
+                case RunMode.Cockpit:
+                    rotoChair.SetCockpitMode(60);
+                    break;
+                
+                
+            }
+            //rotoChair.SetRunMode((byte)mode);
         }
 
         //public void SetPower(float amplitude)
@@ -107,7 +124,7 @@ namespace RotoGLBridge.Plugins
             rotoChair.Disconnect();
         }
 
-        internal void SetFollowDegree(int degree) => rotoChair.SetObjectFollowDegree(degree);
+        internal void SetFollowDegree(int degree) => rotoChair.SetObjectFollowDegree(degree, 50);
 
         /// <summary>
         /// Tell the chair to rumble
@@ -121,10 +138,10 @@ namespace RotoGLBridge.Plugins
 
     }
 
-    public class Roto2PluginGlobal : SharpieGlobal //UpdateablePluginGlobal
+    public class RotoPluginGlobal : SharpieGlobal //UpdateablePluginGlobal
                                                    <RotoPlugin>
     {
-        public IObservable<string> OnError => plugin.Error.DistinctUntilChanged();
+        public IObservable<int> OnError => plugin.Error.DistinctUntilChanged();
 
         #region  Exposed Properties
 
@@ -132,7 +149,7 @@ namespace RotoGLBridge.Plugins
 
         public RunMode RunMode
         {
-            get => plugin.State.RunMode;
+            get => (RunMode)plugin.State.RunMode;
             set => plugin.SetRunMode(value);
         }
 

@@ -29,7 +29,7 @@ namespace RotoGLBridge.UI.ViewModels
 
         private readonly ISharpieEngine sharpieEngine;
         private readonly RotoScript _rotoScript;
-        //private readonly Roto2PluginGlobal _rotoGlobal;
+        //private readonly RotoPluginGlobal _rotoGlobal;
 
         //private readonly RotoPluginGlobal _roto;
        
