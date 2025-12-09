@@ -42,9 +42,9 @@ namespace RotoGLBridge.Plugins
 
             rotoChair.ErrorModeChanged += RotoChair_OnUsbError;
 
-            rumbleService.RumbleEvent += (power, duration) =>
+            rumbleService.RumbleEvent += (rumble) =>
             {
-                rotoChair.SetRumble(power, (byte)duration);
+                rotoChair.SetRumble(rumble.power, (byte)rumble.durationMs);
             };
 
             rumbleService.Start();

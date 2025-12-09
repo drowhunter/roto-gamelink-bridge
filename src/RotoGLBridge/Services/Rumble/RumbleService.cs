@@ -10,16 +10,8 @@ using Sharpie.Helpers.Core.Extensions;
 
 namespace RotoGLBridge.Services
 {
-    public interface IRumbleService
-    {
-        event RumbleService.OnRumbleDelagate RumbleEvent;
 
-        void Rumble(int amplitude, int frequencyMs);
-        Task Start();
-        void Stop();
-    }
-
-    public struct Rumble
+    internal struct Rumble
     {
         public readonly int Power;
 
@@ -46,16 +38,13 @@ namespace RotoGLBridge.Services
         static object _lock = new object();
 
         ConcurrentQueue<Rumble> RumbleQueue = new ConcurrentQueue<Rumble>();
-        private readonly ILogger<RumbleService> _logger;
-
-        public delegate void OnRumbleDelagate(int power, int duration);
-
-        public event OnRumbleDelagate RumbleEvent;
+        
+        public event Action<(int power, int durationMs)> RumbleEvent;
 
 
-        public RumbleService(ILogger<RumbleService> logger)
+        public RumbleService()
         {
-            _logger = logger;
+           
         }
 
         public void Rumble(int amplitude, int frequencyMs)
@@ -92,7 +81,7 @@ namespace RotoGLBridge.Services
                     {
                         var (r, delay) = ProcessRumble(toProcess, RUMBLE_DURATION_MS);
 
-                        RumbleEvent?.Invoke(r.Power, r.Speed);
+                        RumbleEvent?.Invoke((r.Power, r.Speed));
 
                         await Task.Delay(delay);
                     }
