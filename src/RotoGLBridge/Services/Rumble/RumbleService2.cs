@@ -91,7 +91,7 @@ namespace RotoGLBridge.Services
 
         public override string ToString()
         {
-            return $"Amplitude: {amplitude}, Time: {time:}";
+            return $"Amplitude: {amplitude}, Time: {time:mm.ss.fff}";
         }
     }
 }
