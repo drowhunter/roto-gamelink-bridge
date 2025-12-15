@@ -7,7 +7,7 @@ namespace RotoGLBridge.Plugins.GameLink
     /// This plugin handles TCP comminication with GameLink
     /// </summary>
     [GlobalType(Type = typeof(YawDeviceGlobal))]
-    public class YawDevicePlugin() : UpdateablePlugin
+    public class YawvrTcpPlugin() : UpdateablePlugin
     {
         private TcpTelemetry<byte[]> tcp;
 
@@ -62,7 +62,7 @@ namespace RotoGLBridge.Plugins.GameLink
         }
     }
 
-    public class YawDeviceGlobal : UpdateablePluginGlobal<YawDevicePlugin>
+    public class YawDeviceGlobal : UpdateablePluginGlobal<YawvrTcpPlugin>
     {
         public byte Command => plugin.Data.FirstOrDefault();
 

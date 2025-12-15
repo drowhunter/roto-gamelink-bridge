@@ -66,7 +66,7 @@ namespace RotoGLBridge.Scripts
             
             followCalculator.Reset();
 
-            gamelink.OnUpdate += OnGameLinkUpdate;
+            gamelink.OnUpdate += OnUdpUpdate;
 
             usbWatcher.OnDeviceChange += OnUsbChange;
 
@@ -99,7 +99,7 @@ namespace RotoGLBridge.Scripts
 
         override public Task Stop()
         {
-            gamelink.OnUpdate -= OnGameLinkUpdate;
+            gamelink.OnUpdate -= OnUdpUpdate;
             
             usbWatcher.OnDeviceChange -= OnUsbChange;
 
@@ -115,12 +115,12 @@ namespace RotoGLBridge.Scripts
             return Task.CompletedTask;
         }
 
-        private void OnGameLinkUpdate()
+        private void OnUdpUpdate()
         {
             
             if (roto.IsConnected)
             {
-                roto.Yaw = followCalculator.Update(gamelink.Yaw, roto.Yaw).NewFollowAngle;                
+                roto.Yaw = gamelink.Yaw; //followCalculator.Update(gamelink.Yaw, roto.Yaw).NewFollowAngle;                
             }
             else
             {

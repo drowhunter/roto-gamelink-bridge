@@ -34,7 +34,7 @@ namespace RotoGLBridge.Plugins
     /// Provides motion data communication between games and the RotoVR device.
     /// </summary>
     [GlobalType(Type = typeof(GamelinkGlobal))]
-    public class GamelinkPlugin(
+    public class YawvrUdpPlugin(
         ILogger<GamelinkGlobal> logger,
         GamelinkSettings settings
         ) : UpdateablePlugin, IConfigurablePlugin<GamelinkSettings>
@@ -231,7 +231,7 @@ namespace RotoGLBridge.Plugins
     /// <summary>
     /// Global interface for the GameLink plugin, exposing motion data properties.
     /// </summary>
-    public class GamelinkGlobal : UpdateablePluginGlobal<GamelinkPlugin>
+    public class GamelinkGlobal : UpdateablePluginGlobal<YawvrUdpPlugin>
     {        
 
         /// <summary>

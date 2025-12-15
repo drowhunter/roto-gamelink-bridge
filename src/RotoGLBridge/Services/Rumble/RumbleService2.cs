@@ -65,33 +65,4 @@ namespace RotoGLBridge.Services
         }
     }
 
-    [DebuggerDisplay("{ToString()}")]
-    internal struct PowDur
-    {
-        public int durationMs;
-        public int power;
-
-        public override string ToString()
-        {
-            return $"Power: {power}, DurationMs: {durationMs}";
-        }
-    }
-
-    [DebuggerDisplay("{ToString()}")]
-    internal struct AmpTime
-    {
-        public float amplitude;
-        public DateTime time;
-
-        public AmpTime(float amp)
-        {
-            amplitude = amp;
-            time = DateTime.Now;
-        }
-
-        public override string ToString()
-        {
-            return $"Amplitude: {amplitude}, Time: {time:mm.ss.fff}";
-        }
-    }
 }

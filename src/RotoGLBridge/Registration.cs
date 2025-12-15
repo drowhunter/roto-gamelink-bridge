@@ -41,8 +41,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 setup.EnginePollInterval = (1000 / 90); // 90 FPS
             })
             //.AddPluginsFrom<GamelinkPlugin>()
-            .AddPlugin<GamelinkPlugin>()
-            .AddPlugin<YawDevicePlugin>()
+            .AddPlugin<YawvrUdpPlugin>()
+            .AddPlugin<YawvrTcpPlugin>()
             .AddPlugin<RotoPlugin>()
             .AddPlugin<OxrmcPlugin>()
             //.AddScriptsFrom<RotoMCSender>()
