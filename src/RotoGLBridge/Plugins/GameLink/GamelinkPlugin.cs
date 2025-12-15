@@ -240,44 +240,44 @@ namespace RotoGLBridge.Plugins
         public bool IsConnected =>  plugin.IsConnected;        
 
         /// <summary>
-        /// Gets the yaw rotation value from the current motion data.
+        /// Gets the Yaw rotation value from the current motion data.
         /// </summary>
-        public float yaw => plugin.Data.yaw;
+        public float Yaw => plugin.Data.yaw;
 
         /// <summary>
-        /// Gets the pitch rotation value from the current motion data.
+        /// Gets the Pitch rotation value from the current motion data.
         /// </summary>
-        public float pitch => plugin.Data.pitch;
+        public float Pitch => plugin.Data.pitch;
 
         /// <summary>
-        /// Gets the roll rotation value from the current motion data.
+        /// Gets the Roll rotation value from the current motion data.
         /// </summary>
-        public float roll => plugin.Data.roll;        
+        public float Roll => plugin.Data.roll;        
 
         /// <summary>
-        /// Gets the vibration rumblePeriod (Hz) value from the current motion data.
+        /// Gets the vibration hzIntervalMs (Hz) value from the current motion data.
         /// </summary>
-        public float hz => plugin.Data.hz;
+        public float Hz => plugin.Data.hz;
         
         /// <summary>
-        /// Gets the fanSpeed rumbleSpeed value from the current motion data.
+        /// Gets the fanPcercent hzPercent value from the current motion data.
         /// </summary>
-        public float fanSpeed => plugin.Data.fanSpeed;
+        public float FanPercent => plugin.Data.fanPcercent;
 
         /// <summary>
         /// Milliseconds between waves
         /// </summary>
-        public int rumblePeriod => plugin.Data.rumblePeriod;
+        public int HzIntervalMs => plugin.Data.hzIntervalMs;
 
         /// <summary>
         /// Gets the aplitude as a percentage from 0 - 100.
         /// </summary>
-        public float rumblePower => plugin.Data.rumblePower;
+        public float AmpPercent => plugin.Data.ampPercent;
 
         /// <summary>
-        /// RumbleSpeed as a percentage of its maximum value.
+        /// HzPercent as a percentage of its maximum value.
         /// </summary>
-        public float rumbleSpeed => plugin.Data.rumbleSpeed;
+        public float HzPercent => plugin.Data.hzPercent;
 
 
     }

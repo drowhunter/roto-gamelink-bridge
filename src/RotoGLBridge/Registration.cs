@@ -76,7 +76,8 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<ILerper, Lerper>();
             services.AddTransient<Stopwatch>();
 
-            services.AddTransient<IRumbleService, RumbleService2>();
+            services.AddTransient<IRumbleService, RumbleService>();
+            //services.AddTransient<IRumbleService, RumbleService2>();
 
             //services.AddSingleton<Roto>();
             services.AddTransient<MathService>();

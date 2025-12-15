@@ -39,9 +39,9 @@ namespace RotoGLBridge.Scripts
             }
         }
 
-        public float RumblePower { get; private set; }
+        public float AmpPercent { get; private set; }
 
-        public float RumbleSpeed { get; private set; }
+        public float HzPercent { get; private set; }
 
         public float Hertz { get; private set; }
 
@@ -120,24 +120,21 @@ namespace RotoGLBridge.Scripts
             
             if (roto.IsConnected)
             {
-                var result = followCalculator.Update(gamelink.yaw, roto.Yaw);
-                
-                roto.Yaw = result.NewFollowAngle;
-                
+                roto.Yaw = followCalculator.Update(gamelink.Yaw, roto.Yaw).NewFollowAngle;                
             }
             else
             {
-                Yaw = gamelink.yaw;               
+                Yaw = gamelink.Yaw;               
             }
 
-            RumblePower = gamelink.rumblePower;
-            RumbleSpeed = gamelink.rumbleSpeed;
-            Hertz = gamelink.hz;// != 0 ? Math.Clamp(gamelink.hz, 20, 100) : 0;
+            AmpPercent = gamelink.AmpPercent;
+            HzPercent = gamelink.HzPercent;
+            Hertz = gamelink.Hz;// != 0 ? Math.Clamp(gamelink.Hz, 20, 100) : 0;
             Runmode = roto.RunMode.ToString();
 
             
-            if (RumblePower > 0 || RumbleSpeed > 0)
-                roto.Vibrate((int)RumblePower, (int)RumbleSpeed);
+            if (AmpPercent > 0 || HzPercent > 0)
+                roto.Vibrate((int)AmpPercent, (int)HzPercent);
 
         }
 

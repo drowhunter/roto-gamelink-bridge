@@ -273,9 +273,15 @@ namespace rotoUSB
 
                 // Send disconnect USB command to stop write Timer
                 DisconnectRoto();
-
-                // close the USB connection
-                _usbNative.CloseUSBDevice(_usbDeviceW);
+                try 
+                { 
+                    // close the USB connection
+                    _usbNative.CloseUSBDevice(_usbDeviceW);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error closing write task: {ex.Message}");
+                }
             }
             _usbDeviceW = IntPtr.Zero;
         }
@@ -287,8 +293,14 @@ namespace rotoUSB
             Console.WriteLine("Close USB Read Task");
             if (_usbDeviceR != IntPtr.Zero)
             {
-                _ctsRead.Cancel();
-                _ctsRead.Dispose(); // Clean up
+                try {
+                    _ctsRead.Cancel();
+                    _ctsRead.Dispose(); // Clean up
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error closing read task: {ex.Message}");
+                }
             }
         }
 

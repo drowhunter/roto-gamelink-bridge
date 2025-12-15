@@ -143,8 +143,8 @@ namespace RotoGLBridge.UI.ViewModels
                 GamelinkConnected.IsConnected = _rotoScript.GamelinkIsConnected;
                 TcpConnected.IsConnected = _rotoScript.TcpIsConnected;
 
-                RumblePower = _rotoScript.RumblePower;
-                RumbleSpeed = _rotoScript.RumbleSpeed;
+                RumblePower = _rotoScript.AmpPercent;
+                RumbleSpeed = _rotoScript.HzPercent;
                 Hertz = _rotoScript.Hertz;
                 RunMode = _rotoScript.Runmode;
 

@@ -129,11 +129,11 @@ namespace RotoGLBridge.Plugins
         /// <summary>
         /// Tell the chair to rumble
         /// </summary>
-        /// <param name="power">a value between 0 and 100</param>
-        /// <param name="speed">a value in ms between 0 - 100</param>
-        public void Vibrate(int power, int speed)
+        /// <param name="ampPercent">a value between 0 and 100</param>
+        /// <param name="hzPercent">a value in ms between 0 - 100</param>
+        public void Vibrate(int ampPercent, int hzPercent)
         {
-            rumbleService.Rumble(power, speed);
+            rumbleService.Rumble(ampPercent, hzPercent);
         }
 
     }
@@ -171,7 +171,7 @@ namespace RotoGLBridge.Plugins
         internal void Disconnect() => plugin.Disconnect();
 
 
-        internal void Vibrate(int power, int speed) => plugin.Vibrate(power, speed);
+        internal void Vibrate(int ampPercent, int hzPercent) => plugin.Vibrate(ampPercent, hzPercent);
 
 
     }

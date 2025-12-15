@@ -20,7 +20,7 @@ namespace RotoGLBridge.Scripts
         public override async Task Start()
         {
             //roto.SetPower(1);
-            //await roto.SwitchModeAsync(ModeType.FollowObject, () => yaw);
+            //await roto.SwitchModeAsync(ModeType.FollowObject, () => Yaw);
 
             
         }

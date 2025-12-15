@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using RotoGLBridge.Extensions;
 
-using Sharpie.Helpers.Core;
-using Sharpie.Helpers.Core.Extensions;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 
 namespace RotoGLBridge.Services
 {
@@ -28,98 +23,68 @@ namespace RotoGLBridge.Services
         }
     }
 
-    public class RumbleService : IRumbleService
+    public class RumbleService : IRumbleService, IDisposable
     {
-
-        public int RUMBLE_DURATION_MS = 100; // milliseconds
-
-        CancellationTokenSource _cts;
-
-        static object _lock = new object();
-
-        ConcurrentQueue<Rumble> RumbleQueue = new ConcurrentQueue<Rumble>();
-        
         public event Action<(int power, int durationMs)> RumbleEvent;
 
 
-        public RumbleService()
-        {
-           
-        }
+        public int RUMBLE_DURATION_MS = 100; // milliseconds
 
-        public void Rumble(int amplitude, int frequencyMs)
-        {
-            var rumble = new Rumble(amplitude, frequencyMs);
+        private Subject<int> _amplitudeSubject = new();
 
-            lock (_lock)
-                RumbleQueue.Enqueue(rumble);
 
-        }
+        private IObservable<AmpTime> O_AmplitudeTime => _amplitudeSubject.Select(_ => new AmpTime { amplitude = _, time = DateTime.Now });
+
+        private IObservable<PowDur> O_PowerDuration => O_AmplitudeTime
+            .Pairwise()
+            .Select(_ => new PowDur((int)_.previous.amplitude, (int)(_.current.time - _.previous.time).TotalMilliseconds));            
+
+
+
+        /// <summary>
+        /// Emits <c>PowDur</c> items where consecutive power durations are accumulated until
+        /// the configured <see cref="RUMBLE_DURATION_MS"/> threshold is met or exceeded.
+        /// Once the threshold is reached, the accumulated duration is emitted with the latest power value,
+        /// and the accumulator is reset.
+        /// </summary>
+        private IObservable<PowDur> O_StackedPowerDuration => O_PowerDuration
+            .Scan((sum:0, emit: (PowDur?)null), (acc,curr) =>
+            {
+                var newSum = acc.sum + curr.durationMs;
+
+                if (newSum >= RUMBLE_DURATION_MS)
+                {
+                    var emit = new PowDur(curr.power, newSum);
+                    return (0, emit);
+                }
+                
+                return (newSum, null);
+                
+            })
+            .Where(_ => _.emit != null).Select(_ => _.emit!.Value);
+
+
+
+        public void Rumble(int amplitudePercent, int hzPercent)
+            =>  _amplitudeSubject.OnNext(amplitudePercent);
 
         public Task Start()
         {
-            _cts = new CancellationTokenSource();
+            O_StackedPowerDuration.Subscribe(pd => RumbleEvent?.Invoke((pd.power, pd.durationMs)));
 
-            return Task.Run(async () =>
-            {
-                Thread.CurrentThread.IsBackground = true;
-                Thread.CurrentThread.Name = "Rumble Service Thread";
-
-                while (!_cts.Token.IsCancellationRequested)
-                {
-                    var toProcess = new List<Rumble>();
-                    lock (_lock)
-                    {
-
-                        while (RumbleQueue.TryDequeue(out var rumble))
-                        {
-                            if(rumble.Power > 0)
-                                toProcess.Add(rumble);
-                        }
-                    }
-                    if (toProcess.Count > 0)
-                    {
-                        var (r, delay) = ProcessRumble(toProcess, RUMBLE_DURATION_MS);
-
-                        RumbleEvent?.Invoke((r.Power, r.Speed));
-
-                        await Task.Delay(delay);
-                    }
-                }
-            }, _cts.Token);
+            return Task.CompletedTask;
         }
 
-        private (Rumble rumble, int delay) ProcessRumble(List<Rumble> rumbles, int duration)
-        {
-            var p = rumbles.Select(r => r.Power).RootMeanSquared();
-
-            var s = (float)rumbles.Select(r => r.Speed).RootMeanSquared();
-
-
-
-            //  convert rumblePeriod into duration to pass to a pwm rumble motor
-
-            // _logger.LogDebug("Rumble Processed: Power={0}, Speed={1}", rumblePower, s);
-
-            int delay = (int) ( duration * ((100 - s) / 100));  // (int)Filters.EnsureMapRange(s, 0, 254, 0, duration);
-
-
-            return (new Rumble((int)p, duration), duration + 0);
-
-
-        }
-
-        private double Clamp(double value, double min, double max)
-        {
-            if (value < min) return min;
-            if (value > max) return max;
-            return value;
-        }
+        
 
         public void Stop()
         {
-            _cts.Cancel();
+            _amplitudeSubject.OnCompleted();
         }
 
+        public void Dispose()
+        {
+            ((IDisposable)_amplitudeSubject).Dispose();
+        }
     }
 }

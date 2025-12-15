@@ -12,7 +12,7 @@ namespace RotoGLBridge.Services
     }
     
     /// <summary>
-    /// Send yaw using roto tracker
+    /// Send Yaw using roto tracker
     /// </summary>
     public class RotoMCSender: IMmfSender
     {
