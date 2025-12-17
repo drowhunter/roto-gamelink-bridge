@@ -5,6 +5,7 @@ using RotoGLBridge.Services;
 using Sharpie.Plugins.Speech;
 using Sharpie.Plugins.UsbWatcher;
 
+using System.ComponentModel.DataAnnotations;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 
@@ -66,6 +67,13 @@ namespace RotoGLBridge.Scripts
             
             followCalculator.Reset();
 
+            
+            disposables.Add(followCalculator.OnAngleChangedObservable.Select(_ => MathF.Round(_.NewFollowAngle)).DistinctUntilChanged().Subscribe(angle =>
+            {
+                // update roto chair yaw when angle changes
+                roto.Yaw = angle;
+            }));
+
             gamelink.OnUpdate += OnUdpUpdate;
 
             usbWatcher.OnDeviceChange += OnUsbChange;
@@ -115,12 +123,14 @@ namespace RotoGLBridge.Scripts
             return Task.CompletedTask;
         }
 
+        
+
         private void OnUdpUpdate()
         {
             
             if (roto.IsConnected)
             {
-                roto.Yaw = gamelink.Yaw; //followCalculator.Update(gamelink.Yaw, roto.Yaw).NewFollowAngle;                
+                followCalculator.Update(gamelink.Yaw, roto.Yaw);                
             }
             else
             {

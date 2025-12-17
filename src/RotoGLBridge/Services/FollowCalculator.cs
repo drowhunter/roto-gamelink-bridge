@@ -14,7 +14,7 @@ namespace RotoGLBridge.Services
         /// <summary>
         /// Gets an observable sequence that notifies subscribers when the follow angle changes.
         /// </summary>
-        IObservable<FollowResult> NewFollowAngleChanged { get; }
+        IObservable<FollowResult> OnAngleChangedObservable { get; }
 
         /// <summary>
         /// Resets the setial target and follow angles to their default state.
@@ -62,11 +62,13 @@ namespace RotoGLBridge.Services
 
         private float? _initialFollowAngle = null;
 
-        private BehaviorSubject<FollowResult> _newFollowAngleSubject = new(null);
+        private BehaviorSubject<FollowResult> _angleChangedSubject = new(null);
 
-        public IObservable<FollowResult> NewFollowAngleChanged => _newFollowAngleSubject.AsObservable();
+        private DateTime _lastUpdated = DateTime.MinValue;
 
-        public float NewFollowAngle => _newFollowAngleSubject.Value.NewFollowAngle;
+        public IObservable<FollowResult> OnAngleChangedObservable => _angleChangedSubject.Skip(1).AsObservable();
+
+        public float NewFollowAngle => _angleChangedSubject.Value.NewFollowAngle;
 
         public FollowResult LastResult => _lastResult;
 
@@ -75,6 +77,7 @@ namespace RotoGLBridge.Services
         {
             _initialTargetAngle = null;
             _initialFollowAngle = null;
+            _lastUpdated = DateTime.Now;
         }
 
         private FollowResult _lastResult = new();
@@ -87,8 +90,14 @@ namespace RotoGLBridge.Services
                 _initialTargetAngle = targetAngle;
                 _initialFollowAngle = followAngle;
             }
-            
-            
+
+            bool targetUnchanged = (_lastResult?.CurrentTargetAngle != null && MathF.Abs(mathService.CalculateOffsetAngle(_lastResult.CurrentTargetAngle.Value , targetAngle)) < 1);
+            if (targetUnchanged)
+            {
+                HandleUnchanged();
+                return null;
+            }
+
             FollowResult result = new()
             {
                 InitialTargetAngle = _initialTargetAngle,
@@ -96,40 +105,42 @@ namespace RotoGLBridge.Services
                 CurrentTargetAngle = targetAngle,
                 CurrentFollowAngle = followAngle,
                 TargetOffset = mathService.CalculateOffsetAngle(_initialTargetAngle.Value, targetAngle),
-                FollowOffset = mathService.CalculateOffsetAngle(_initialFollowAngle.Value, followAngle),
+                FollowOffset = mathService.CalculateOffsetAngle(_initialFollowAngle.Value, followAngle),               
                 
-                NewFollowAngle = followAngle
             };
+            
 
             result.OffsetDifference = mathService.CalculateOffsetAngle(result.FollowOffset, result.TargetOffset);
 
-            if (Math.Abs(result.OffsetDifference) > 1)
+            if (MathF.Abs(result.OffsetDifference) < 1)
             {
-                result.NewFollowAngle = mathService.NormalizeAngle(followAngle + result.OffsetDifference);
-
-                if (_lastResult != result)
-                {
-                    _lastResult = result;
-                    _newFollowAngleSubject.OnNext(result);
-                    
-                }
+                result.NewFollowAngle = targetAngle;
+                HandleUnchanged();
             }
             else
             {
-                // TODO: If not difference track for an amount of time and then Reset.
-                if (_lastResult != result)
-                {
-
-                    _lastResult = result;
-                }
+                result.NewFollowAngle = mathService.NormalizeAngle(followAngle + result.OffsetDifference);
+                _angleChangedSubject.OnNext(result);
+                _lastUpdated = DateTime.Now;
+            }
+            
+            if (_lastResult != result)
+            {
+                _lastResult = result;
             }
 
-            
             return result;
 
         }
 
-
+        private void HandleUnchanged()
+        {
+            //Anti Jump
+            if (_initialTargetAngle.HasValue && _initialFollowAngle.HasValue && (DateTime.Now - _lastUpdated).TotalMilliseconds > 1000)
+            {
+                Reset();
+            }
+        }
 
 
     }
