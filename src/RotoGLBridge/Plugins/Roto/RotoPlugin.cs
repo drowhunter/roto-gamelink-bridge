@@ -124,7 +124,7 @@ namespace RotoGLBridge.Plugins
             rotoChair.Disconnect();
         }
 
-        internal void SetFollowDegree(int degree) => rotoChair.SetObjectFollowDegree(degree, 50);
+        internal void SetFollowDegree(int degree, int speed) => rotoChair.SetObjectFollowDegree(degree, 100);
 
         /// <summary>
         /// Tell the chair to rumble
@@ -154,13 +154,14 @@ namespace RotoGLBridge.Plugins
         }
 
         //public new RotoStatus State => plugin.State;
+        public int Power { get; set; } = 100;
 
         public float Yaw
         {
             get => (float)plugin.State.BaseDegree;
             set
             {
-                plugin.SetFollowDegree((int)value);
+                plugin.SetFollowDegree((int)value, this.Power);
             }
         }
 

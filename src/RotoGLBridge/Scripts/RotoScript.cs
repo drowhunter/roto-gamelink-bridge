@@ -58,6 +58,8 @@ namespace RotoGLBridge.Scripts
 
         public bool TcpIsConnected => tcpDevice.IsConnected;
 
+        public int Power { get; private set; } = 100;
+
         List<IDisposable> disposables = new();
 
         public override Task Start()
@@ -157,7 +159,9 @@ namespace RotoGLBridge.Scripts
             
             if (roto.IsConnected)
             {
+                roto.Power = this.Power;
                 Yaw = roto.Yaw;
+
             }
 
             EnableVoiceControl();
