@@ -504,7 +504,7 @@ namespace rotoUSB
 
             return success;
 
-        }
+       }
 
 
 
@@ -599,11 +599,18 @@ namespace rotoUSB
 
             _isReadingLoop = true;
             WriteLog($"USB baseReadLoop start");
-            while (_isReadingLoop && !token.IsCancellationRequested)
+            try
             {
-                ReadPacket(buffer, HID_REPORT_LEN);
+                while (_isReadingLoop && !token.IsCancellationRequested)
+                {
+                    ReadPacket(buffer, HID_REPORT_LEN);
+                }
+                WriteLog($"USB baseReadLoop closed normally. _isReadingLoop={_isReadingLoop}, IsCancellationRequested={token.IsCancellationRequested}");
             }
-            WriteLog($"USB baseReadLoop closed ");
+            catch (Exception ex)
+            {
+                WriteLog($"USB baseReadLoop exited due to exception: {ex}");
+            }
 
             // Disconnect USB device if possible
             _usbNative.CloseUSBDevice(_usbDeviceR);

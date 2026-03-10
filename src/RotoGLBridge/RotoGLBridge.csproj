@@ -57,4 +57,10 @@
 		</None>
 	</ItemGroup>
 
+	<ItemGroup>
+	  <PackageReference Update="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.3" />
+	  <PackageReference Update="Microsoft.Extensions.Logging.Abstractions" Version="10.0.3" />
+	  <PackageReference Update="MinVer" Version="7.0.0" />
+	</ItemGroup>
+
 </Project>

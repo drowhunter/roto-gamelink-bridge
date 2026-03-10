@@ -1,10 +1,12 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using RotoGLBridge.UI.Views;
-
+using Microsoft.Extensions.Logging;
 using RotoGLBridge.UI.ViewModels;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Threading;
+using NLog;
+using NLog.Extensions.Logging;
 
 namespace RotoGLBridge.UI
 {
@@ -15,7 +17,7 @@ namespace RotoGLBridge.UI
     {
         //private readonly ServiceProvider _serviceProvider;
         public static ServiceProvider ServiceProvider;
-        private ILogger<App> _logger;
+        private Microsoft.Extensions.Logging.ILogger<App> _logger;
         private ISharpieEngine _engine;
 
         CancellationTokenSource _cts = new();
@@ -31,8 +33,15 @@ namespace RotoGLBridge.UI
 
             ConfigureServices(services);
             ServiceProvider = services.BuildServiceProvider();
-            _logger = ServiceProvider.GetRequiredService<ILogger<App>>();
+
+            // Configure NLog
+            var loggerFactory = ServiceProvider.GetRequiredService<ILoggerFactory>();
+            loggerFactory.AddNLog();
+
+            _logger = ServiceProvider.GetRequiredService<Microsoft.Extensions.Logging.ILogger<App>>();
             _engine = ServiceProvider.GetRequiredService<ISharpieEngine>();
+
+            _logger.LogInformation("Application started");
         }
 
         protected override void OnStartup(StartupEventArgs e)
@@ -93,10 +102,10 @@ namespace RotoGLBridge.UI
         {
             services.AddLogging(b =>
               {
-                  b.AddFilter("Microsoft", LogLevel.Warning)
-                   .AddFilter("System", LogLevel.Warning)
-                   //.AddFilter("Sharpie", LogLevel.Debug)
-                   .AddFilter("RotoGLBridge", LogLevel.Debug);
+                  b.AddFilter("Microsoft", Microsoft.Extensions.Logging.LogLevel.Warning)
+                   .AddFilter("System", Microsoft.Extensions.Logging.LogLevel.Warning)
+                   //.AddFilter("Sharpie", Microsoft.Extensions.Logging.LogLevel.Debug)
+                   .AddFilter("RotoGLBridge", Microsoft.Extensions.Logging.LogLevel.Debug);
               });
 
             services.AddSingleton<MainWindow>();
@@ -108,6 +117,8 @@ namespace RotoGLBridge.UI
 
         protected override void OnExit(ExitEventArgs e)
         {
+            _logger?.LogInformation("Application exiting");
+            LogManager.Shutdown(); // Flush and close NLog
             ServiceProvider?.Dispose();
             base.OnExit(e);
         }
