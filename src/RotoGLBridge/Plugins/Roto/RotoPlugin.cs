@@ -124,7 +124,7 @@ namespace RotoGLBridge.Plugins
             rotoChair.Disconnect();
         }
 
-        internal void SetFollowDegree(int degree, int speed) => rotoChair.SetObjectFollowDegree(degree, 100);
+        internal void SetFollowDegree(int degree, int speed) => rotoChair.SetObjectFollowDegree(degree, speed);
 
         /// <summary>
         /// Tell the chair to rumble

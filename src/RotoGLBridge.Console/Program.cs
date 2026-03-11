@@ -4,7 +4,6 @@
 using RotoGLBridge.ConsoleApp;
 using RotoGLBridge.Models;
 using RotoGLBridge.Services;
-
 using Sharpie.Helpers.Telemetry;
 
 
@@ -29,15 +28,10 @@ AppDomain.CurrentDomain.UnhandledException += (s, e) =>
 //_ = RunTestAsync(cts.Token);
 //return;
 
-var services = new ServiceCollection();
-var serviceProvider = ConfigureServices(services);
-serviceProvider.GetRequiredService<App>().Run(cts.Token);
-
 await WaitForCtrlQ(cts);
 
-
 //Console.ReadLine();
-Environment.Exit(0);
+//Environment.Exit(0);
 
 ServiceProvider ConfigureServices(IServiceCollection services)
 {

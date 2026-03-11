@@ -151,18 +151,18 @@ namespace RotoGLBridge.UI.ViewModels
                 Hertz = _rotoScript.Hertz;
                 RunMode = _rotoScript.Runmode;
 
-                /*
+                
                 if (RotoConnected.IsConnected || GamelinkConnected.IsConnected || TcpConnected.IsConnected)
                 {
-                    Power = _rotoScript.Power;
+                //    Power = _rotoScript.Power;
                     Yaw = -_rotoScript.Yaw;
-                   SliderEnabled = false;
+                  // SliderEnabled = false;
                 } 
                 else
                 {
-                    SliderEnabled = true;
+                    //SliderEnabled = true;
                 }
-                */
+                
                 rumbleview.RumblePower = RumblePower;
                 rumbleview.RumbleSpeed = RumbleSpeed;
                 

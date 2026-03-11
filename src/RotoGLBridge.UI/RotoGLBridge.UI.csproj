@@ -7,7 +7,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
 	<LangVersion>preview</LangVersion>
-	<Platforms>AnyCPU;x64</Platforms>
+	<Platforms>x64</Platforms>
 	  <!--<ProductVersion>1.1.0.0</ProductVersion>
 	<AssemblyVersion>$(ProductVersion)</AssemblyVersion>
 	<FileVersion>$(ProductVersion)</FileVersion>-->

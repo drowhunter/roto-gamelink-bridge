@@ -25,7 +25,7 @@ This document tracks the execution of upgrading RotoGLBridge.UI from .NET 8.0 to
 
 ---
 
-### [⊘] TASK-002: Run test suite and validate upgrade
+### [▶] TASK-002: Run test suite and validate upgrade
 **References**: Plan §Phase 2 Testing
 
 - [ ] (1) Run tests in RotoGLBridge.Tests project
@@ -35,14 +35,12 @@ This document tracks the execution of upgrading RotoGLBridge.UI from .NET 8.0 to
 
 ---
 
-### [▶] TASK-003: Final commit
+### [ ] TASK-003: Final commit
 **References**: Plan §Source Control Strategy
 
 - [ ] (1) Commit all changes with message: "Upgrade RotoGLBridge.UI to .NET 10 LTS - Framework: net8.0-windows → net10.0-windows - Packages: Microsoft.Extensions.* 10.0.3 → 10.0.4 - All tests pass, application validated"
 
 ---
-
-
 
 
 
