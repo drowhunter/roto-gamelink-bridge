@@ -29,6 +29,7 @@ namespace rotoUSB
         private IUSBNative _usbNative;
 
         public bool _isConsoleDebug = false;
+        private Thread _readThread;
 
         // =============== Constant ===============
         // Constant for  Roto VR Chair Run Mode status 
@@ -115,7 +116,21 @@ namespace rotoUSB
         // =============== Threading ===============
         // Read USB thread
         private CancellationTokenSource _ctsRead = null;
-        private bool _isReadingLoop = false;
+        private bool __isReadingLoop = false;
+
+        private bool _isReadingLoop
+        {
+            get
+            {
+                return __isReadingLoop;
+            }
+
+            set
+            {
+                if(__isReadingLoop != value) 
+                    __isReadingLoop = value;
+            }
+        }
 
         private byte[] _usbReadPacket = new byte[ROTO_PACKET_LEN];
         private bool _isPacketInit = false;
@@ -352,17 +367,15 @@ namespace rotoUSB
 
                 stopwatch = Stopwatch.StartNew();
 
-                //_readThread = new Thread(baseReadLoop);
-                // _readThread.Start();
+                _readThread = new Thread(ReadLoopOG);
+                _readThread.Start();
 
                 // Create new reading task
                 _ctsRead = new CancellationTokenSource();
                 // Start the reading loop in a background task
-                Task.Run(() => { 
-                    Thread.CurrentThread.IsBackground = true;
-                    Thread.CurrentThread.Name = "RotoChair USB Read Thread";
-                    ReadLoop(_ctsRead.Token);
-                });
+                //Task.Run(() => { 
+                //    ReadLoop(_ctsRead.Token);
+                //});
 
 
                 Thread.Sleep(10);
@@ -572,15 +585,15 @@ namespace rotoUSB
             {
                 WriteLog("Error: " + GetUSBError());
 
-                // if write error, stop read/write thread
-                _writeTimer.Stop();
-                _usbDeviceW = IntPtr.Zero;
-                _isReadingLoop = false;
+                //// if write error, stop read/write thread
+                //_writeTimer.Stop();
+                //_usbDeviceW = IntPtr.Zero;
+                //_isReadingLoop = false;
 
-                lock (_statusLock)
-                {
-                    _rotoStatus.USBConnected = false;
-                }
+                //lock (_statusLock)
+                //{
+                //    _rotoStatus.USBConnected = false;
+                //}
 
             }
 
@@ -588,22 +601,38 @@ namespace rotoUSB
         }
 
 
-
+        private void ReadLoopOG()
+        {
+            ReadLoop();
+        }
 
 
 
         // Reads USB packets in a loop
-        private void ReadLoop(CancellationToken token)
+        private void ReadLoop(CancellationToken token = default)
         {
+            Thread.CurrentThread.IsBackground = true;
+            Thread.CurrentThread.Name = "RotoChair USB Read Thread";
+
             byte[] buffer = new byte[HID_REPORT_LEN];
 
             _isReadingLoop = true;
             WriteLog($"USB baseReadLoop start");
             try
             {
-                while (_isReadingLoop && !token.IsCancellationRequested)
+                if (token != default)
                 {
-                    ReadPacket(buffer, HID_REPORT_LEN);
+                    while (_isReadingLoop && !token.IsCancellationRequested)
+                    {
+                        ReadPacket(buffer, HID_REPORT_LEN);
+                    }
+                } 
+                else
+                {
+                    while (_isReadingLoop)
+                    {
+                        ReadPacket(buffer, HID_REPORT_LEN);
+                    }
                 }
                 WriteLog($"USB baseReadLoop closed normally. _isReadingLoop={_isReadingLoop}, IsCancellationRequested={token.IsCancellationRequested}");
             }

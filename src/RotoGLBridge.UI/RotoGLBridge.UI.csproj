@@ -71,6 +71,9 @@
     <None Update="assets\roto2\chair.obj">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="NLog.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 	<ItemGroup>
 		<None Remove="**/*.bak" />
