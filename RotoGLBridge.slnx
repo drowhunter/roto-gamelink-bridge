@@ -8,44 +8,31 @@
     <Project Path="sharpie/src/Plugins/Sharpie.Plugins.SharpDX/Sharpie.Plugins.SharpDX.csproj">
       <Platform Solution="Debug|*" Project="x64" />
       <Platform Solution="Release|*" Project="x64" />
-      <Build Solution="Debug|*" Project="false" />
-      <Build Solution="Release|*" Project="false" />
     </Project>
     <Project Path="sharpie/src/Plugins/Sharpie.Plugins.Speech/Sharpie.Plugins.Speech.csproj">
       <Platform Solution="Debug|*" Project="x64" />
       <Platform Solution="Release|*" Project="x64" />
-      <Build Solution="Debug|*" Project="false" />
-      <Build Solution="Release|*" Project="false" />
     </Project>
     <Project Path="sharpie/src/Plugins/Sharpie.Plugins.UsbWatcher/Sharpie.Plugins.UsbWatcher.csproj">
       <Platform Solution="Debug|*" Project="x64" />
       <Platform Solution="Release|*" Project="x64" />
-      <Build Solution="Debug|*" Project="false" />
-      <Build Solution="Release|*" Project="false" />
     </Project>
   </Folder>
   <Folder Name="/Sharpie/">
     <Project Path="sharpie/src/Sharpie/Sharpie.Engine.Contracts/Sharpie.Engine.Contracts.csproj">
       <Platform Solution="Debug|*" Project="x64" />
       <Platform Solution="Release|*" Project="x64" />
-      <Build Solution="Debug|*" Project="false" />
-      <Build Solution="Release|*" Project="false" />
     </Project>
     <Project Path="sharpie/src/Sharpie/Sharpie.Engine/Sharpie.Engine.csproj">
       <Platform Solution="Debug|*" Project="x64" />
       <Platform Solution="Release|*" Project="x64" />
-      <Build Solution="Debug|*" Project="false" />
-      <Build Solution="Release|*" Project="false" />
     </Project>
     <Project Path="sharpie/src/Sharpie/Sharpie.Helpers.Core/Sharpie.Helpers.Core.csproj">
       <Platform Project="x64" />
-      <Build Solution="Release|*" Project="false" />
     </Project>
     <Project Path="sharpie/src/Sharpie/Sharpie.Helpers.Telemetry/Sharpie.Helpers.Telemetry.csproj">
       <Platform Solution="Debug|*" Project="x64" />
       <Platform Solution="Release|*" Project="x64" />
-      <Build Solution="Debug|*" Project="false" />
-      <Build Solution="Release|*" Project="false" />
     </Project>
   </Folder>
   <Folder Name="/SolutionItems/">
@@ -53,7 +40,6 @@
   </Folder>
   <Project Path="src/RotoGLBridge.Console/RotoGLBridge.ConsoleApp.csproj">
     <Platform Project="x64" />
-    <Build Solution="Debug|*" Project="false" />
   </Project>
   <Project Path="src/RotoGLBridge.Tests/RotoGLBridge.Tests.csproj" />
   <Project Path="src/RotoGLBridge.UI/RotoGLBridge.UI.csproj">

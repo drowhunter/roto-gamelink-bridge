@@ -34,10 +34,6 @@ namespace RotoGLBridge.UI
             ConfigureServices(services);
             ServiceProvider = services.BuildServiceProvider();
 
-            // Configure NLog
-            var loggerFactory = ServiceProvider.GetRequiredService<ILoggerFactory>();
-            loggerFactory.AddNLog();
-
             _logger = ServiceProvider.GetRequiredService<Microsoft.Extensions.Logging.ILogger<App>>();
             _engine = ServiceProvider.GetRequiredService<ISharpieEngine>();
 
@@ -105,7 +101,8 @@ namespace RotoGLBridge.UI
                   b.AddFilter("Microsoft", Microsoft.Extensions.Logging.LogLevel.Warning)
                    .AddFilter("System", Microsoft.Extensions.Logging.LogLevel.Warning)
                    //.AddFilter("Sharpie", Microsoft.Extensions.Logging.LogLevel.Debug)
-                   .AddFilter("RotoGLBridge", Microsoft.Extensions.Logging.LogLevel.Debug);
+                   .AddFilter("RotoGLBridge", Microsoft.Extensions.Logging.LogLevel.Debug)
+                   .AddNLog(); // Configure NLog
               });
 
             services.AddSingleton<MainWindow>();

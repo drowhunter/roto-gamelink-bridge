@@ -123,7 +123,7 @@ async Task RunTestAsync(CancellationToken cancellationToken = default)
 
                     Console.WriteLine($"Sending angle: -(norm({angle}° - 20)) = {na} ");
 
-                    flypt.Send(na);
+                    flypt.Send(new SixDofTracker { yaw = na });
                 }
                 else
                 {

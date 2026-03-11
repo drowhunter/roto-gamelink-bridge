@@ -1,0 +1,592 @@
+{
+  "settings": {
+    "components": {
+      "code": true,
+      "binaries": false
+    },
+    "targetId": "net10.0",
+    "targetDisplayName": ".NETCoreApp,Version=v10.0"
+  },
+  "analysisStartTime": "2026-03-11T03:14:03.7501877Z",
+  "analysisEndTime": "2026-03-11T03:14:08.1340225Z",
+  "privacyModeHelpUrl": "https://go.microsoft.com/fwlink/?linkid=2270980",
+  "stats": {
+    "summary": {
+      "projects": 12,
+      "issues": 3,
+      "incidents": 7,
+      "effort": 7
+    },
+    "charts": {
+      "severity": {
+        "Mandatory": 3,
+        "Optional": 0,
+        "Potential": 4,
+        "Information": 0
+      },
+      "category": {
+        "NuGet": 6,
+        "Project": 1
+      }
+    }
+  },
+  "projects": [
+    {
+      "path": "src\\RotoGLBridge.Console\\RotoGLBridge.ConsoleApp.csproj",
+      "startingProject": true,
+      "issues": 0,
+      "storyPoints": 0,
+      "properties": {
+        "appName": "RotoGLBridge.ConsoleApp",
+        "projectKind": "DotNetCoreApp",
+        "frameworks": [
+          "net10.0-windows"
+        ],
+        "languages": [
+          "C#"
+        ],
+        "tools": [
+          "MSBuild"
+        ],
+        "isSdkStyle": true,
+        "numberOfFiles": 5,
+        "numberOfCodeFiles": 5,
+        "linesTotal": 359,
+        "linesOfCode": 359,
+        "totalApiScanned": 0,
+        "minLinesOfCodeToChange": 0,
+        "maxLinesOfCodeToChange": 0
+      },
+      "ruleInstances": [],
+      "features": []
+    },
+    {
+      "path": "src\\RotoGLBridge\\RotoGLBridge.csproj",
+      "startingProject": true,
+      "issues": 0,
+      "storyPoints": 0,
+      "properties": {
+        "appName": "RotoGLBridge",
+        "projectKind": "ClassLibrary",
+        "frameworks": [
+          "net10.0-windows"
+        ],
+        "languages": [
+          "C#"
+        ],
+        "tools": [
+          "MSBuild"
+        ],
+        "isSdkStyle": true,
+        "numberOfFiles": 27,
+        "numberOfCodeFiles": 27,
+        "linesTotal": 2147,
+        "linesOfCode": 2147,
+        "totalApiScanned": 0,
+        "minLinesOfCodeToChange": 0,
+        "maxLinesOfCodeToChange": 0
+      },
+      "ruleInstances": [],
+      "features": []
+    },
+    {
+      "path": "src\\RotoGLBridge.Tests\\RotoGLBridge.Tests.csproj",
+      "startingProject": true,
+      "issues": 0,
+      "storyPoints": 0,
+      "properties": {
+        "appName": "RotoGLBridge.Tests",
+        "projectKind": "DotNetCoreApp",
+        "frameworks": [
+          "net10.0-windows"
+        ],
+        "languages": [
+          "C#"
+        ],
+        "tools": [
+          "MSBuild"
+        ],
+        "isSdkStyle": true,
+        "numberOfFiles": 5,
+        "numberOfCodeFiles": 3,
+        "linesTotal": 3120,
+        "linesOfCode": 477,
+        "totalApiScanned": 0,
+        "minLinesOfCodeToChange": 0,
+        "maxLinesOfCodeToChange": 0
+      },
+      "ruleInstances": [],
+      "features": []
+    },
+    {
+      "path": "src\\RotoGLBridge.UI\\RotoGLBridge.UI.csproj",
+      "startingProject": true,
+      "issues": 3,
+      "storyPoints": 7,
+      "properties": {
+        "appName": "RotoGLBridge.UI",
+        "projectKind": "Wpf",
+        "frameworks": [
+          "net8.0-windows"
+        ],
+        "languages": [
+          "C#"
+        ],
+        "tools": [
+          "MSBuild"
+        ],
+        "isSdkStyle": true,
+        "numberOfFiles": 16,
+        "numberOfCodeFiles": 12,
+        "linesTotal": 20908,
+        "linesOfCode": 895,
+        "totalApiScanned": 0,
+        "minLinesOfCodeToChange": 0,
+        "maxLinesOfCodeToChange": 0
+      },
+      "ruleInstances": [
+        {
+          "incidentId": "c706ff10-bb21-48c7-9cf5-554b6376a015",
+          "ruleId": "NuGet.0002",
+          "projectPath": "src\\RotoGLBridge.UI\\RotoGLBridge.UI.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "Microsoft.Extensions.DependencyInjection.Abstractions, 10.0.3\n\nRecommendation:\n\nRemove Microsoft.Extensions.DependencyInjection.Abstractions, and replace with new package Microsoft.Extensions.DependencyInjection.Abstractions 10.0.4",
+              "protected": "Microsoft.Extensions.DependencyInjection.Abstractions, 10.0.3\n\nRecommendation:\n\nRemove Microsoft.Extensions.DependencyInjection.Abstractions, and replace with new package Microsoft.Extensions.DependencyInjection.Abstractions 10.0.4"
+            },
+            "kind": "File",
+            "path": "src\\RotoGLBridge.UI\\RotoGLBridge.UI.csproj",
+            "snippet": "Microsoft.Extensions.DependencyInjection.Abstractions, 10.0.3\n\nRecommendation:\n\nRemove Microsoft.Extensions.DependencyInjection.Abstractions, and replace with new package Microsoft.Extensions.DependencyInjection.Abstractions 10.0.4",
+            "protectedSnippet": "Microsoft.Extensions.DependencyInjection.Abstractions, 10.0.3\n\nRecommendation:\n\nRemove Microsoft.Extensions.DependencyInjection.Abstractions, and replace with new package Microsoft.Extensions.DependencyInjection.Abstractions 10.0.4",
+            "label": "Microsoft.Extensions.DependencyInjection.Abstractions 10.0.3",
+            "properties": {
+              "PackageId": "Microsoft.Extensions.DependencyInjection.Abstractions",
+              "PackageVersion": "10.0.3",
+              "PackageNewVersion": "10.0.4",
+              "PackageReplacements": null
+            }
+          }
+        },
+        {
+          "incidentId": "34202f60-620e-4ce6-8dd9-1b9ee709fa79",
+          "ruleId": "NuGet.0002",
+          "projectPath": "src\\RotoGLBridge.UI\\RotoGLBridge.UI.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "Microsoft.Extensions.Logging.Abstractions, 10.0.3\n\nRecommendation:\n\nRemove Microsoft.Extensions.Logging.Abstractions, and replace with new package Microsoft.Extensions.Logging.Abstractions 10.0.4",
+              "protected": "Microsoft.Extensions.Logging.Abstractions, 10.0.3\n\nRecommendation:\n\nRemove Microsoft.Extensions.Logging.Abstractions, and replace with new package Microsoft.Extensions.Logging.Abstractions 10.0.4"
+            },
+            "kind": "File",
+            "path": "src\\RotoGLBridge.UI\\RotoGLBridge.UI.csproj",
+            "snippet": "Microsoft.Extensions.Logging.Abstractions, 10.0.3\n\nRecommendation:\n\nRemove Microsoft.Extensions.Logging.Abstractions, and replace with new package Microsoft.Extensions.Logging.Abstractions 10.0.4",
+            "protectedSnippet": "Microsoft.Extensions.Logging.Abstractions, 10.0.3\n\nRecommendation:\n\nRemove Microsoft.Extensions.Logging.Abstractions, and replace with new package Microsoft.Extensions.Logging.Abstractions 10.0.4",
+            "label": "Microsoft.Extensions.Logging.Abstractions 10.0.3",
+            "properties": {
+              "PackageId": "Microsoft.Extensions.Logging.Abstractions",
+              "PackageVersion": "10.0.3",
+              "PackageNewVersion": "10.0.4",
+              "PackageReplacements": null
+            }
+          }
+        },
+        {
+          "incidentId": "215a490e-cdb0-489a-b2ba-24793903381b",
+          "ruleId": "NuGet.0001",
+          "projectPath": "src\\RotoGLBridge.UI\\RotoGLBridge.UI.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "MaterialDesignThemes, 5.3.0\n\nRecommendation:\n\nMaterialDesignThemes, 5.2.1",
+              "protected": "MaterialDesignThemes, 5.3.0\n\nRecommendation:\n\nMaterialDesignThemes, 5.2.1"
+            },
+            "kind": "File",
+            "path": "src\\RotoGLBridge.UI\\RotoGLBridge.UI.csproj",
+            "snippet": "MaterialDesignThemes, 5.3.0\n\nRecommendation:\n\nMaterialDesignThemes, 5.2.1",
+            "protectedSnippet": "MaterialDesignThemes, 5.3.0\n\nRecommendation:\n\nMaterialDesignThemes, 5.2.1",
+            "label": "MaterialDesignThemes 5.3.0",
+            "properties": {
+              "PackageId": "MaterialDesignThemes",
+              "PackageVersion": "5.3.0",
+              "PackageNewVersion": "5.2.1",
+              "PackageReplacements": null
+            }
+          }
+        },
+        {
+          "incidentId": "12995df9-3659-44fa-9316-fbbaa5b3b050",
+          "ruleId": "NuGet.0002",
+          "projectPath": "src\\RotoGLBridge.UI\\RotoGLBridge.UI.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "Microsoft.Extensions.DependencyInjection, 10.0.3\n\nRecommendation:\n\nRemove Microsoft.Extensions.DependencyInjection, and replace with new package Microsoft.Extensions.DependencyInjection 10.0.4",
+              "protected": "Microsoft.Extensions.DependencyInjection, 10.0.3\n\nRecommendation:\n\nRemove Microsoft.Extensions.DependencyInjection, and replace with new package Microsoft.Extensions.DependencyInjection 10.0.4"
+            },
+            "kind": "File",
+            "path": "src\\RotoGLBridge.UI\\RotoGLBridge.UI.csproj",
+            "snippet": "Microsoft.Extensions.DependencyInjection, 10.0.3\n\nRecommendation:\n\nRemove Microsoft.Extensions.DependencyInjection, and replace with new package Microsoft.Extensions.DependencyInjection 10.0.4",
+            "protectedSnippet": "Microsoft.Extensions.DependencyInjection, 10.0.3\n\nRecommendation:\n\nRemove Microsoft.Extensions.DependencyInjection, and replace with new package Microsoft.Extensions.DependencyInjection 10.0.4",
+            "label": "Microsoft.Extensions.DependencyInjection 10.0.3",
+            "properties": {
+              "PackageId": "Microsoft.Extensions.DependencyInjection",
+              "PackageVersion": "10.0.3",
+              "PackageNewVersion": "10.0.4",
+              "PackageReplacements": null
+            }
+          }
+        },
+        {
+          "incidentId": "dc3ffa6f-a1a0-4128-84da-5d824ec8554b",
+          "ruleId": "NuGet.0002",
+          "projectPath": "src\\RotoGLBridge.UI\\RotoGLBridge.UI.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "Microsoft.Extensions.Logging, 10.0.3\n\nRecommendation:\n\nRemove Microsoft.Extensions.Logging, and replace with new package Microsoft.Extensions.Logging 10.0.4",
+              "protected": "Microsoft.Extensions.Logging, 10.0.3\n\nRecommendation:\n\nRemove Microsoft.Extensions.Logging, and replace with new package Microsoft.Extensions.Logging 10.0.4"
+            },
+            "kind": "File",
+            "path": "src\\RotoGLBridge.UI\\RotoGLBridge.UI.csproj",
+            "snippet": "Microsoft.Extensions.Logging, 10.0.3\n\nRecommendation:\n\nRemove Microsoft.Extensions.Logging, and replace with new package Microsoft.Extensions.Logging 10.0.4",
+            "protectedSnippet": "Microsoft.Extensions.Logging, 10.0.3\n\nRecommendation:\n\nRemove Microsoft.Extensions.Logging, and replace with new package Microsoft.Extensions.Logging 10.0.4",
+            "label": "Microsoft.Extensions.Logging 10.0.3",
+            "properties": {
+              "PackageId": "Microsoft.Extensions.Logging",
+              "PackageVersion": "10.0.3",
+              "PackageNewVersion": "10.0.4",
+              "PackageReplacements": null
+            }
+          }
+        },
+        {
+          "incidentId": "4f831d59-d72d-45a2-bb48-396147f4fd5c",
+          "ruleId": "NuGet.0001",
+          "projectPath": "src\\RotoGLBridge.UI\\RotoGLBridge.UI.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "ScottPlot.WPF, 5.1.57\n\nRecommendation:\n\nScottPlot.WPF, 4.1.73",
+              "protected": "ScottPlot.WPF, 5.1.57\n\nRecommendation:\n\nScottPlot.WPF, 4.1.73"
+            },
+            "kind": "File",
+            "path": "src\\RotoGLBridge.UI\\RotoGLBridge.UI.csproj",
+            "snippet": "ScottPlot.WPF, 5.1.57\n\nRecommendation:\n\nScottPlot.WPF, 4.1.73",
+            "protectedSnippet": "ScottPlot.WPF, 5.1.57\n\nRecommendation:\n\nScottPlot.WPF, 4.1.73",
+            "label": "ScottPlot.WPF 5.1.57",
+            "properties": {
+              "PackageId": "ScottPlot.WPF",
+              "PackageVersion": "5.1.57",
+              "PackageNewVersion": "4.1.73",
+              "PackageReplacements": null
+            }
+          }
+        },
+        {
+          "incidentId": "ee319e57-877a-4a3e-8e2d-2d8b7807af15",
+          "ruleId": "Project.0002",
+          "projectPath": "src\\RotoGLBridge.UI\\RotoGLBridge.UI.csproj",
+          "state": "Active",
+          "location": {
+            "snippetModel": {
+              "unrestricted": "Current target framework: net8.0-windows\nRecommended target framework: net10.0-windows",
+              "protected": "Current target framework: net8.0-windows\nRecommended target framework: net10.0-windows"
+            },
+            "kind": "File",
+            "path": "src\\RotoGLBridge.UI\\RotoGLBridge.UI.csproj",
+            "snippet": "Current target framework: net8.0-windows\nRecommended target framework: net10.0-windows",
+            "protectedSnippet": "Current target framework: net8.0-windows\nRecommended target framework: net10.0-windows",
+            "properties": {
+              "CurrentTargetFramework": "net8.0-windows",
+              "RecommendedTargetFramework": "net10.0-windows"
+            }
+          }
+        }
+      ],
+      "features": []
+    },
+    {
+      "path": "src\\RotoUSB\\rotoUSB.csproj",
+      "startingProject": true,
+      "issues": 0,
+      "storyPoints": 0,
+      "properties": {
+        "appName": "rotoUSB",
+        "projectKind": "ClassLibrary",
+        "frameworks": [
+          "net10.0"
+        ],
+        "languages": [
+          "C#"
+        ],
+        "tools": [
+          "MSBuild"
+        ],
+        "isSdkStyle": true,
+        "numberOfFiles": 12,
+        "numberOfCodeFiles": 12,
+        "linesTotal": 1818,
+        "linesOfCode": 1818,
+        "totalApiScanned": 0,
+        "minLinesOfCodeToChange": 0,
+        "maxLinesOfCodeToChange": 0
+      },
+      "ruleInstances": [],
+      "features": []
+    },
+    {
+      "path": "sharpie\\src\\Sharpie\\Sharpie.Engine.Contracts\\Sharpie.Engine.Contracts.csproj",
+      "startingProject": true,
+      "issues": 0,
+      "storyPoints": 0,
+      "properties": {
+        "appName": "Sharpie.Engine.Contracts",
+        "projectKind": "ClassLibrary",
+        "frameworks": [
+          "net10.0-windows"
+        ],
+        "languages": [
+          "C#"
+        ],
+        "tools": [
+          "MSBuild"
+        ],
+        "isSdkStyle": true,
+        "numberOfFiles": 16,
+        "numberOfCodeFiles": 16,
+        "linesTotal": 588,
+        "linesOfCode": 588,
+        "totalApiScanned": 0,
+        "minLinesOfCodeToChange": 0,
+        "maxLinesOfCodeToChange": 0
+      },
+      "ruleInstances": [],
+      "features": []
+    },
+    {
+      "path": "sharpie\\src\\Sharpie\\Sharpie.Engine\\Sharpie.Engine.csproj",
+      "startingProject": true,
+      "issues": 0,
+      "storyPoints": 0,
+      "properties": {
+        "appName": "Sharpie.Engine",
+        "projectKind": "ClassLibrary",
+        "frameworks": [
+          "net10.0-windows"
+        ],
+        "languages": [
+          "C#"
+        ],
+        "tools": [
+          "MSBuild"
+        ],
+        "isSdkStyle": true,
+        "numberOfFiles": 11,
+        "numberOfCodeFiles": 11,
+        "linesTotal": 829,
+        "linesOfCode": 829,
+        "totalApiScanned": 0,
+        "minLinesOfCodeToChange": 0,
+        "maxLinesOfCodeToChange": 0
+      },
+      "ruleInstances": [],
+      "features": []
+    },
+    {
+      "path": "sharpie\\src\\Sharpie\\Sharpie.Helpers.Core\\Sharpie.Helpers.Core.csproj",
+      "startingProject": true,
+      "issues": 0,
+      "storyPoints": 0,
+      "properties": {
+        "appName": "Sharpie.Helpers.Core",
+        "projectKind": "ClassLibrary",
+        "frameworks": [
+          "net10.0-windows"
+        ],
+        "languages": [
+          "C#"
+        ],
+        "tools": [
+          "MSBuild"
+        ],
+        "isSdkStyle": true,
+        "numberOfFiles": 8,
+        "numberOfCodeFiles": 8,
+        "linesTotal": 543,
+        "linesOfCode": 543,
+        "totalApiScanned": 0,
+        "minLinesOfCodeToChange": 0,
+        "maxLinesOfCodeToChange": 0
+      },
+      "ruleInstances": [],
+      "features": []
+    },
+    {
+      "path": "sharpie\\src\\Sharpie\\Sharpie.Helpers.Telemetry\\Sharpie.Helpers.Telemetry.csproj",
+      "startingProject": true,
+      "issues": 0,
+      "storyPoints": 0,
+      "properties": {
+        "appName": "Sharpie.Helpers.Telemetry",
+        "projectKind": "ClassLibrary",
+        "frameworks": [
+          "net10.0-windows"
+        ],
+        "languages": [
+          "C#"
+        ],
+        "tools": [
+          "MSBuild"
+        ],
+        "isSdkStyle": true,
+        "numberOfFiles": 10,
+        "numberOfCodeFiles": 10,
+        "linesTotal": 1020,
+        "linesOfCode": 1020,
+        "totalApiScanned": 0,
+        "minLinesOfCodeToChange": 0,
+        "maxLinesOfCodeToChange": 0
+      },
+      "ruleInstances": [],
+      "features": []
+    },
+    {
+      "path": "sharpie\\src\\Plugins\\Sharpie.Plugins.SharpDX\\Sharpie.Plugins.SharpDX.csproj",
+      "startingProject": true,
+      "issues": 0,
+      "storyPoints": 0,
+      "properties": {
+        "appName": "Sharpie.Plugins.SharpDX",
+        "projectKind": "ClassLibrary",
+        "frameworks": [
+          "net10.0-windows"
+        ],
+        "languages": [
+          "C#"
+        ],
+        "tools": [
+          "MSBuild"
+        ],
+        "isSdkStyle": true,
+        "numberOfFiles": 2,
+        "numberOfCodeFiles": 2,
+        "linesTotal": 119,
+        "linesOfCode": 119,
+        "totalApiScanned": 0,
+        "minLinesOfCodeToChange": 0,
+        "maxLinesOfCodeToChange": 0
+      },
+      "ruleInstances": [],
+      "features": []
+    },
+    {
+      "path": "sharpie\\src\\Plugins\\Sharpie.Plugins.Speech\\Sharpie.Plugins.Speech.csproj",
+      "startingProject": true,
+      "issues": 0,
+      "storyPoints": 0,
+      "properties": {
+        "appName": "Sharpie.Plugins.Speech",
+        "projectKind": "ClassLibrary",
+        "frameworks": [
+          "net10.0-windows"
+        ],
+        "languages": [
+          "C#"
+        ],
+        "tools": [
+          "MSBuild"
+        ],
+        "isSdkStyle": true,
+        "numberOfFiles": 3,
+        "numberOfCodeFiles": 3,
+        "linesTotal": 196,
+        "linesOfCode": 196,
+        "totalApiScanned": 0,
+        "minLinesOfCodeToChange": 0,
+        "maxLinesOfCodeToChange": 0
+      },
+      "ruleInstances": [],
+      "features": []
+    },
+    {
+      "path": "sharpie\\src\\Plugins\\Sharpie.Plugins.UsbWatcher\\Sharpie.Plugins.UsbWatcher.csproj",
+      "startingProject": true,
+      "issues": 0,
+      "storyPoints": 0,
+      "properties": {
+        "appName": "Sharpie.Plugins.UsbWatcher",
+        "projectKind": "ClassLibrary",
+        "frameworks": [
+          "net10.0-windows"
+        ],
+        "languages": [
+          "C#"
+        ],
+        "tools": [
+          "MSBuild"
+        ],
+        "isSdkStyle": true,
+        "numberOfFiles": 2,
+        "numberOfCodeFiles": 2,
+        "linesTotal": 209,
+        "linesOfCode": 209,
+        "totalApiScanned": 0,
+        "minLinesOfCodeToChange": 0,
+        "maxLinesOfCodeToChange": 0
+      },
+      "ruleInstances": [],
+      "features": []
+    }
+  ],
+  "rules": {
+    "NuGet.0002": {
+      "id": "NuGet.0002",
+      "isFeature": false,
+      "description": "NuGet package upgrade is recommended for selected target framework.\n\nStandard .NET packages are recommended to have versions matching version of .NET that project targets.\n\nSome other packages also are known to work better for selected target frameworks.",
+      "label": "NuGet package upgrade is recommended",
+      "severity": "Potential",
+      "effort": 1,
+      "links": [
+        {
+          "url": "https://go.microsoft.com/fwlink/?linkid=2262530",
+          "isCustom": false
+        }
+      ]
+    },
+    "NuGet.0001": {
+      "id": "NuGet.0001",
+      "isFeature": false,
+      "description": "NuGet package is incompatible with selected target framework.\n\nPackage needs to be upgraded to a version supporting selected project target framework. If there no new package versions supporting new target framework, different package needs to be used and all code needs to be upgraded to new API.",
+      "label": "NuGet package is incompatible",
+      "severity": "Mandatory",
+      "effort": 1,
+      "links": [
+        {
+          "url": "https://go.microsoft.com/fwlink/?linkid=2262529",
+          "isCustom": false
+        }
+      ]
+    },
+    "Project.0002": {
+      "id": "Project.0002",
+      "isFeature": false,
+      "description": "Project\u0027s target framework(s) needs to be changed to the new target framework that you selected for this upgrade.\n\nDuring upgrade target framework will be adjusted to corresponding platform when applicable. In some cases project would result in multiple target frameworks after the upgrade if it was using features that now have their own platforms in modern .NET frameworks (windows, iOS, Android etc).",
+      "label": "Project\u0027s target framework(s) needs to be changed",
+      "severity": "Mandatory",
+      "effort": 1,
+      "links": [
+        {
+          "title": "Overview of porting from .NET Framework to .NET",
+          "url": "https://go.microsoft.com/fwlink/?linkid=2265227",
+          "isCustom": false
+        },
+        {
+          "title": ".NET project SDKs",
+          "url": "https://go.microsoft.com/fwlink/?linkid=2265226",
+          "isCustom": false
+        }
+      ]
+    }
+  }
+}
