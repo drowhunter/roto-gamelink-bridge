@@ -48,8 +48,8 @@
     <PackageReference Include="HelixToolkit.Core.Wpf" Version="2.27.3" />
     <PackageReference Include="HelixToolkit.SharpDX.Core" Version="2.27.3" />
     <PackageReference Include="MaterialDesignThemes" Version="5.3.0" />
-	<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.4" />
-	  <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.4" />
+	<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.5" />
+	  <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.5" />
 	  <PackageReference Include="NLog.Web.AspNetCore" Version="6.1.2" />
 	  <PackageReference Include="ScottPlot.WPF" Version="5.1.57" />
   </ItemGroup>
