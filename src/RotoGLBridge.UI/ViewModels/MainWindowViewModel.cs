@@ -111,6 +111,9 @@ namespace RotoGLBridge.UI.ViewModels
         [ObservableProperty]
         private ConnectionStatusViewModel _oxrmcConnected = new() { Label = "OXRMC" };
 
+        [ObservableProperty]
+        private ErrorModeViewModel _errorMode = new() { ErrorMode = 0 };
+
         [RelayCommand]
         public void OpenSettings()
         {

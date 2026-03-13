@@ -116,19 +116,19 @@ namespace rotoUSB
         // =============== Threading ===============
         // Read USB thread
         private CancellationTokenSource _ctsRead = null;
-        private bool __isReadingLoop = false;
+        private bool _isReadingLoop = false;
 
-        private bool _isReadingLoop
+        private bool isReadingLoop
         {
             get
             {
-                return __isReadingLoop;
+                return _isReadingLoop;
             }
 
             set
             {
-                if(__isReadingLoop != value) 
-                    __isReadingLoop = value;
+                if(_isReadingLoop != value) 
+                    _isReadingLoop = value;
             }
         }
 
@@ -149,8 +149,23 @@ namespace rotoUSB
         private bool enableModeResume = false;
         private bool skipBASESound = false;
         private int lastRunMode = -1;
-        private int lastErrorMode = 0;
+        private int _lastErrorMode = 0;
 
+        private int lastErrorMode
+        {
+            get => _lastErrorMode;
+            set
+            {
+                if (_lastErrorMode != value)
+                {
+                    if(value == 0)
+                    {
+                        logger.WriteLog("Error cleared. Current error mode: " + value);
+                    }
+                    _lastErrorMode = value;
+                }
+            }
+        } 
 
        
         private readonly IWriteLogger<USBNative> logger;
@@ -583,17 +598,18 @@ namespace rotoUSB
 
             if (!success)
             {
-                WriteLog("Error: " + GetUSBError());
+               
+                    WriteLog("WritePacket Error: " + GetUSBError());
 
-                //// if write error, stop read/write thread
-                //_writeTimer.Stop();
-                //_usbDeviceW = IntPtr.Zero;
-                //_isReadingLoop = false;
+                    // if write error, stop read/write thread
+                    _writeTimer.Stop();
+                    _usbDeviceW = IntPtr.Zero;
+                lock (_statusLock)
+                {
+                    isReadingLoop = false;
 
-                //lock (_statusLock)
-                //{
-                //    _rotoStatus.USBConnected = false;
-                //}
+                    _rotoStatus.USBConnected = false;
+                }
 
             }
 
@@ -616,25 +632,25 @@ namespace rotoUSB
 
             byte[] buffer = new byte[HID_REPORT_LEN];
 
-            _isReadingLoop = true;
+            isReadingLoop = true;
             WriteLog($"USB baseReadLoop start");
             try
             {
                 if (token != default)
                 {
-                    while (_isReadingLoop && !token.IsCancellationRequested)
+                    while (isReadingLoop && !token.IsCancellationRequested)
                     {
                         ReadPacket(buffer, HID_REPORT_LEN);
                     }
                 } 
                 else
                 {
-                    while (_isReadingLoop)
+                    while (isReadingLoop)
                     {
                         ReadPacket(buffer, HID_REPORT_LEN);
                     }
                 }
-                WriteLog($"USB baseReadLoop closed normally. _isReadingLoop={_isReadingLoop}, IsCancellationRequested={token.IsCancellationRequested}");
+                WriteLog($"USB baseReadLoop closed normally. isReadingLoop={isReadingLoop}, IsCancellationRequested={token.IsCancellationRequested}");
             }
             catch (Exception ex)
             {
@@ -645,7 +661,7 @@ namespace rotoUSB
             _usbNative.CloseUSBDevice(_usbDeviceR);
 
             _usbDeviceR = IntPtr.Zero;
-            _isReadingLoop = false;
+            isReadingLoop = false;
         }
 
 

@@ -22,9 +22,9 @@ namespace RotoGLBridge.Plugins
         public IObservable<bool> RumbleEnabled => _rumbleEnabled.AsObservable();
 
 
-        public bool UsbConnected { get => State.USBConnected;  }
+        public bool UsbConnected { get => Status.USBConnected;  }
 
-        public RotoStatus State { get; private set; } = new RotoStatus();
+        public RotoStatus Status { get; private set; } = new RotoStatus();
 
         public IObservable<int> Error { get; private set; }
 
@@ -40,7 +40,7 @@ namespace RotoGLBridge.Plugins
                 h => rotoChair.ErrorModeChanged -= h
             );
 
-            rotoChair.ErrorModeChanged += RotoChair_OnUsbError;
+           
 
             rumbleService.RumbleEvent += (rumble) =>
             {
@@ -52,11 +52,7 @@ namespace RotoGLBridge.Plugins
             return Task.CompletedTask;
         }
 
-        private void RotoChair_OnUsbError(int errorMode)
-        {
-            logger.LogError("Roto Chair USB Error: {0}", errorMode);
-        }
-
+      
         public override void Execute()
         {
             var state = rotoChair.GetRotoStatus();
@@ -71,7 +67,7 @@ namespace RotoGLBridge.Plugins
                 logger.LogInformation("Roto Chair disconnected.");
             }
 
-            State = state;
+            Status = state;
            // OnUpdate();
         }
 
@@ -149,16 +145,19 @@ namespace RotoGLBridge.Plugins
 
         public RunMode RunMode
         {
-            get => (RunMode)plugin.State.RunMode;
+            get => (RunMode)plugin.Status.RunMode;
             set => plugin.SetRunMode(value);
         }
+
+        public RotoStatus Status => plugin.Status;
+         
 
         //public new RotoStatus State => plugin.State;
         public int Power { get; set; } = 100;
 
         public float Yaw
         {
-            get => (float)plugin.State.BaseDegree;
+            get => (float)plugin.Status.BaseDegree;
             set
             {
                 plugin.SetFollowDegree((int)value, this.Power);

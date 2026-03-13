@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Threading;
 using NLog;
 using NLog.Extensions.Logging;
+using System.IO;
 
 namespace RotoGLBridge.UI
 {
@@ -96,6 +97,22 @@ namespace RotoGLBridge.UI
 
         private void ConfigureServices(IServiceCollection services)
         {
+            //delete logs/all.log on startup
+            //var logFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", "all.log");
+            //if (File.Exists(logFilePath))
+            //{
+            //    try
+            //    {
+            //        File.Delete(logFilePath);
+            //        File.Create(logFilePath);
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        // If deletion fails, log the error and continue
+            //        Console.WriteLine($"Failed to delete log file: {ex.Message}");
+            //    }
+            //}
+
             services.AddLogging(b =>
               {
                   b.AddFilter("Microsoft", Microsoft.Extensions.Logging.LogLevel.Warning)

@@ -1,7 +1,7 @@
 ﻿using RotoGLBridge.Plugins;
 using RotoGLBridge.Plugins.GameLink;
 using RotoGLBridge.Services;
-
+using rotoUSB;
 using Sharpie.Plugins.Speech;
 using Sharpie.Plugins.UsbWatcher;
 
@@ -48,7 +48,7 @@ namespace RotoGLBridge.Scripts
 
         public string Runmode { get; private set; }
 
-        public BehaviorSubject<bool> IsConnected = new(false);
+        public BehaviorSubject<bool?> IsConnected = new(null);
 
         public bool OxrmcIsConnected => oxrmc.IsConnected;
 
@@ -61,6 +61,10 @@ namespace RotoGLBridge.Scripts
         public int Power { get; private set; } = 100;
 
         List<IDisposable> disposables = new();
+
+        bool? _lastConnected = null;
+
+        public RotoStatus State => roto.Status;
 
         public override Task Start()
         {
@@ -88,16 +92,21 @@ namespace RotoGLBridge.Scripts
                 speech.Say("Roto Chair USB Error");
             });
 
-            var s = IsConnected.DistinctUntilChanged().Subscribe(connected =>
+            var s = IsConnected.DistinctUntilChanged().Buffer(2, 1).Subscribe(buffer =>
             {
-                if (connected)
+                _lastConnected = buffer[0];
+                var connected = buffer[1];
+
+                if (connected.Value)
                 {
-                    speech.Say("Roto Chair Connected");
+                    speech.Say("Roto Connected");
                 }
-                else
+                else if(_lastConnected != null)
                 {
-                    speech.Say("Roto Chair Disconnected");
+                    speech.Say("Roto Disconnected");
                 }
+
+                _lastConnected = connected;
             });
 
             disposables.Add(s);
