@@ -14,9 +14,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="logs\**" />
     <Compile Remove="Models\**" />
+    <EmbeddedResource Remove="logs\**" />
     <EmbeddedResource Remove="Models\**" />
+    <None Remove="logs\**" />
     <None Remove="Models\**" />
+    <Page Remove="logs\**" />
     <Page Remove="Models\**" />
   </ItemGroup>
 

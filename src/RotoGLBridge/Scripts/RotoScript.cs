@@ -89,7 +89,9 @@ namespace RotoGLBridge.Scripts
             roto.OnError.Subscribe(errorMessage =>
             {
                 logger.LogError("Roto Chair USB Error: {0}", errorMessage);
-                speech.Say("Roto Chair USB Error");
+
+                if(errorMessage == 0x80)
+                    speech.Say("Roto Chair Emergency Stop Activated");
             });
 
             var s = IsConnected.DistinctUntilChanged().Buffer(2, 1).Subscribe(buffer =>

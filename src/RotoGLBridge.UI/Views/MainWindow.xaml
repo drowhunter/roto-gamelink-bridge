@@ -160,12 +160,12 @@
             </StatusBarItem>
         </StatusBar>
 
-        <!-- Error Mode Overlay -->
+        <!-- Error Mode Overlay --><!--
         <ContentControl Grid.Row="0" Grid.Column="1" 
                         Content="{Binding ErrorMode}"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
                         Panel.ZIndex="100"
-                        Margin="10"/>
+                        Margin="10"/>-->
     </Grid>
 </Window>
