@@ -41,9 +41,9 @@ namespace Microsoft.Extensions.DependencyInjection
                 setup.EnginePollInterval = (1000 / 90); // 90 FPS
             })
             //.AddPluginsFrom<GamelinkPlugin>()
-            .AddPlugin<GamelinkPlugin>()
-            .AddPlugin<YawDevicePlugin>()
-            .AddPlugin<Roto2Plugin>()
+            .AddPlugin<YawvrUdpPlugin>()
+            .AddPlugin<YawvrTcpPlugin>()
+            .AddPlugin<RotoPlugin>()
             .AddPlugin<OxrmcPlugin>()
             //.AddScriptsFrom<RotoMCSender>()
             //.AddScript<Main>()
@@ -51,12 +51,12 @@ namespace Microsoft.Extensions.DependencyInjection
             //.AddScript<JoystickTest>()
             //.AddScript<UsbWatcherTest>()
             .AddPlugin<SpeechPlugin>()
-            .AddPlugin<Xbox360Plugin>()
+            //.AddPlugin<Xbox360Plugin>()
             .AddPlugin<UsbWatcherPlugin>()
             .Build();
 
 
-            builder.Services.AddRotoUsb();
+            builder.Services.AddRotoUSB();
 
             //builder.Services.AddSingleton<TcpCommandFactory>();
             builder.Services.AddTransient<IByteConverter<YawGLData>, YawGLByteConverter>();
@@ -75,11 +75,16 @@ namespace Microsoft.Extensions.DependencyInjection
             //services.AddTransient<IUsbWatcher, UsbWatcher>();
             services.AddTransient<ILerper, Lerper>();
             services.AddTransient<Stopwatch>();
+
             services.AddTransient<IRumbleService, RumbleService>();
+            //services.AddTransient<IRumbleService, RumbleService2>();
+
             //services.AddSingleton<Roto>();
             services.AddTransient<MathService>();
-            services.AddSingleton<IFollowTargetCalculator, FollowTargetCalculator>();
+
+            
             services.AddSingleton<IFollowCalculator, FollowCalculator>();
+
             //services.AddTransient<IMmfSender, RotoMCSender>();
             services.AddTransient<IMmfSender, FlyPtSender>();
         }

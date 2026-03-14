@@ -1,10 +1,11 @@
 ﻿using RotoGLBridge.Plugins;
 using RotoGLBridge.Plugins.GameLink;
 using RotoGLBridge.Services;
-
+using rotoUSB;
 using Sharpie.Plugins.Speech;
 using Sharpie.Plugins.UsbWatcher;
 
+using System.ComponentModel.DataAnnotations;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 
@@ -13,35 +14,41 @@ namespace RotoGLBridge.Scripts
     public class RotoScript(
         ILogger<RotoScript> logger,
         GamelinkGlobal gamelink,
-        //RotoPluginGlobal roto,
-        Roto2PluginGlobal roto,
+        RotoPluginGlobal roto,
         YawDeviceGlobal tcpDevice,
         SpeechGlobal speech,
         OxrmcGlobal oxrmc,
         UsbWatcherGlobal usbWatcher,
-        //MathService mathService
-        //IFollowTargetCalculator followTargetCalculator
+        
         IFollowCalculator followCalculator
-        //IConsoleWatcher cons
         ) : SharpieScript
     {
 
-        private float? _initialYaw = null;
+        private bool? chair = null;
+        private float _yaw;
 
-        private float? _initialRotoYaw = null;
+        public float Yaw
+        {
+            get => _yaw;
+            private set
+            {
+                if (_yaw != value)
+                {
+                    _yaw = value;
+                    oxrmc.SendMotionComp(value);
+                }
+            }
+        }
 
-        //public event Action<float> OnYawUpdate;
-        public float Yaw { get; private set; }
+        public float AmpPercent { get; private set; }
 
-        public float RumblePower { get; private set; }
-
-        public float RumbleSpeed { get; private set; }
+        public float HzPercent { get; private set; }
 
         public float Hertz { get; private set; }
 
         public string Runmode { get; private set; }
 
-        public BehaviorSubject<bool> IsConnected = new(false);
+        public BehaviorSubject<bool?> IsConnected = new(null);
 
         public bool OxrmcIsConnected => oxrmc.IsConnected;
 
@@ -51,17 +58,29 @@ namespace RotoGLBridge.Scripts
 
         public bool TcpIsConnected => tcpDevice.IsConnected;
 
+        public int Power { get; private set; } = 100;
+
         List<IDisposable> disposables = new();
+
+        bool? _lastConnected = null;
+
+        public RotoStatus State => roto.Status;
 
         public override Task Start()
         {
             logger.LogInformation($"Main script started.");
 
-            //speech.Say("Roto Chair Initialized");
-            //followTargetCalculator.Reset();
+            
             followCalculator.Reset();
 
-            gamelink.OnUpdate += OnGameLinkUpdate;
+            
+            disposables.Add(followCalculator.OnAngleChangedObservable.Select(_ => MathF.Round(_.NewFollowAngle)).DistinctUntilChanged().Subscribe(angle =>
+            {
+                // update roto chair yaw when angle changes
+                roto.Yaw = angle;
+            }));
+
+            gamelink.OnUpdate += OnUdpUpdate;
 
             usbWatcher.OnDeviceChange += OnUsbChange;
 
@@ -70,19 +89,26 @@ namespace RotoGLBridge.Scripts
             roto.OnError.Subscribe(errorMessage =>
             {
                 logger.LogError("Roto Chair USB Error: {0}", errorMessage);
-                speech.Say("Roto Chair USB Error");
+
+                if(errorMessage == 0x80)
+                    speech.Say("Roto Chair Emergency Stop Activated");
             });
 
-            var s = IsConnected.DistinctUntilChanged().Subscribe(connected =>
+            var s = IsConnected.DistinctUntilChanged().Buffer(2, 1).Subscribe(buffer =>
             {
-                if (connected)
+                _lastConnected = buffer[0];
+                var connected = buffer[1];
+
+                if (connected.Value)
                 {
-                    speech.Say("Roto Chair Connected");
+                    speech.Say("Roto Connected");
                 }
-                else
+                else if(_lastConnected != null)
                 {
-                    speech.Say("Roto Chair Disconnected");
+                    speech.Say("Roto Disconnected");
                 }
+
+                _lastConnected = connected;
             });
 
             disposables.Add(s);
@@ -94,7 +120,7 @@ namespace RotoGLBridge.Scripts
 
         override public Task Stop()
         {
-            gamelink.OnUpdate -= OnGameLinkUpdate;
+            gamelink.OnUpdate -= OnUdpUpdate;
             
             usbWatcher.OnDeviceChange -= OnUsbChange;
 
@@ -110,94 +136,57 @@ namespace RotoGLBridge.Scripts
             return Task.CompletedTask;
         }
 
-        private void OnGameLinkUpdate()
+        
+
+        private void OnUdpUpdate()
         {
-            //yaw = gamelink.yaw;
+            
             if (roto.IsConnected)
             {
-                var result = followCalculator.Update(gamelink.yaw, roto.Yaw);
-                
-                roto.Yaw = result.NewFollowAngle;
-                
+                followCalculator.Update(gamelink.Yaw, roto.Yaw);                
             }
             else
             {
-                Yaw = gamelink.yaw;               
+                Yaw = gamelink.Yaw;               
             }
 
-            RumblePower = gamelink.rumblePower;
-            RumbleSpeed = gamelink.rumbleSpeed;
-            Hertz = gamelink.hz;// != 0 ? Math.Clamp(gamelink.hz, 20, 100) : 0;
+            AmpPercent = gamelink.AmpPercent;
+            HzPercent = gamelink.HzPercent;
+            Hertz = gamelink.Hz;// != 0 ? Math.Clamp(gamelink.Hz, 20, 100) : 0;
             Runmode = roto.RunMode.ToString();
 
-            //if (roto.IsConnected)
-            if (RumblePower > 0 || RumbleSpeed > 0)
-                roto.Vibrate((int)RumblePower, (int)RumbleSpeed);
+            
+            if (AmpPercent > 0 || HzPercent > 0)
+                roto.Vibrate((int)AmpPercent, (int)HzPercent);
 
         }
 
-        private float CalculateDeltaYaw(float target)
-        {
-            float retval = 0;
-
-            if (_initialYaw == null)
-            {
-                _initialYaw = target;
-                logger.LogDebug($"Initial Yaw set to {_initialYaw}");
-                _initialRotoYaw = roto.Yaw;
-                logger.LogDebug($"Initial Roto Yaw set to {_initialRotoYaw}");
-                return 0;
-            }
-
-           // var deltaTarget = mathService.CalculateOffsetAngle(_initialYaw.Value, target);
-
-
-
-
-            return retval;
-        }
+        
         
         
         public override void Execute()
         {
-            IsConnected.OnNext(roto.IsConnected); 
-            
-            if (roto.IsConnected)
+            try
             {
-                Yaw = roto.Yaw;
+                IsConnected.OnNext(roto.IsConnected);
+
+                if (roto.IsConnected)
+                {
+                    roto.Power = this.Power;
+                    Yaw = roto.Yaw;
+
+                }
+
+                EnableVoiceControl();
             }
-
-            //if (!gamelink.IsConnected)
-            //{
-            //    IsConnected.OnNext(false);
-            //}
-            
-
-            //Watch();
-
-            EnableVoiceControl();
+            catch (Exception ex)
+            {
+                //logger.LogError($"Error in Execute: {ex.Message} {ex.StackTrace}");
+                throw;
+            }
         }
 
-        private void Watch()
-        {
-            //cons.Watch(nameof(RotoPlugin.IsPluggedIn), roto.IsPluggedIn);
-            //cons.Watch(nameof(RotoPluginGlobal.Status), roto.Status);
-            //cons.Watch(nameof(yaw), yaw.ToString("F1").PadLeft(5));
-            //cons.Watch(nameof(Roto.Telemetry.RumblePower), roto.Telemetry.RumblePower.ToString().PadLeft(3));
-            //cons.Watch(nameof(RotoDataModel.Mode), roto.Data?.Mode.ToString());
-            //cons.Watch(nameof(RotoDataModel.LerpedAngle), roto.Data?.LerpedAngle.ToString("F1").PadLeft(5));
-            //cons.Watch(nameof(RotoDataModel.CalibratedAngle), roto.Data?.CalibratedAngle.ToString("F1").PadLeft(5));
-            //cons.Watch(nameof(Roto.Telemetry.Delta), roto.Telemetry.Delta.ToString("F1").PadLeft(5));
-            //cons.Watch(nameof(Roto.Telemetry.TargetAngle), roto.Telemetry.TargetAngle.ToString().PadLeft(3));
-            //cons.Watch(nameof(Roto.Telemetry.CappedTargetAngle), roto.Telemetry.CappedTargetAngle.ToString().PadLeft(3));
-            //cons.Watch(nameof(Roto.Telemetry.AngularVelocity), $"{roto.Telemetry.AngularVelocity,8:F1} °/s");
-            //cons.Watch("hotkeys", $"{oxrmc.plugin.HotKeysPreseed}");
-            //cons.Watch("trigger", $"{(ActivityBit)oxrmc.plugin.activityFlags.trigger}");
-            //cons.Watch("confirm", $"{(ActivityBit)oxrmc.plugin.activityFlags.confirm}");
-            //cons.Watch("turns", roto.Turns);
-
-            //cons.Publish();
-        }
+        
 
         private void EnableVoiceControl()
         {
@@ -208,7 +197,7 @@ namespace RotoGLBridge.Scripts
             oxrmc.StabilizerToggle = speech.Said(["stabilize"], .70f);
         }
 
-        bool? chair = null;
+        
 
         private void OnUsbChange(VidPid vidpid, bool isConnected)
         {
@@ -228,9 +217,7 @@ namespace RotoGLBridge.Scripts
                     chair = false;
                     speech.Say("Roto Chair Disconnected");
 
-                    roto.Disconnect();
-
-                    
+                    roto.Disconnect();                    
                 }
             }
         }

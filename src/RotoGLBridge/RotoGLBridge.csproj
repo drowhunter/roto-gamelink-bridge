@@ -1,14 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net8.0-windows</TargetFramework>
+		<TargetFramework>net10.0-windows</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>disable</Nullable>
-		<Configurations>Debug;Release;Dev</Configurations>
-		<Platforms>AnyCPU;x64</Platforms>
-		<VersionPrefix>0.0.10</VersionPrefix>
-		<SharpieVersion>1.1.0</SharpieVersion>
+		<Configurations>Debug;Release</Configurations>
+		<Platforms>x64</Platforms>
+		<VersionPrefix>1.2.0</VersionPrefix>
+		<SharpieVersion>1.2.0</SharpieVersion>
 		<Platform>x64</Platform>
+		<LangVersion>latest</LangVersion>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -18,7 +19,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Compile Remove="Plugins\Roto\RotoPlugin.cs" />
+	  <Compile Remove="Plugins\Roto\RotoPluginOld.cs" />
 	  <Compile Remove="Scripts\Main.cs" />
 	</ItemGroup>
 
@@ -27,33 +28,32 @@
 		<None Remove="Plugins\YawEmu.7z" />
 	</ItemGroup>
 	
-	<ItemGroup Condition="'$(Configuration)' == 'Release'">
-		<PackageReference Include="Sharpie.Engine" Version="$(SharpieVersion)" />
-		<PackageReference Include="Sharpie.Helpers.Core" Version="$(SharpieVersion)" />
-		<PackageReference Include="Sharpie.Helpers.Telemetry" Version="$(SharpieVersion)" />
-		<PackageReference Include="Sharpie.Plugins.Speech" Version="$(SharpieVersion)" />
-		<PackageReference Include="Sharpie.Plugins.SharpDX" Version="$(SharpieVersion)" />
-		<PackageReference Include="Sharpie.Plugins.UsbWatcher" Version="$(SharpieVersion)" />
+	
+	
+	
+	<ItemGroup>
+	  <PackageReference Include="System.Reactive" Version="6.1.0" />
 	</ItemGroup>
-	<ItemGroup Condition="'$(Configuration)' != 'Release'">
+	<ItemGroup>
 		<ProjectReference Include="..\..\sharpie\src\Sharpie\Sharpie.Engine\Sharpie.Engine.csproj" />
 		<ProjectReference Include="..\..\sharpie\src\Plugins\Sharpie.Plugins.Speech\Sharpie.Plugins.Speech.csproj" />
 		<ProjectReference Include="..\..\sharpie\src\Sharpie\Sharpie.Helpers.Telemetry\Sharpie.Helpers.Telemetry.csproj" />
 		<ProjectReference Include="..\..\sharpie\src\Sharpie\Sharpie.Helpers.Core\Sharpie.Helpers.Core.csproj" />
 		<ProjectReference Include="..\..\sharpie\src\Plugins\Sharpie.Plugins.SharpDX\Sharpie.Plugins.SharpDX.csproj" />
 		<ProjectReference Include="..\..\sharpie\src\Plugins\Sharpie.Plugins.UsbWatcher\Sharpie.Plugins.UsbWatcher.csproj" />
-	</ItemGroup>
-	<ItemGroup>
-	  <PackageReference Include="System.Reactive" Version="6.1.0" />
-	</ItemGroup>
-	<ItemGroup>
-	  <ProjectReference Include="..\RotoUSB\rotoUSB.csproj" />
+		<ProjectReference Include="..\RotoUSB\rotoUSB.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<None Update="HIDApi.dll">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Update="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.3" />
+	  <PackageReference Update="Microsoft.Extensions.Logging.Abstractions" Version="10.0.3" />
+	  <PackageReference Update="MinVer" Version="7.0.0" />
 	</ItemGroup>
 
 </Project>

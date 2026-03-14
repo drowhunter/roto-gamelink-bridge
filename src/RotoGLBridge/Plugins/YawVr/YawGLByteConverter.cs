@@ -11,11 +11,11 @@ namespace RotoGLBridge.Plugins.GameLink
 
     public class YawGLByteConverter : IByteConverter<YawGLData>
     {
-        static Regex rot = new Regex($@"Y\[(?<yaw>-?[\d.]+)\]P\[(?<pitch>-?[\d.]+)\]R\[(?<roll>-?[\d.]+)\]");
+        static Regex rot = new Regex($@"Y\[(?<Yaw>-?[\d.]+)\]P\[(?<Pitch>-?[\d.]+)\]R\[(?<Roll>-?[\d.]+)\]");
 
-        static Regex vibes = new Regex($@"V\[(?<rumblePower>\d+?),\d*?,\d*?,(?<hz>\d*?)\]");
+        static Regex vibes = new Regex($@"V\[(?<ampPercent>\d+?),\d*?,\d*?,(?<Hz>\d*?)\]");
 
-        static Regex fan = new Regex($@"F\[(?<fanSpeed>\d+?)");
+        static Regex fan = new Regex($@"F\[(?<fanPcercent>\d+?)");
 
         //static CultureInfo c = CultureInfo.InvariantCulture;
 
@@ -40,23 +40,23 @@ namespace RotoGLBridge.Plugins.GameLink
                     if (r.Success)
                     {
 
-                        yawGLData.yaw = fullCircle(float.Parse(r.Groups["yaw"].Value));      //-180-180
-                        yawGLData.pitch = fullCircle(float.Parse(r.Groups["pitch"].Value));  //-180-180
-                        yawGLData.roll = fullCircle(float.Parse(r.Groups["roll"].Value));    //-180-180
+                        yawGLData.yaw = fullCircle(float.Parse(r.Groups["Yaw"].Value));      //-180-180
+                        yawGLData.pitch = fullCircle(float.Parse(r.Groups["Pitch"].Value));  //-180-180
+                        yawGLData.roll = fullCircle(float.Parse(r.Groups["Roll"].Value));    //-180-180
 
                     }
 
                     var v = vibes.Match(dataString);
                     if (v.Success)
                     {
-                        yawGLData.amp = byte.Parse(v.Groups["rumblePower"].Value);
-                        yawGLData.hz = byte.Parse(v.Groups["hz"].Value);/// byte.MaxValue;
+                        yawGLData.amp = byte.Parse(v.Groups["ampPercent"].Value);
+                        yawGLData.hz = byte.Parse(v.Groups["Hz"].Value);/// byte.MaxValue;
                     }
 
                     var f = fan.Match(dataString);
                     if (f.Success)
                     {
-                        yawGLData.fan = byte.Parse(f.Groups["fanSpeed"].Value);
+                        yawGLData.fan = byte.Parse(f.Groups["fanPcercent"].Value);
                     }
 
                     previousData = yawGLData;

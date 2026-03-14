@@ -2,18 +2,25 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
+    <TargetFramework>net10.0-windows</TargetFramework>
     <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
 	<LangVersion>preview</LangVersion>
-	<Platforms>AnyCPU;x64</Platforms>
+	<Platforms>x64</Platforms>
+	  <!--<ProductVersion>1.1.0.0</ProductVersion>
+	<AssemblyVersion>$(ProductVersion)</AssemblyVersion>
+	<FileVersion>$(ProductVersion)</FileVersion>-->
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="logs\**" />
     <Compile Remove="Models\**" />
+    <EmbeddedResource Remove="logs\**" />
     <EmbeddedResource Remove="Models\**" />
+    <None Remove="logs\**" />
     <None Remove="Models\**" />
+    <Page Remove="logs\**" />
     <Page Remove="Models\**" />
   </ItemGroup>
 
@@ -45,8 +52,9 @@
     <PackageReference Include="HelixToolkit.Core.Wpf" Version="2.27.3" />
     <PackageReference Include="HelixToolkit.SharpDX.Core" Version="2.27.3" />
     <PackageReference Include="MaterialDesignThemes" Version="5.3.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
-	  <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.1" />
+	<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.5" />
+	  <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.5" />
+	  <PackageReference Include="NLog.Web.AspNetCore" Version="6.1.2" />
 	  <PackageReference Include="ScottPlot.WPF" Version="5.1.57" />
   </ItemGroup>
 
@@ -67,6 +75,9 @@
     <None Update="assets\roto2\chair.obj">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="NLog.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 	<ItemGroup>
 		<None Remove="**/*.bak" />
@@ -75,6 +86,11 @@
 		<Resource Include="assets\icon.ico">
 			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
 		</Resource>
+	</ItemGroup>
+	<ItemGroup>
+	  <PackageReference Update="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.4" />
+	  <PackageReference Update="Microsoft.Extensions.Logging.Abstractions" Version="10.0.4" />
+	  <PackageReference Update="MinVer" Version="7.0.0" />
 	</ItemGroup>
 
 </Project>

@@ -91,10 +91,10 @@ namespace RotoGLBridge.Tests.Services
         {
             var steps = new List<ScenarioStep>
             {
-                new (5f,   45f,   5f,  45f,   0,   0,   0,  45f),
-                new (10f,  46f,   5f,  45f,   5,   1,   4,  50f),
-                new (170f, 90f,   5f,  45f, 165,  45, 120, 210f),
-                new (190f, 170f,  5f,  45f, -175, 125,  60, 230f),
+                new (target: 5f,   follow: 45f,   5f,  45f,   0,   0,   0,  5f),
+                new (target: 10f,  5f,   5f,  45f,   5,   1,   4,  10f),
+                new (target: 170f, follow: 10f,   xInitTarg: 5f,  xInitFoll: 45f,   xTargOff: 165, xFollOff: 45,  xOffDiff: 120, xNewFoll: 210f),
+                new (target: 190f, follow: 170f,  xInitTarg: 5f,  xInitFoll: 45f,   xTargOff: -175, xFollOff: 125, xOffDiff: 60, xNewFoll: 230f),
 
 
             };

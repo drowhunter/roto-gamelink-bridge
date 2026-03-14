@@ -9,7 +9,7 @@ namespace rotoUSB
 {
     // High Precision Timer  from  Window Multimedia timer
     // precision can achieve 1ms 
-    public class HighPrecisionTimer : IHighPrecisionTimer
+    public class HighPrecisionTimer
     {
         private delegate void TimerCallback(uint uTimerID, uint uMsg, UIntPtr dwUser, UIntPtr dw1, UIntPtr dw2);
 

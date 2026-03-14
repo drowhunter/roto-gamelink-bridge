@@ -8,4 +8,7 @@
     <DataTemplate DataType="{x:Type vm:RumbleGraphViewModel}">
         <v:RumbleGraphControl />
     </DataTemplate>
+    <DataTemplate DataType="{x:Type vm:ErrorModeViewModel}">
+        <v:ErrorModeUserControl />
+    </DataTemplate>
 </ResourceDictionary>

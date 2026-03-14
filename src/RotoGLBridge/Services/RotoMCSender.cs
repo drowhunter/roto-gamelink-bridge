@@ -8,9 +8,12 @@ namespace RotoGLBridge.Services
 {
     public interface IMmfSender
     {
-        void Send(float angle);
+        void Send(SixDofTracker tracker);
     }
-
+    
+    /// <summary>
+    /// Send Yaw using roto tracker
+    /// </summary>
     public class RotoMCSender: IMmfSender
     {
 
@@ -23,13 +26,16 @@ namespace RotoGLBridge.Services
             mmf = new(new( "RotoVrMotionRigPose",true), new MarshalByteConverter<float>());
         }
 
-        public void Send(float angle)
+        public void Send(SixDofTracker tracker)
         {
-            mmf.Send(angle);
+            mmf.Send((float)tracker.yaw);
         }
 
     }
 
+    /// <summary>
+    /// Send flypt tracker format (compatible with openxr and openvr motion comp
+    /// </summary>
     public class FlyPtSender : IMmfSender
     {
         
@@ -43,9 +49,9 @@ namespace RotoGLBridge.Services
 
         }
 
-        public void Send(float angle)
+        public void Send(SixDofTracker tracker)
         {
-            mmf.Send(new SixDofTracker() { yaw = angle });
+            mmf.Send(tracker);
         }
     }
 }

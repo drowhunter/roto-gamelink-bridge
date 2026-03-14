@@ -29,7 +29,7 @@ namespace RotoGLBridge.UI.ViewModels
 
         private readonly ISharpieEngine sharpieEngine;
         private readonly RotoScript _rotoScript;
-        //private readonly Roto2PluginGlobal _rotoGlobal;
+        //private readonly RotoPluginGlobal _rotoGlobal;
 
         //private readonly RotoPluginGlobal _roto;
        
@@ -51,6 +51,9 @@ namespace RotoGLBridge.UI.ViewModels
 
         [ObservableProperty]
         private double yaw;
+
+        [ObservableProperty] 
+        private int power = 100;
 
         [ObservableProperty]
         private float rumblePower;
@@ -108,6 +111,9 @@ namespace RotoGLBridge.UI.ViewModels
         [ObservableProperty]
         private ConnectionStatusViewModel _oxrmcConnected = new() { Label = "OXRMC" };
 
+        [ObservableProperty]
+        private ErrorModeViewModel _errorMode = new() { ErrorMode = 0 };
+
         [RelayCommand]
         public void OpenSettings()
         {
@@ -143,22 +149,23 @@ namespace RotoGLBridge.UI.ViewModels
                 GamelinkConnected.IsConnected = _rotoScript.GamelinkIsConnected;
                 TcpConnected.IsConnected = _rotoScript.TcpIsConnected;
 
-                RumblePower = _rotoScript.RumblePower;
-                RumbleSpeed = _rotoScript.RumbleSpeed;
+                RumblePower = _rotoScript.AmpPercent;
+                RumbleSpeed = _rotoScript.HzPercent;
                 Hertz = _rotoScript.Hertz;
                 RunMode = _rotoScript.Runmode;
 
-
+                
                 if (RotoConnected.IsConnected || GamelinkConnected.IsConnected || TcpConnected.IsConnected)
                 {
-                   Yaw = -_rotoScript.Yaw;
-                   SliderEnabled = false;
+                //    Power = _rotoScript.Power;
+                    Yaw = -_rotoScript.Yaw;
+                  // SliderEnabled = false;
                 } 
                 else
                 {
-                    SliderEnabled = true;
+                    //SliderEnabled = true;
                 }
-
+                
                 rumbleview.RumblePower = RumblePower;
                 rumbleview.RumbleSpeed = RumbleSpeed;
                 
@@ -285,7 +292,7 @@ namespace RotoGLBridge.UI.ViewModels
 
         [ObservableProperty]
         //bool animated = false;
-        private bool sliderEnabled = false; 
+        private bool sliderEnabled = true; 
        
 
         [RelayCommand]

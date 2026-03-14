@@ -1,10 +1,13 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using RotoGLBridge.UI.Views;
-
+using Microsoft.Extensions.Logging;
 using RotoGLBridge.UI.ViewModels;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Threading;
+using NLog;
+using NLog.Extensions.Logging;
+using System.IO;
 
 namespace RotoGLBridge.UI
 {
@@ -15,7 +18,7 @@ namespace RotoGLBridge.UI
     {
         //private readonly ServiceProvider _serviceProvider;
         public static ServiceProvider ServiceProvider;
-        private ILogger<App> _logger;
+        private Microsoft.Extensions.Logging.ILogger<App> _logger;
         private ISharpieEngine _engine;
 
         CancellationTokenSource _cts = new();
@@ -31,8 +34,11 @@ namespace RotoGLBridge.UI
 
             ConfigureServices(services);
             ServiceProvider = services.BuildServiceProvider();
-            _logger = ServiceProvider.GetRequiredService<ILogger<App>>();
+
+            _logger = ServiceProvider.GetRequiredService<Microsoft.Extensions.Logging.ILogger<App>>();
             _engine = ServiceProvider.GetRequiredService<ISharpieEngine>();
+
+            _logger.LogInformation("Application started");
         }
 
         protected override void OnStartup(StartupEventArgs e)
@@ -91,12 +97,29 @@ namespace RotoGLBridge.UI
 
         private void ConfigureServices(IServiceCollection services)
         {
+            //delete logs/all.log on startup
+            //var logFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs", "all.log");
+            //if (File.Exists(logFilePath))
+            //{
+            //    try
+            //    {
+            //        File.Delete(logFilePath);
+            //        File.Create(logFilePath);
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        // If deletion fails, log the error and continue
+            //        Console.WriteLine($"Failed to delete log file: {ex.Message}");
+            //    }
+            //}
+
             services.AddLogging(b =>
               {
-                  b.AddFilter("Microsoft", LogLevel.Warning)
-                   .AddFilter("System", LogLevel.Warning)
-                   //.AddFilter("Sharpie", LogLevel.Debug)
-                   .AddFilter("RotoGLBridge", LogLevel.Debug);
+                  b.AddFilter("Microsoft", Microsoft.Extensions.Logging.LogLevel.Warning)
+                   .AddFilter("System", Microsoft.Extensions.Logging.LogLevel.Warning)
+                   //.AddFilter("Sharpie", Microsoft.Extensions.Logging.LogLevel.Debug)
+                   .AddFilter("RotoGLBridge", Microsoft.Extensions.Logging.LogLevel.Debug)
+                   .AddNLog(); // Configure NLog
               });
 
             services.AddSingleton<MainWindow>();
@@ -108,6 +131,8 @@ namespace RotoGLBridge.UI
 
         protected override void OnExit(ExitEventArgs e)
         {
+            _logger?.LogInformation("Application exiting");
+            LogManager.Shutdown(); // Flush and close NLog
             ServiceProvider?.Dispose();
             base.OnExit(e);
         }

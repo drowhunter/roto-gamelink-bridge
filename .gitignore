@@ -406,3 +406,4 @@ FodyWeavers.xsd
 *.sln.iml
 /src/RotoGLBridge-dev.sln
 /assets
+/RotoSDK

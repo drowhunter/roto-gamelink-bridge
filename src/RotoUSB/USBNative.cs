@@ -1,22 +1,10 @@
 ﻿using System;
-using System.Runtime.ExceptionServices;
-using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading;
+using System.Runtime.InteropServices;
 
 
 namespace rotoUSB
 {
-    [StructLayout(LayoutKind.Sequential)]
-    internal struct OVERLAPPED
-    {
-        public IntPtr Internal;
-        public IntPtr InternalHigh;
-        public uint Offset;
-        public uint OffsetHigh;
-        public IntPtr hEvent;
-    }
-
     // Static class for interacting with USB-HID devices using native Windows API calls
     public class USBNative : IUSBNative
     {
@@ -30,7 +18,6 @@ namespace rotoUSB
         // Effective data length for a USB packet (19 bytes, aligned for 20-byte BLE packet)
         public const int ROTO_PACKET_LEN = 19;
 
-        
 
 
         // Stores the latest USB-related error message
@@ -57,33 +44,23 @@ namespace rotoUSB
 
 
 
-        [DllImport("kernel32.dll", SetLastError = true)]
-        static extern bool ReadFile(IntPtr hFile, IntPtr lpBuffer, uint nNumberOfBytesToRead, out uint lpNumberOfBytesRead, ref OVERLAPPED lpOverlapped);
-
-
-        internal static bool ReadFileInternal(IntPtr hFile, IntPtr lpBuffer, uint nNumberOfBytesToRead, out uint lpNumberOfBytesRead, ref OVERLAPPED lpOverlapped)
-        {
-            return ReadFile(hFile, lpBuffer, nNumberOfBytesToRead, out lpNumberOfBytesRead, ref lpOverlapped);
-        }
 
         [DllImport("kernel32.dll", SetLastError = true)]
-        internal static extern bool ReadFile(IntPtr hFile, [Out] byte[] lpBuffer, uint nNumberOfBytesToRead, out uint lpNumberOfBytesRead, IntPtr overlapped);
+        static extern bool ReadFile(
+                IntPtr hFile,
+                [Out] byte[] lpBuffer,
+                uint nNumberOfBytesToRead,
+                out uint lpNumberOfBytesRead,
+                IntPtr overlapped);
 
 
         [DllImport("kernel32.dll", SetLastError = true)]
-        internal static extern bool WriteFile(IntPtr hFile, byte[] buffer, uint nNumberOfBytesToWrite, out uint lpNumberOfBytesWritten, IntPtr overlapped);
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        internal static extern IntPtr CreateEvent(IntPtr lpEventAttributes, bool bManualReset, bool bInitialState, string lpName);
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        internal static extern uint WaitForSingleObject(IntPtr hHandle, uint dwMilliseconds);
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        internal static extern bool GetOverlappedResult(IntPtr hFile, ref OVERLAPPED lpOverlapped, out uint lpNumberOfBytesTransferred, bool bWait);
-
-        [DllImport("kernel32.dll", SetLastError = true)]
-        internal static extern bool CancelIoEx(IntPtr hFile, ref OVERLAPPED lpOverlapped);
+        static extern bool WriteFile(
+            IntPtr hFile,
+            byte[] buffer,
+            uint nNumberOfBytesToWrite,
+            out uint lpNumberOfBytesWritten,
+            IntPtr overlapped);
 
 
 
@@ -114,7 +91,7 @@ namespace rotoUSB
 
         // for internal use 
         // Performs a speed test for USB communication at 115200 baud rate
-        public void USBSpeedTest()
+        internal void USBSpeedTest()
         {
             bool success = false;
             //                             0       1      2   3      4    5(stop)  6(Parity)     7     8
@@ -211,7 +188,7 @@ namespace rotoUSB
         }
 
 
-        // constructor to initialize the LastErrorMessage
+        // Static constructor to initialize the LastErrorMessage
         public USBNative()
         {
             LastErrorMessage = "";
@@ -245,7 +222,7 @@ namespace rotoUSB
                             IntPtr handle = IntPtr.Zero;
                             if (libraryName == "HIDApi.dll")
                             {
-                              NativeLibrary.TryLoad(dllFullPath, out handle);
+                                NativeLibrary.TryLoad(dllFullPath, out handle);
                                 _isLibaryLoaded = true;
                             }
                             return handle;
@@ -264,11 +241,6 @@ namespace rotoUSB
 
 
             }
-            else
-            {
-                success = true;
-            }
-
             return success;
         }
 
@@ -380,105 +352,28 @@ namespace rotoUSB
 
 
         // Reads a USB-HID input report from the device
-        //public bool ReadHIDPacket(IntPtr handle, byte[] data, int length)
-        //{
-        //    bool success = false;
-        //    uint bytesRead = 0;
-
-        //    if (handle != IntPtr.Zero && data != null && data.Length >= USB_REPORT_LEN)
-        //    {
-        //        lock (_lockUSBR)
-        //        {
-        //            try
-        //            {
-        //                success = ReadFile(handle, data, (uint)USB_REPORT_LEN, out bytesRead, IntPtr.Zero);
-        //            }
-        //            catch (Exception ex)
-        //            {
-        //                success = false;
-        //                LastErrorMessage = "ReadFile exception: " + ex.Message;
-        //            }
-        //        }
-        //        if (!success)
-        //            LastErrorMessage = GetIOError();
-        //    }
-        //    else
-        //    {
-        //        LastErrorMessage = "Read USB packet error! Either handle is null or  data buffer is not allocated ";
-        //    }
-
-
-        //    return success;
-        //}
-
-        
         public bool ReadHIDPacket(IntPtr handle, byte[] data, int length)
         {
             bool success = false;
             uint bytesRead = 0;
 
-            //GCHandle pinnedBuffer = GCHandle.Alloc(data, GCHandleType.Pinned);
-            //IntPtr bufferPtr = pinnedBuffer.AddrOfPinnedObject();
-
-            //OVERLAPPED ov = new OVERLAPPED
-            //{
-            //    hEvent = USBNative.CreateEvent(IntPtr.Zero, true, false, null)
-            //};
-
-
-            if (handle == IntPtr.Zero)
+            if (handle != IntPtr.Zero && data != null && data.Length >= USB_REPORT_LEN)
             {
-                LastErrorMessage = "Read USB packet error! Handle is null.";
-                return false;
-            }
-            if (data == null || data.Length < USB_REPORT_LEN)
-            {
-                LastErrorMessage = "Read USB packet error! Data buffer is not allocated or too small.";
-                return false;
-            }
-
-            lock (_lockUSBR)
-            {
-                try
+                lock (_lockUSBR)
                 {
-
                     success = ReadFile(handle, data, (uint)USB_REPORT_LEN, out bytesRead, IntPtr.Zero);
-                    //success = ReadFileInternal(handle, bufferPtr, (uint)USB_REPORT_LEN, out bytesRead, ref ov);
-                    if (!success)
-                    {
-                        LastErrorMessage = GetIOError();
-                    }
-                    else if (bytesRead == 0)
-                    {
-                        LastErrorMessage = "No data read from USB device.";
-                        success = false;
-                    }
                 }
-                catch (IOException ioEx)
-                {
-                    LastErrorMessage = $"ReadFile IOException: {ioEx.Message}";
-                    success = false;
-                }
-                catch (Exception ex)
-                {
-                    LastErrorMessage = $"ReadFile exception: {ex.Message}";
-                    success = false;
-                }
-                catch
-                {
-                    LastErrorMessage = "ReadFile encountered a corrupted state exception.";
-                    var e = Marshal.GetExceptionForHR(Marshal.GetHRForLastWin32Error());
-                    if (e != null)
-                    {
-                        LastErrorMessage += $" Exception: {e.Message}";
-                    }
-                    success = false;
-                }
+                if (!success)
+                    LastErrorMessage = GetIOError();
             }
+            else
+            {
+                LastErrorMessage = "Read USB packet error! Either handle is null or  data buffer is not allocated ";
+            }
+
 
             return success;
         }
-
 
         // Closes the USB-HID device connection
         public void CloseUSBDevice(IntPtr device)
@@ -492,5 +387,3 @@ namespace rotoUSB
 
     }
 }
-
-
