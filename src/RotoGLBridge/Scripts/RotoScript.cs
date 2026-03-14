@@ -164,16 +164,24 @@ namespace RotoGLBridge.Scripts
         
         public override void Execute()
         {
-            IsConnected.OnNext(roto.IsConnected); 
-            
-            if (roto.IsConnected)
+            try
             {
-                roto.Power = this.Power;
-                Yaw = roto.Yaw;
+                IsConnected.OnNext(roto.IsConnected);
 
+                if (roto.IsConnected)
+                {
+                    roto.Power = this.Power;
+                    Yaw = roto.Yaw;
+
+                }
+
+                EnableVoiceControl();
             }
-
-            EnableVoiceControl();
+            catch (Exception ex)
+            {
+                //logger.LogError($"Error in Execute: {ex.Message} {ex.StackTrace}");
+                throw;
+            }
         }
 
         
