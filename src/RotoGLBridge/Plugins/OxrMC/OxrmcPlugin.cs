@@ -60,7 +60,7 @@ namespace RotoGLBridge.Plugins
         public override Task Start()
         {
             mmf = new MmfTelemetry<ActivityFlags>(new() { 
-                Create = false, 
+                Create = true, 
                 Name = "OXRMC_ActivityInput" 
             }, new MarshalByteConverter<ActivityFlags>());
 

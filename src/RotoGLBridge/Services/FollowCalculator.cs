@@ -56,7 +56,7 @@ namespace RotoGLBridge.Services
     }
 
 
-    public class FollowCalculator(MathService mathService) : IFollowCalculator
+    public class FollowCalculator(MathService mathService, ILogger<FollowCalculator> logger) : IFollowCalculator
     {
         private float? _initialTargetAngle = null;
 
@@ -72,18 +72,24 @@ namespace RotoGLBridge.Services
 
         public FollowResult LastResult => _lastResult;
 
-
+        private DateTime _now => DateTime.Now;
         public void Reset()
         {
             _initialTargetAngle = null;
             _initialFollowAngle = null;
-            _lastUpdated = DateTime.Now;
+            _lastUpdated = _now;
         }
 
         private FollowResult _lastResult = new();
 
         public FollowResult Update(float targetAngle, float followAngle)
         {
+            //_now = DateTime.Now;
+            if(_now - _lastUpdated > _antiJump )
+            {
+                logger.LogWarning($"Anti Jump: Resetting due to time gap: {_now - _lastUpdated}");
+                Reset();
+            }
 
             if (_initialTargetAngle == null)
             {
@@ -121,7 +127,7 @@ namespace RotoGLBridge.Services
             {
                 result.NewFollowAngle = mathService.NormalizeAngle(followAngle + result.OffsetDifference);
                 _angleChangedSubject.OnNext(result);
-                _lastUpdated = DateTime.Now;
+                _lastUpdated = _now;
             }
             
             if (_lastResult != result)
@@ -133,12 +139,21 @@ namespace RotoGLBridge.Services
 
         }
 
+        TimeSpan _antiJump = TimeSpan.FromSeconds(1);
+
         private void HandleUnchanged()
         {
             //Anti Jump
-            if (_initialTargetAngle.HasValue && _initialFollowAngle.HasValue && (DateTime.Now - _lastUpdated).TotalMilliseconds > 1000)
+
+            int elapsedMs = (int)(_now - _lastUpdated).TotalMilliseconds;
+            if (_initialTargetAngle.HasValue && _initialFollowAngle.HasValue && elapsedMs > _antiJump.TotalMilliseconds)
             {
+                logger.LogWarning($"AntiJump Reset: Elapsed {elapsedMs} ms > {_antiJump.TotalMilliseconds} ms.");
                 Reset();
+            }
+            else
+            {
+                logger.LogWarning($"AntiJump: Elapsed : {elapsedMs} ms.");
             }
         }
 

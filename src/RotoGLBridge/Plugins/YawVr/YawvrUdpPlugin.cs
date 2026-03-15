@@ -1,4 +1,5 @@
 ﻿#define FULLYINTEGRATED_ON
+using RotoGLBridge.Extensions;
 using RotoGLBridge.Models;
 using RotoGLBridge.Plugins.GameLink;
 
@@ -7,6 +8,8 @@ using Sharpie.Helpers.Telemetry;
 
 using System.Net;
 using System.Net.Sockets;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Text;
 
 
@@ -35,7 +38,7 @@ namespace RotoGLBridge.Plugins
     /// </summary>
     [GlobalType(Type = typeof(GamelinkGlobal))]
     public class YawvrUdpPlugin(
-        ILogger<GamelinkGlobal> logger,
+        ILogger<YawvrUdpPlugin> logger,
         GamelinkSettings settings
         ) : UpdateablePlugin, IConfigurablePlugin<GamelinkSettings>
     {
@@ -43,6 +46,18 @@ namespace RotoGLBridge.Plugins
 
         private int _connectionState = 0;
 
+        Subject<YawGLData> dataSubject = new Subject<YawGLData>();
+
+
+
+        /// <summary>
+        /// Default sample rate in Hz for throttling and sampling the incoming data stream. Adjust as needed to balance performance and responsiveness.
+        /// </summary>
+        public int sampleRateHz = 15;
+
+        IObservable<YawGLData> _sampledData => dataSubject
+            .DistinctUntilChanged(d => ((int)d.yaw, (int)d.amp, (int)d.hz));
+            //.Sample(TimeSpan.FromMilliseconds(1000/sampleRateHz)); 
         
         /// <summary>
         /// Cancellation token source for stopping UDP operations.
@@ -83,6 +98,8 @@ namespace RotoGLBridge.Plugins
         /// </summary>
         public bool IsConnected { get; private set; }
 
+        
+
         /// <summary>
         /// Gets or sets the current YAW GameLink data in a thread-safe manner.
         /// </summary>
@@ -95,6 +112,8 @@ namespace RotoGLBridge.Plugins
                     _data = value;
             }
         }
+
+
 
         #endregion
 
@@ -111,7 +130,22 @@ namespace RotoGLBridge.Plugins
 
             _ = StartListeningAsync(_cancellationTokenSource.Token);
 
+            //dataSubject.Timestamp().Pairwise()
+            //.Subscribe(ts =>
+            //{
+            //    var elapsed = ts.current.Timestamp - ts.previous.Timestamp;                    
+            //    logger.LogDebug($"gle:({elapsed.TotalMilliseconds} ms): y={Data.yaw}, h={Data.hz}, f={Data.fanPcercent}");
+            //});
 
+            dataSubject.Timestamp().Pairwise()
+            .Subscribe(ts => {
+                IsConnected = true;
+                Data = ts.current.Value;
+                var elapsed = ts.current.Timestamp - ts.previous.Timestamp;
+                var hz = (int)(1000 / elapsed.TotalMilliseconds);
+                logger.LogDebug($"incoming:({hz} hZ): yaw={(int)Data.yaw},amp={(int)Data.amp}");
+                OnUpdate();
+            });
 
             return Task.CompletedTask;
         }
@@ -216,23 +250,29 @@ namespace RotoGLBridge.Plugins
             {
                 _connectionState = 2;
                 //IsConnected = true;
-                Data = converter.FromBytes(result.Buffer);
-               
-                
+                //Data = converter.FromBytes(result.Buffer);
+                dataSubject.OnNext(converter.FromBytes(result.Buffer));
+
                 IsConnected = true;
-                OnUpdate();
+                //OnUpdate();
             }
         }
 
         
+
     }
 
-
+    
     /// <summary>
     /// Global interface for the GameLink plugin, exposing motion data properties.
     /// </summary>
     public class GamelinkGlobal : UpdateablePluginGlobal<YawvrUdpPlugin>
     {        
+        public int sampleRateHz
+        {
+            get => plugin.sampleRateHz;
+            set => plugin.sampleRateHz = value;
+        }
 
         /// <summary>
         /// Gets or sets whether the GameLink connection is active.

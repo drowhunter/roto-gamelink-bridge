@@ -26,7 +26,7 @@ namespace RotoGLBridge.Scripts
 
         private bool? chair = null;
         private float _yaw;
-
+        
         public float Yaw
         {
             get => _yaw;
@@ -62,7 +62,7 @@ namespace RotoGLBridge.Scripts
 
         List<IDisposable> disposables = new();
 
-        bool? _lastConnected = null;
+        //bool? _lastConnected = null;
 
         public RotoStatus State => roto.Status;
 
@@ -70,7 +70,8 @@ namespace RotoGLBridge.Scripts
         {
             logger.LogInformation($"Main script started.");
 
-            
+            gamelink.sampleRateHz = 30;
+
             followCalculator.Reset();
 
             
@@ -86,6 +87,8 @@ namespace RotoGLBridge.Scripts
 
             usbWatcher.Watch(0x04D9, 0xB564);
 
+            roto.OnWriteError += Roto_OnWriteError;
+
             roto.OnError.Subscribe(errorMessage =>
             {
                 logger.LogError("Roto Chair USB Error: {0}", errorMessage);
@@ -93,7 +96,7 @@ namespace RotoGLBridge.Scripts
                 if(errorMessage == 0x80)
                     speech.Say("Roto Chair Emergency Stop Activated");
             });
-
+            /*
             var s = IsConnected.DistinctUntilChanged().Buffer(2, 1).Subscribe(buffer =>
             {
                 _lastConnected = buffer[0];
@@ -111,11 +114,17 @@ namespace RotoGLBridge.Scripts
                 _lastConnected = connected;
             });
 
-            disposables.Add(s);
+            disposables.Add(s);*/
 
 
 
             return Task.CompletedTask;
+        }
+
+        private void Roto_OnWriteError()
+        {
+            logger.LogError("Roto Chair Write Error: Watching for Device");
+            usbWatcher.Watch(0x04D9, 0xB564);
         }
 
         override public Task Stop()
@@ -203,21 +212,24 @@ namespace RotoGLBridge.Scripts
         {
             if (isConnected)
             {
+                usbWatcher.UnWatch(0x04D9, 0xB564);
+
+
                 chair = true;
-                logger.LogInformation("Roto detected.");
+                logger.LogInformation("USB Roto detected.");
                 speech.Say("Roto Chair Detected, connecting..");
                 roto.Connect();
                 
             }
             else 
             {
-                logger.LogInformation("Roto disconnected.");
+                logger.LogInformation("USB Roto disconnected.");
                 if (chair == true)
                 {
                     chair = false;
                     speech.Say("Roto Chair Disconnected");
 
-                    roto.Disconnect();                    
+                    //roto.Disconnect();                    
                 }
             }
         }

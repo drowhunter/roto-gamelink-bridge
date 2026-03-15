@@ -31,7 +31,7 @@ namespace rotoUSB
 
         }
 
-        public void WriteLog(string message)
+        public void WriteLog(string message, LogLevel level = LogLevel.Debug)
         {
             if (_isConsoleDebug)
             {
@@ -40,7 +40,7 @@ namespace rotoUSB
 
                // if (logger == null)
                  //   logger = new StreamWriter(DateTime.Now.ToString("yyyy-MM-dd ") + "log.txt", append: true);
-                _logger.LogDebug(message);
+                _logger.Log(level, message);
                 //logger.Flush();
 
 

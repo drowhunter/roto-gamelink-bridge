@@ -5,6 +5,7 @@
         
         event RotoChair.ErrorModeHandler ErrorModeChanged;
         event RotoChair.RunModeChangeHandler RunModeChanged;
+        event Action OnWriteError;
 
         int Clamp(int value, int min, int max);
         bool Connect(bool reConnect);

@@ -1,4 +1,6 @@
-﻿namespace rotoUSB
+﻿using Microsoft.Extensions.Logging;
+
+namespace rotoUSB
 {
     /// <summary>
     ///  Logger for writing debug logs to console and file
@@ -7,6 +9,6 @@
     {
         void EnableConsoleDebug(bool isEnabled = true);
 
-        void WriteLog(string message);
+        void WriteLog(string message, LogLevel level);
     }
 }
