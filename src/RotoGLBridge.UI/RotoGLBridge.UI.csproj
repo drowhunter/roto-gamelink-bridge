@@ -8,6 +8,7 @@
     <UseWPF>true</UseWPF>
 	<LangVersion>preview</LangVersion>
 	<Platforms>x64</Platforms>
+	<FileVersion>1.3.0.0</FileVersion>
 	  <!--<ProductVersion>1.1.0.0</ProductVersion>
 	<AssemblyVersion>$(ProductVersion)</AssemblyVersion>
 	<FileVersion>$(ProductVersion)</FileVersion>-->
