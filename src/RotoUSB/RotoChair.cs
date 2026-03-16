@@ -409,7 +409,7 @@ namespace rotoUSB
                 ConnectRoto();
 
                 _sendQueue.Clear();
-                _writeTimer.Start(WriteTimerTick, 10);
+                _writeTimer.Start(WriteTimerTick, 20);
 
                 result = true;
             }
@@ -676,6 +676,7 @@ namespace rotoUSB
                 if (_writeErrorOccured && OnWriteError != null ) {
                     WriteLog("Invoking OnWriteError event due to write error.", LogLevel.Error);
                     OnWriteError.Invoke();
+                    _writeErrorOccured = false;
                 }
             }
         }

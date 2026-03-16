@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Moq;
+using Microsoft.Extensions.Logging;
 
 namespace RotoGLBridge.Tests.Services
 {
@@ -47,8 +49,8 @@ namespace RotoGLBridge.Tests.Services
         public FollowTargetCalculatorTests()
         {
             var ms = new MathService();
-
-            _followTargetCalculator = new FollowCalculator(ms);
+            var logger = new Mock<ILogger<FollowCalculator>>().Object;
+            _followTargetCalculator = new FollowCalculator(ms, logger);
         }
 
         [Fact]

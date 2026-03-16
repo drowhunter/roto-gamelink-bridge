@@ -72,7 +72,7 @@ namespace RotoGLBridge.Services
 
         public FollowResult LastResult => _lastResult;
 
-        private DateTime _now => DateTime.Now;
+        private DateTime _now = DateTime.Now;
         public void Reset()
         {
             _initialTargetAngle = null;
@@ -84,7 +84,7 @@ namespace RotoGLBridge.Services
 
         public FollowResult Update(float targetAngle, float followAngle)
         {
-            //_now = DateTime.Now;
+            _now = DateTime.Now;
             if(_now - _lastUpdated > _antiJump )
             {
                 logger.LogWarning($"Anti Jump: Resetting due to time gap: {_now - _lastUpdated}");

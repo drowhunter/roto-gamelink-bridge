@@ -121,11 +121,7 @@ namespace RotoGLBridge.Scripts
             return Task.CompletedTask;
         }
 
-        private void Roto_OnWriteError()
-        {
-            logger.LogError("Roto Chair Write Error: Watching for Device");
-            usbWatcher.Watch(0x04D9, 0xB564);
-        }
+        
 
         override public Task Stop()
         {
@@ -206,7 +202,11 @@ namespace RotoGLBridge.Scripts
             oxrmc.StabilizerToggle = speech.Said(["stabilize"], .70f);
         }
 
-        
+        private void Roto_OnWriteError()
+        {
+            logger.LogError("Roto Chair Write Error: Watching for Device");
+            usbWatcher.Watch(0x04D9, 0xB564);
+        }
 
         private void OnUsbChange(VidPid vidpid, bool isConnected)
         {
