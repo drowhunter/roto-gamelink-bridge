@@ -162,7 +162,7 @@ namespace RotoGLBridge.Plugins
         /// <summary>
         /// Gets an observable sequence of error mode changes, emitting only distinct consecutive values.
         /// </summary>
-        public IObservable<int> OnError => plugin.ErrorMode.DistinctUntilChanged();
+        public IObservable<int> ErrorModeChangedObservable => plugin.ErrorMode.DistinctUntilChanged();
 
         #region  Exposed Properties
 
@@ -211,6 +211,9 @@ namespace RotoGLBridge.Plugins
         /// Connects to the Roto Chair hardware.
         /// </summary>
         internal void Connect() => plugin.Connect();
+
+
+        public void SetRunMode(RunMode mode) => plugin.SetRunMode(mode);
 
         /// <summary>
         /// Disconnects from the Roto Chair hardware.

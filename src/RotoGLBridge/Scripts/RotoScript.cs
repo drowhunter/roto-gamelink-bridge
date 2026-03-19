@@ -89,12 +89,31 @@ namespace RotoGLBridge.Scripts
 
             roto.OnWriteError += Roto_OnWriteError;
 
-            roto.OnError.Subscribe(errorMessage =>
+            roto.ErrorModeChangedObservable.Subscribe(code =>
             {
-                logger.LogError("Roto Chair USB Error: {0}", errorMessage);
+                logger.LogError("Roto Chair USB Error: {0}", code);
 
-                if(errorMessage == 0x80)
-                    speech.Say("Roto Chair Emergency Stop Activated");
+                switch (code)
+                {
+                    case 0x80:
+                        speech.Say("Roto Wireless Emergency Stop Activated");
+                        break;
+                    case 0x40:
+                        speech.Say("Roto Motor Stalled");
+                        break;
+                    case 0x20:
+                        speech.Say("Roto Stopped");
+                        break;
+                    case 0x10:
+                        speech.Say("Roto Head Tracker Emergency Stop");
+                        break;
+                    case 0x00:
+                        roto.SetRunMode(RunMode.Follow);
+                        speech.Say("Roto Resuming");
+                        break;
+                }
+
+
             });
             /*
             var s = IsConnected.DistinctUntilChanged().Buffer(2, 1).Subscribe(buffer =>

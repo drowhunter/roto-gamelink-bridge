@@ -848,7 +848,7 @@ namespace rotoUSB
         // Sets the chair to object follow mode
         public bool SetObjectFollowMode()
         {
-            SetZeroBaseCommand();
+            //SetZeroBaseCommand();
             return SetV2BaseMode(MODE_OBJECT_FOLLOW, false, ENABLE_HT);
         }
 
