@@ -138,6 +138,10 @@ namespace RotoGLBridge.Plugins
             _rumbleService.Rumble(ampPercent, hzPercent);
         }
 
+        internal void StopVibration() => _rotoChair.StopRumble();
+
+        internal void Calibrate() => _rotoChair.SetZeroBaseCommand();
+
     }
 
     /// <summary>
@@ -223,6 +227,10 @@ namespace RotoGLBridge.Plugins
         /// <param name="ampPercent">The amplitude percentage (0-100).</param>
         /// <param name="hzPercent">The duration in milliseconds (0-100).</param>
         internal void Vibrate(int ampPercent, int hzPercent) => plugin.Vibrate(ampPercent, hzPercent);
+
+        internal void StopVibration() => plugin.StopVibration();
+
+        internal void Calibrate() => plugin.Calibrate();
 
 
     }

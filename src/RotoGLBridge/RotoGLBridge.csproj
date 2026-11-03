@@ -10,6 +10,7 @@
 		<SharpieVersion>1.2.0</SharpieVersion>
 		<Platform>x64</Platform>
 		<LangVersion>latest</LangVersion>
+		<YawVRLinkProject Condition="'$(YawVRLinkProject)' == ''">$(MSBuildThisFileDirectory)..\..\..\..\..\_srcyawvr\YawVR.Link\src\YawVR.Link\YawVR.Link.csproj</YawVRLinkProject>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -42,6 +43,7 @@
 		<ProjectReference Include="..\..\sharpie\src\Plugins\Sharpie.Plugins.SharpDX\Sharpie.Plugins.SharpDX.csproj" />
 		<ProjectReference Include="..\..\sharpie\src\Plugins\Sharpie.Plugins.UsbWatcher\Sharpie.Plugins.UsbWatcher.csproj" />
 		<ProjectReference Include="..\RotoUSB\rotoUSB.csproj" />
+		<ProjectReference Include="$(YawVRLinkProject)" />
 	</ItemGroup>
 
 	<ItemGroup>

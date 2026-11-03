@@ -1,26 +1,20 @@
 ﻿using RotoGLBridge.Plugins;
-using RotoGLBridge.Plugins.GameLink;
 using RotoGLBridge.Services;
 using rotoUSB;
 using Sharpie.Plugins.Speech;
 using Sharpie.Plugins.UsbWatcher;
 
-using System.ComponentModel.DataAnnotations;
-using System.Reactive.Linq;
 using System.Reactive.Subjects;
 
 namespace RotoGLBridge.Scripts
 {
     public class RotoScript(
         ILogger<RotoScript> logger,
-        GamelinkGlobal gamelink,
         RotoPluginGlobal roto,
-        YawDeviceGlobal tcpDevice,
+        RotoYawEmulator yawEmulator,
         SpeechGlobal speech,
         OxrmcGlobal oxrmc,
-        UsbWatcherGlobal usbWatcher,
-        
-        IFollowCalculator followCalculator
+        UsbWatcherGlobal usbWatcher
         ) : SharpieScript
     {
 
@@ -40,13 +34,13 @@ namespace RotoGLBridge.Scripts
             }
         }
 
-        public float AmpPercent { get; private set; }
+        public float AmpPercent => yawEmulator.AmpPercent;
 
-        public float HzPercent { get; private set; }
+        public float HzPercent => yawEmulator.HzPercent;
 
-        public float Hertz { get; private set; }
+        public float Hertz => yawEmulator.Hertz;
 
-        public string Runmode { get; private set; }
+        public string Runmode => roto.RunMode.ToString();
 
         public BehaviorSubject<bool?> IsConnected = new(null);
 
@@ -54,11 +48,11 @@ namespace RotoGLBridge.Scripts
 
         public bool RotoIsConnected => roto.IsConnected;
 
-        public bool GamelinkIsConnected => gamelink.IsConnected;
+        public bool GamelinkIsConnected => yawEmulator.TelemetryIsConnected;
 
-        public bool TcpIsConnected => tcpDevice.IsConnected;
+        public bool TcpIsConnected => yawEmulator.TcpIsConnected;
 
-        public int Power { get; private set; } = 100;
+        public int Power => yawEmulator.Power;
 
         List<IDisposable> disposables = new();
 
@@ -66,22 +60,9 @@ namespace RotoGLBridge.Scripts
 
         public RotoStatus State => roto.Status;
 
-        public override Task Start()
+        public override async Task Start()
         {
             logger.LogInformation($"Main script started.");
-
-            gamelink.sampleRateHz = 30;
-
-            followCalculator.Reset();
-
-            
-            disposables.Add(followCalculator.OnAngleChangedObservable.Select(_ => MathF.Round(_.NewFollowAngle)).DistinctUntilChanged().Subscribe(angle =>
-            {
-                // update roto chair yaw when angle changes
-                roto.Yaw = angle;
-            }));
-
-            gamelink.OnUpdate += OnUdpUpdate;
 
             usbWatcher.OnDeviceChange += OnUsbChange;
 
@@ -89,109 +70,34 @@ namespace RotoGLBridge.Scripts
 
             roto.OnWriteError += Roto_OnWriteError;
 
-            roto.OnError.Subscribe(errorMessage =>
+            disposables.Add(roto.OnError.Subscribe(errorMessage =>
             {
                 logger.LogError("Roto Chair USB Error: {0}", errorMessage);
 
                 if(errorMessage == 0x80)
                     speech.Say("Roto Chair Emergency Stop Activated");
-            });
-            /*
-            var s = IsConnected.DistinctUntilChanged().Buffer(2, 1).Subscribe(buffer =>
-            {
-                _lastConnected = buffer[0];
-                var connected = buffer[1];
-
-                if (connected.Value)
-                {
-                    speech.Say("Roto Connected");
-                }
-                else if(_lastConnected != null)
-                {
-                    speech.Say("Roto Disconnected");
-                }
-
-                _lastConnected = connected;
-            });
-
-            disposables.Add(s);*/
-
-
-
-            return Task.CompletedTask;
+            }));
+            await yawEmulator.StartAsync();
         }
 
-        
-
-        override public Task Stop()
+        public override async Task Stop()
         {
-            gamelink.OnUpdate -= OnUdpUpdate;
-            
+            await yawEmulator.StopAsync();
             usbWatcher.OnDeviceChange -= OnUsbChange;
-
+            roto.OnWriteError -= Roto_OnWriteError;
             foreach (var disposable in disposables)
-            {
                 disposable.Dispose();
-            }
-
-           
-
+            disposables.Clear();
             roto.Disconnect();
-            logger.LogInformation($"Main script stopped.");
-            return Task.CompletedTask;
+            logger.LogInformation("Main script stopped.");
         }
 
-        
-
-        private void OnUdpUpdate()
-        {
-            
-            if (roto.IsConnected)
-            {
-                followCalculator.Update(gamelink.Yaw, roto.Yaw);                
-            }
-            else
-            {
-                Yaw = gamelink.Yaw;               
-            }
-
-            AmpPercent = gamelink.AmpPercent;
-            HzPercent = gamelink.HzPercent;
-            Hertz = gamelink.Hz;// != 0 ? Math.Clamp(gamelink.Hz, 20, 100) : 0;
-            Runmode = roto.RunMode.ToString();
-
-            
-            if (AmpPercent > 0 || HzPercent > 0)
-                roto.Vibrate((int)AmpPercent, (int)HzPercent);
-
-        }
-
-        
-        
-        
         public override void Execute()
         {
-            try
-            {
-                IsConnected.OnNext(roto.IsConnected);
-
-                if (roto.IsConnected)
-                {
-                    roto.Power = this.Power;
-                    Yaw = roto.Yaw;
-
-                }
-
-                EnableVoiceControl();
-            }
-            catch (Exception ex)
-            {
-                //logger.LogError($"Error in Execute: {ex.Message} {ex.StackTrace}");
-                throw;
-            }
+            IsConnected.OnNext(roto.IsConnected);
+            Yaw = yawEmulator.Yaw;
+            EnableVoiceControl();
         }
-
-        
 
         private void EnableVoiceControl()
         {

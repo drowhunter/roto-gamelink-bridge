@@ -1,13 +1,10 @@
 ﻿
 using RotoGLBridge.Configuration;
-using RotoGLBridge.Models;
 using RotoGLBridge.Plugins;
-using RotoGLBridge.Plugins.GameLink;
 using RotoGLBridge.Scripts;
 using RotoGLBridge.Services;
 
 using Sharpie.Helpers.Core.Lerping;
-using Sharpie.Helpers.Telemetry;
 using Sharpie.Plugins.SharpDX;
 using Sharpie.Plugins.Speech;
 using Sharpie.Plugins.UsbWatcher;
@@ -41,8 +38,6 @@ namespace Microsoft.Extensions.DependencyInjection
                 setup.EnginePollInterval = (1000 / 90); // 90 FPS
             })
             //.AddPluginsFrom<GamelinkPlugin>()
-            .AddPlugin<YawvrUdpPlugin>()
-            .AddPlugin<YawvrTcpPlugin>()
             .AddPlugin<RotoPlugin>()
             .AddPlugin<OxrmcPlugin>()
             //.AddScriptsFrom<RotoMCSender>()
@@ -59,7 +54,7 @@ namespace Microsoft.Extensions.DependencyInjection
             builder.Services.AddRotoUSB();
 
             //builder.Services.AddSingleton<TcpCommandFactory>();
-            builder.Services.AddTransient<IByteConverter<YawGLData>, YawGLByteConverter>();
+            builder.Services.AddSingleton<RotoYawEmulator>();
             builder.Services.AddTransient<IConsoleWatcher, ConsoleWatcher>();
             
             //builder.Services.
