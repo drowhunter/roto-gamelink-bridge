@@ -133,7 +133,7 @@ namespace RotoGLBridge.UI
         {
             _logger?.LogInformation("Application exiting");
             LogManager.Shutdown(); // Flush and close NLog
-            ServiceProvider?.Dispose();
+            ServiceProvider?.DisposeAsync();
             base.OnExit(e);
         }
     }
