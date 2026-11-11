@@ -34,8 +34,10 @@
 	
 	<ItemGroup>
 	  <PackageReference Include="System.Reactive" Version="6.1.0" />
+	  <PackageReference Include="YawVR.Link" Version="1.0.0" />
 	</ItemGroup>
 	<ItemGroup>
+		<ProjectReference Include="..\..\sharpie\src\Libs\telemetry-lib\TelemetryLib.csproj" />
 		<ProjectReference Include="..\..\sharpie\src\Sharpie\Sharpie.Engine\Sharpie.Engine.csproj" />
 		<ProjectReference Include="..\..\sharpie\src\Plugins\Sharpie.Plugins.Speech\Sharpie.Plugins.Speech.csproj" />
 		<ProjectReference Include="..\..\sharpie\src\Sharpie\Sharpie.Helpers.Telemetry\Sharpie.Helpers.Telemetry.csproj" />
@@ -43,7 +45,6 @@
 		<ProjectReference Include="..\..\sharpie\src\Plugins\Sharpie.Plugins.SharpDX\Sharpie.Plugins.SharpDX.csproj" />
 		<ProjectReference Include="..\..\sharpie\src\Plugins\Sharpie.Plugins.UsbWatcher\Sharpie.Plugins.UsbWatcher.csproj" />
 		<ProjectReference Include="..\RotoUSB\rotoUSB.csproj" />
-		<ProjectReference Include="$(YawVRLinkProject)" />
 	</ItemGroup>
 
 	<ItemGroup>

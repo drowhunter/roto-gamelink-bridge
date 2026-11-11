@@ -4,7 +4,6 @@
 using RotoGLBridge.ConsoleApp;
 using RotoGLBridge.Models;
 using RotoGLBridge.Services;
-using Sharpie.Helpers.Telemetry;
 
 
 var runargs = ArgumentParser<RunArgs>.Parse(args);
